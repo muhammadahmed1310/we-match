@@ -55,11 +55,9 @@ Config: [`render.yaml`](render.yaml) + [`bin/render-build.sh`](bin/render-build.
    - **Run Matching** → **View matches**
    - Mailer previews: `https://YOUR-APP.onrender.com/rails/mailers` (enabled via `SHOW_MAILER_PREVIEWS=true`)
 
-### Blueprint note
-
-Migrations run via `preDeployCommand` in [`render.yaml`](render.yaml) (not `releaseCommand` — that field is not valid in Blueprints).
-
 ### Notes for Render free tier
+
+Migrations run in [`bin/render-build.sh`](bin/render-build.sh) during the build (`db:prepare` + optional seed). Free tier does not support `preDeployCommand`.
 
 - App **sleeps after ~15 min** of no traffic; first visit may take 30–60 seconds to wake.
 - Emails are **not really sent** in production (`delivery_method = :test`); matching still runs and pairs are saved.
