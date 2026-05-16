@@ -1,0 +1,60 @@
+<% content_for :title, "How it works" %>
+
+<div class="page-header">
+  <h1>Complete app flow</h1>
+  <%= link_to "Back to dashboard", root_path, class: "btn btn-secondary" %>
+</div>
+
+<div class="card flow-callout">
+  <h2>Do I create match cycles myself?</h2>
+  <p><strong>Yes.</strong> Each match cycle is one matching round for <strong>one group</strong>. You create it, then send invitations, then run matching when responses are in.</p>
+  <p class="muted">Production would auto-create a cycle every two weeks; this MVP uses buttons instead of a scheduler.</p>
+</div>
+
+<div class="card">
+  <h2>The three product steps</h2>
+
+  <h3>1. Groups & members (setup)</h3>
+  <p>Women belong to one or more groups. Matching never crosses groups.</p>
+  <p><%= link_to "Groups", groups_path %> · <%= link_to "Members", members_path %></p>
+
+  <h3>2. Invitation & response (biweekly round)</h3>
+  <ol>
+    <li><%= link_to "New Match Cycle", new_match_cycle_path %> — pick <strong>one group</strong>, status <strong>Open</strong></li>
+    <li>On the cycle page → <strong>Send Invitations</strong> (email to every member in that group)</li>
+    <li>Each member → <strong>Submit response</strong> (topic + availability window)</li>
+  </ol>
+
+  <h3>3. Match & introduce</h3>
+  <ol>
+    <li>On the cycle page → <strong>Run Matching</strong> (same group, compatible topic + overlapping times)</li>
+    <li><strong>View matches</strong> — pairs get an introduction email (no meeting scheduled)</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h2>Quick demo (seeded data)</h2>
+  <ol>
+    <li><%= link_to "Match Cycles", match_cycles_path %> → open <strong>Expedition Alumni</strong> (already has 5 responses)</li>
+    <li>Click <strong>Run Matching</strong></li>
+    <li>Expect <strong>2 pairs</strong> and <strong>1 unmatched</strong></li>
+  </ol>
+</div>
+
+<div class="card">
+  <h2>Document requirements</h2>
+  <table>
+    <thead>
+      <tr><th>Requirement</th><th>In this app</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Groups & members DB</td><td>Yes</td></tr>
+      <tr><td>Multi-group membership</td><td>Yes</td></tr>
+      <tr><td>Match only within group</td><td>Yes — one cycle per group</td></tr>
+      <tr><td>Biweekly email</td><td>Manual “Send Invitations”</td></tr>
+      <tr><td>Time window + topic response</td><td>Yes</td></tr>
+      <tr><td>Compatible match + intro email</td><td>Yes</td></tr>
+      <tr><td>No meeting scheduling</td><td>Yes</td></tr>
+    </tbody>
+  </table>
+</div>

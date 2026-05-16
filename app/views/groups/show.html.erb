@@ -1,0 +1,52 @@
+<div class="page-header">
+  <h1><%= @group.name %></h1>
+  <%= link_to "All groups", groups_path, class: "btn btn-secondary" %>
+</div>
+
+<p class="muted"><%= @group.description %></p>
+
+<div class="card">
+  <h2>Members</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @group.members.each do |member| %>
+        <tr>
+          <td><%= link_to member.name, member_path(member) %></td>
+          <td><%= member.email %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Match cycles</h2>
+  <% if @match_cycles.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Opens</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @match_cycles.each do |cycle| %>
+          <tr>
+            <td><span class="badge badge-<%= cycle.status %>"><%= cycle.status %></span></td>
+            <td><%= cycle.opens_at&.strftime("%b %d, %Y") || "—" %></td>
+            <td><%= link_to "View", match_cycle_path(cycle) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="muted">No match cycles for this group yet.</p>
+  <% end %>
+</div>

@@ -1,0 +1,40 @@
+# Deploy on Render: https://render.com
+# 1. Push this repo to GitHub
+# 2. Render Dashboard → New → Blueprint → connect repo
+# 3. Set RAILS_MASTER_KEY when prompted (from config/master.key)
+# 4. After deploy, open the web URL and test
+
+databases:
+  - name: we-match-db
+    plan: free
+    databaseName: we_match_production
+    user: we_match
+
+services:
+  - type: web
+    name: we-match
+    runtime: ruby
+    plan: free
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    healthCheckPath: /up
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: we-match-db
+          property: connectionString
+      - key: APP_HOST
+        fromService:
+          type: web
+          name: we-match
+          property: host
+      - key: SEED_DEMO
+        value: "true"
+      - key: SHOW_MAILER_PREVIEWS
+        value: "true"

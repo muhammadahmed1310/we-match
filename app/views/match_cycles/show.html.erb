@@ -1,0 +1,72 @@
+<div class="page-header">
+  <h1><%= @match_cycle.group.name %> — Match Cycle</h1>
+  <div class="actions">
+    <%= link_to "Submit response", new_match_cycle_match_response_path(@match_cycle), class: "btn btn-secondary" %>
+    <% unless @match_cycle.matched? %>
+      <%= button_to "Send Invitations", send_invitations_match_cycle_path(@match_cycle), method: :post, class: "btn btn-secondary" %>
+      <%= button_to "Run Matching",
+            run_matching_match_cycle_path(@match_cycle),
+            method: :post,
+            class: "btn btn-primary",
+            data: { turbo_confirm: "Run matching for this cycle? This cannot be undone." } %>
+    <% end %>
+    <%= link_to "View matches", match_cycle_matches_path(@match_cycle), class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<%= render "shared/product_workflow", match_cycle: @match_cycle, step: (@match_cycle.matched? ? 3 : 2) %>
+
+<p>
+  <span class="badge badge-<%= @match_cycle.status %>"><%= @match_cycle.status %></span>
+  <% if @match_cycle.matched_at %>
+    <span class="muted">Matched at <%= @match_cycle.matched_at.strftime("%b %d, %Y %H:%M UTC") %></span>
+  <% end %>
+</p>
+
+<div class="card">
+  <h2>Responses (<%= @match_responses.size %>)</h2>
+  <% if @match_responses.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Topic</th>
+          <th>Availability</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @match_responses.each do |response| %>
+          <tr>
+            <td><%= response.member.name %></td>
+            <td><%= response.topic %></td>
+            <td>
+              <%= response.availability_start.strftime("%b %d %H:%M") %> –
+              <%= response.availability_end.strftime("%H:%M UTC") %>
+            </td>
+            <td><%= response.matched? ? "Matched" : "Unmatched" %></td>
+            <td>
+              <% unless @match_cycle.matched? %>
+                <%= link_to "Edit", edit_match_cycle_match_response_path(@match_cycle, response) %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="muted">No responses yet.</p>
+  <% end %>
+</div>
+
+<% if @matches.any? %>
+  <div class="card">
+    <h2>Matches (<%= @matches.size %>)</h2>
+    <% @matches.each do |match| %>
+      <div class="match-pair">
+        <strong><%= match.pair_label %></strong>
+      </div>
+    <% end %>
+  </div>
+<% end %>

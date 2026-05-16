@@ -1,0 +1,48 @@
+<% content_for :title, "Mailer Previews" %>
+
+<div class="page-header mailer-preview-header">
+  <div>
+    <h1>Mailer Previews</h1>
+    <p class="muted">Preview invitation and introduction emails before they are sent to members.</p>
+  </div>
+</div>
+
+<% if @previews.any? %>
+  <div class="mailer-preview-grid">
+    <% @previews.each do |preview| %>
+      <article class="mailer-preview-card">
+        <div class="mailer-preview-card__icon" aria-hidden="true">
+          <%= mailer_preview_icon(preview.preview_name) %>
+        </div>
+        <div class="mailer-preview-card__body">
+          <h2>
+            <%= link_to preview.preview_name.titleize, mailer_preview_path(preview.preview_name) %>
+          </h2>
+          <p class="mailer-preview-card__desc">
+            <%= mailer_preview_description(preview.preview_name) %>
+          </p>
+
+          <% if preview.emails.any? %>
+            <ul class="mailer-preview-card__emails">
+              <% preview.emails.each do |email| %>
+                <li>
+                  <%= link_to email.titleize, mailer_preview_path(preview.preview_name, email), class: "mailer-preview-email-link" %>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="muted">No preview actions defined.</p>
+          <% end %>
+        </div>
+      </article>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card mailer-preview-empty">
+    <h2>No previews yet</h2>
+    <p class="muted">Define previews under <code>test/mailers/previews/</code>.</p>
+    <p>
+      <%= link_to "Action Mailer Basics", "https://guides.rubyonrails.org/action_mailer_basics.html#previewing-emails", target: "_blank", rel: "noopener" %>
+    </p>
+  </div>
+<% end %>

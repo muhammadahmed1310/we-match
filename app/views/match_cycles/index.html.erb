@@ -1,0 +1,27 @@
+<div class="page-header">
+  <h1>Match Cycles</h1>
+  <%= link_to "New cycle", new_match_cycle_path, class: "btn btn-primary" %>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Group</th>
+      <th>Status</th>
+      <th>Opens</th>
+      <th>Responses</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @match_cycles.each do |cycle| %>
+      <tr>
+        <td><%= cycle.group.name %></td>
+        <td><span class="badge badge-<%= cycle.status %>"><%= cycle.status %></span></td>
+        <td><%= cycle.opens_at&.strftime("%b %d, %Y") || "—" %></td>
+        <td><%= cycle.match_responses.size %></td>
+        <td><%= link_to "View", match_cycle_path(cycle) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

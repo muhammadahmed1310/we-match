@@ -1,0 +1,31 @@
+<header class="site-header" data-controller="header">
+  <div class="site-header__inner">
+    <%= link_to root_path, class: "site-brand" do %>
+      <span class="site-brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="14" r="5" stroke="currentColor" stroke-width="2"/>
+          <circle cx="21" cy="14" r="5" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 24c2.5-3 5-4 8-4s5.5 1 8 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="site-brand__text">
+        <span class="site-brand__name">WE Match</span>
+        <span class="site-brand__tagline">Connect · Lead · Grow</span>
+      </span>
+    <% end %>
+
+    <button type="button" class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" data-action="header#toggleMenu" data-header-target="toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="site-nav" data-header-target="nav">
+      <%= link_to "Dashboard", root_path, class: nav_link_class(root_path) %>
+      <%= link_to "Groups", groups_path, class: nav_link_class(groups_path) %>
+      <%= link_to "Members", members_path, class: nav_link_class(members_path) %>
+      <%= link_to "Match Cycles", match_cycles_path, class: nav_link_class(match_cycles_path) %>
+      <%= link_to "Guide", flow_guide_path, class: nav_link_class(flow_guide_path) %>
+    </nav>
+  </div>
+</header>

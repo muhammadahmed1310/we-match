@@ -1,0 +1,16 @@
+<p>Hello <%= @member_one.name %> and <%= @member_two.name %>,</p>
+
+<p>You've been matched in <strong><%= @group.name %></strong> for a one-on-one conversation.</p>
+
+<% @responses.each do |response| %>
+  <p>
+    <strong><%= response.member.name %></strong><br>
+    Topic: <%= response.topic %><br>
+    Availability: <%= response.availability_start.strftime("%b %d, %Y %H:%M UTC") %> –
+    <%= response.availability_end.strftime("%H:%M UTC") %>
+  </p>
+<% end %>
+
+<p>Reach out to each other directly to find a time that works. WE Match does not schedule the meeting.</p>
+
+<p>— WE Match</p>

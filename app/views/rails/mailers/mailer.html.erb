@@ -1,0 +1,35 @@
+<% content_for :title, @preview.preview_name.titleize %>
+<% content_for :breadcrumb do %>
+  <span class="mailer-preview-breadcrumb__sep">/</span>
+  <span class="mailer-preview-breadcrumb__current"><%= @preview.preview_name.titleize %></span>
+<% end %>
+
+<div class="page-header mailer-preview-header">
+  <div>
+    <h1><%= @preview.preview_name.titleize %></h1>
+    <p class="muted"><%= mailer_preview_description(@preview.preview_name) %></p>
+  </div>
+</div>
+
+<% if @preview.emails.any? %>
+  <div class="mailer-preview-list card">
+    <ul class="mailer-preview-list__items">
+      <% @preview.emails.each do |email| %>
+        <li class="mailer-preview-list__item">
+          <%= link_to mailer_preview_path(@preview.preview_name, email), class: "mailer-preview-list__link" do %>
+            <span class="mailer-preview-list__label"><%= email.titleize %></span>
+            <span class="mailer-preview-list__arrow" aria-hidden="true">→</span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% else %>
+  <div class="card mailer-preview-empty">
+    <h2>No actions defined</h2>
+    <p class="muted">Add preview methods to <code><%= @preview.preview_name %>_preview.rb</code>.</p>
+    <p>
+      <%= link_to "Action Mailer Basics", "https://guides.rubyonrails.org/action_mailer_basics.html#previewing-emails", target: "_blank", rel: "noopener" %>
+    </p>
+  </div>
+<% end %>

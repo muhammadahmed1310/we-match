@@ -1,0 +1,24 @@
+<div class="page-header">
+  <h1>Groups</h1>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Members</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @groups.each do |group| %>
+      <tr>
+        <td><%= group.name %></td>
+        <td><%= truncate(group.description.to_s, length: 80) %></td>
+        <td><%= group.members.size %></td>
+        <td><%= link_to "View", group_path(group) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

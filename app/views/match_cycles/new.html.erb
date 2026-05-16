@@ -1,0 +1,13 @@
+<div class="page-header">
+  <h1>New Match Cycle</h1>
+  <%= link_to "How it works", flow_guide_path, class: "btn btn-secondary" %>
+</div>
+
+<div class="card flow-callout">
+  <p><strong>Yes — you create each cycle manually.</strong> One cycle = one round for <strong>one group</strong>.</p>
+  <p class="muted">Next: open the cycle → Send Invitations → members Submit response → Run Matching.</p>
+</div>
+
+<div class="card form-card">
+  <%= render "form", match_cycle: @match_cycle %>
+</div>

@@ -1,0 +1,24 @@
+<div class="page-header">
+  <h1>Members</h1>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Groups</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @members.each do |member| %>
+      <tr>
+        <td><%= member.name %></td>
+        <td><%= member.email %></td>
+        <td><%= member.groups.map(&:name).join(", ") %></td>
+        <td><%= link_to "View", member_path(member) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

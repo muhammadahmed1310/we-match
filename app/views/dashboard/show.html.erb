@@ -1,0 +1,61 @@
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <%= link_to "New Match Cycle", new_match_cycle_path, class: "btn btn-primary" %>
+</div>
+
+<%= render "shared/product_workflow" %>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <h2><%= @groups_count %></h2>
+    <p>Groups</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= @members_count %></h2>
+    <p>Members</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= @open_cycles_count %></h2>
+    <p>Open cycles</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Open match cycles</h2>
+  <% if @open_cycles.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Group</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @open_cycles.each do |cycle| %>
+          <tr>
+            <td><%= cycle.group.name %></td>
+            <td><span class="badge badge-<%= cycle.status %>"><%= cycle.status %></span></td>
+            <td><%= link_to "View", match_cycle_path(cycle) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="muted">No open cycles. <%= link_to "Create one", new_match_cycle_path %>.</p>
+  <% end %>
+</div>
+
+<div class="card">
+  <h2>Recent matches</h2>
+  <% if @recent_matches.any? %>
+    <% @recent_matches.each do |match| %>
+      <div class="match-pair">
+        <strong><%= match.pair_label %></strong>
+        <span class="muted"> — <%= match.match_cycle.group.name %></span>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="muted">No matches yet. Run matching on an open cycle after members submit responses.</p>
+  <% end %>
+</div>

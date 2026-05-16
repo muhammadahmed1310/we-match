@@ -1,0 +1,46 @@
+<div class="page-header">
+  <h1><%= @member.name %></h1>
+  <%= link_to "All members", members_path, class: "btn btn-secondary" %>
+</div>
+
+<p class="muted"><%= @member.email %></p>
+
+<div class="card">
+  <h2>Groups</h2>
+  <ul>
+    <% @member.groups.each do |group| %>
+      <li><%= link_to group.name, group_path(group) %></li>
+    <% end %>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>Match responses</h2>
+  <% if @match_responses.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Cycle</th>
+          <th>Topic</th>
+          <th>Availability</th>
+          <th>Matched</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @match_responses.each do |response| %>
+          <tr>
+            <td><%= link_to response.match_cycle.group.name, match_cycle_path(response.match_cycle) %></td>
+            <td><%= response.topic %></td>
+            <td>
+              <%= response.availability_start.strftime("%b %d %H:%M") %> –
+              <%= response.availability_end.strftime("%H:%M UTC") %>
+            </td>
+            <td><%= response.matched? ? "Yes" : "No" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="muted">No responses yet.</p>
+  <% end %>
+</div>

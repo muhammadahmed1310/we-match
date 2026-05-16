@@ -1,0 +1,56 @@
+<div class="product-workflow card">
+  <h2>How WE Match works</h2>
+  <p class="product-workflow__intro muted">
+    <strong>Admin flow:</strong> create a match cycle (per group) → send invitations → run matching.
+    <strong>Member flow:</strong> submit topic + availability from the email link.
+    <%= link_to "Full flow guide", flow_guide_path %>.
+  </p>
+  <ol class="product-workflow__steps">
+    <li class="product-workflow__step <%= local_assigns[:step] == 1 ? "product-workflow__step--active" : "" %>">
+      <span class="product-workflow__number">1</span>
+      <div>
+        <strong>Groups & members</strong>
+        <p>Women belong to one or more groups. Matching never crosses groups.</p>
+        <%= link_to "View groups", groups_path %> · <%= link_to "View members", members_path %>
+      </div>
+    </li>
+    <li class="product-workflow__step <%= local_assigns[:step] == 2 ? "product-workflow__step--active" : "" %>">
+      <span class="product-workflow__number">2</span>
+      <div>
+        <strong>Biweekly invitation & response</strong>
+        <p>Each member gets an email asking for a time window and topic, then submits her response.</p>
+        <% if local_assigns[:match_cycle] && !match_cycle.matched? %>
+          <%= button_to "Send invitations to group",
+                send_invitations_match_cycle_path(match_cycle),
+                method: :post,
+                class: "btn btn-secondary btn-sm" %>
+          <%= link_to "Submit response",
+                new_match_cycle_match_response_path(match_cycle),
+                class: "btn btn-secondary btn-sm" %>
+        <% else %>
+          <span class="muted">Open a match cycle to send invitations.</span>
+        <% end %>
+      </div>
+    </li>
+    <li class="product-workflow__step <%= local_assigns[:step] == 3 ? "product-workflow__step--active" : "" %>">
+      <span class="product-workflow__number">3</span>
+      <div>
+        <strong>Match & introduce</strong>
+        <p>Pairs in the same group with compatible topic and overlapping availability receive an introduction email. WE Match does not schedule the meeting.</p>
+        <% if local_assigns[:match_cycle] %>
+          <% if match_cycle.matched? %>
+            <%= link_to "View matches", match_cycle_matches_path(match_cycle), class: "btn btn-secondary btn-sm" %>
+          <% elsif !match_cycle.matched? && match_cycle.match_responses.any? %>
+            <%= button_to "Run matching",
+                  run_matching_match_cycle_path(match_cycle),
+                  method: :post,
+                  class: "btn btn-primary btn-sm",
+                  data: { turbo_confirm: "Run matching? This cannot be undone." } %>
+          <% else %>
+            <span class="muted">Need at least one response before matching.</span>
+          <% end %>
+        <% end %>
+      </div>
+    </li>
+  </ol>
+</div>

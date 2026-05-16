@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= @page_title %> · WE Match</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@500;600&display=swap" rel="stylesheet">
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <style>
+    html, body.mailer-preview-email-body { height: 100%; margin: 0; }
+    body.mailer-preview-email-body {
+      display: flex;
+      flex-direction: column;
+      font-family: "DM Sans", sans-serif;
+      background: #f8f6fc;
+    }
+    .mailer-preview-email-frame {
+      flex: 1;
+      border: 0;
+      width: 100%;
+      min-height: 0;
+      background: white;
+    }
+  </style>
+</head>
+<body class="mailer-preview-email-body">
+  <header class="mailer-preview-email-toolbar">
+    <div class="mailer-preview-email-toolbar__brand">
+      <%= link_to root_path, class: "mailer-preview-email-toolbar__home" do %>
+        <span class="site-brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+            <circle cx="11" cy="14" r="5" stroke="currentColor" stroke-width="2"/>
+            <circle cx="21" cy="14" r="5" stroke="currentColor" stroke-width="2"/>
+            <path d="M8 24c2.5-3 5-4 8-4s5.5 1 8 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        WE Match
+      <% end %>
+    </div>
+
+    <nav class="mailer-preview-breadcrumb mailer-preview-breadcrumb--compact" aria-label="Breadcrumb">
+      <%= link_to "Previews", url_for(controller: "rails/mailers", action: "index"), class: "mailer-preview-breadcrumb__link" %>
+      <span class="mailer-preview-breadcrumb__sep">/</span>
+      <%= link_to @preview.preview_name.titleize, mailer_preview_path(@preview.preview_name), class: "mailer-preview-breadcrumb__link" %>
+      <span class="mailer-preview-breadcrumb__sep">/</span>
+      <span class="mailer-preview-breadcrumb__current"><%= @email_action.titleize %></span>
+    </nav>
+
+    <div class="mailer-preview-email-toolbar__actions">
+      <%= link_to "Download .eml", { action: :download }, class: "btn btn-secondary btn-sm" %>
+    </div>
+  </header>
+
+  <section class="mailer-preview-email-meta card">
+    <dl class="mailer-preview-meta">
+      <% if Array(@email.from) != Array(@email.smtp_envelope_from) %>
+        <div class="mailer-preview-meta__row">
+          <dt>SMTP-From</dt>
+          <dd id="smtp_from"><%= @email.smtp_envelope_from %></dd>
+        </div>
+      <% end %>
+
+      <% if Set[*@email.to, *@email.cc, *@email.bcc] != Set[*@email.smtp_envelope_to] %>
+        <div class="mailer-preview-meta__row">
+          <dt>SMTP-To</dt>
+          <dd id="smtp_to"><%= @email.smtp_envelope_to.join(", ") %></dd>
+        </div>
+      <% end %>
+
+      <div class="mailer-preview-meta__row">
+        <dt>From</dt>
+        <dd id="from"><%= @email.header["from"] %></dd>
+      </div>
+
+      <% if @email.reply_to %>
+        <div class="mailer-preview-meta__row">
+          <dt>Reply-To</dt>
+          <dd id="reply_to"><%= @email.header["reply-to"] %></dd>
+        </div>
+      <% end %>
+
+      <div class="mailer-preview-meta__row">
+        <dt>To</dt>
+        <dd id="to"><%= @email.header["to"] %></dd>
+      </div>
+
+      <% if @email.cc %>
+        <div class="mailer-preview-meta__row">
+          <dt>CC</dt>
+          <dd id="cc"><%= @email.header["cc"] %></dd>
+        </div>
+      <% end %>
+
+      <% if @email.bcc %>
+        <div class="mailer-preview-meta__row">
+          <dt>BCC</dt>
+          <dd id="bcc"><%= @email.header["bcc"] %></dd>
+        </div>
+      <% end %>
+
+      <div class="mailer-preview-meta__row">
+        <dt>Subject</dt>
+        <dd><strong id="subject"><%= @email.subject %></strong></dd>
+      </div>
+
+      <% if @attachments.any? || @inline_attachments.any? %>
+        <div class="mailer-preview-meta__row">
+          <dt>Attachments</dt>
+          <dd>
+            <% @attachments.each do |filename, attachment| %>
+              <%= link_to filename, attachment_url(attachment), download: filename %>
+            <% end %>
+            <% if @inline_attachments.any? %>
+              (Inline: <% @inline_attachments.each do |filename, attachment| %>
+                <%= link_to filename, attachment_url(attachment), download: filename %>
+              <% end %>)
+            <% end %>
+          </dd>
+        </div>
+      <% end %>
+
+      <div class="mailer-preview-meta__row">
+        <dt>Format</dt>
+        <dd>
+          <% if @email.html_part && @email.text_part %>
+            <select id="part" class="mailer-preview-select" onchange="refreshBody(false);">
+              <option <%= request.format == Mime[:html] ? "selected" : "" %> value="<%= part_query("text/html") %>">HTML email</option>
+              <option <%= request.format == Mime[:text] ? "selected" : "" %> value="<%= part_query("text/plain") %>">Plain text</option>
+            </select>
+          <% elsif @part %>
+            <span id="mime_type" data-mime-type="<%= part_query(@part.mime_type) %>">
+              <%= @part.mime_type == "text/html" ? "HTML email" : "Plain text" %>
+            </span>
+          <% end %>
+        </dd>
+      </div>
+
+      <% if I18n.available_locales.count > 1 %>
+        <div class="mailer-preview-meta__row">
+          <dt>Locale</dt>
+          <dd>
+            <select id="locale" class="mailer-preview-select" onchange="refreshBody(true);">
+              <% I18n.available_locales.each do |locale| %>
+                <option <%= I18n.locale == locale ? "selected" : "" %> value="<%= locale_query(locale) %>"><%= locale %></option>
+              <% end %>
+            </select>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  </section>
+
+  <% if @part && @part.mime_type %>
+    <iframe name="messageBody" class="mailer-preview-email-frame" src="?<%= part_query(@part.mime_type) %>"></iframe>
+  <% else %>
+    <div class="card mailer-preview-empty" style="margin: 1rem;">
+      <p>
+        This preview has no content. Ensure the <em>mail</em> method was called in
+        <em><%= @preview.preview_name %>#<%= @email_action %></em>.
+      </p>
+    </div>
+  <% end %>
+
+  <script>
+    function refreshBody(reload) {
+      var part_select = document.querySelector("select#part");
+      var locale_select = document.querySelector("select#locale");
+      var iframe = document.getElementsByName("messageBody")[0];
+      var part_param = part_select ?
+        part_select.options[part_select.selectedIndex].value :
+        document.querySelector("#mime_type").dataset.mimeType;
+      var locale_param = locale_select ? locale_select.options[locale_select.selectedIndex].value : null;
+      var fresh_location;
+      if (locale_param) {
+        fresh_location = "?" + part_param + "&" + locale_param;
+      } else {
+        fresh_location = "?" + part_param;
+      }
+      iframe.contentWindow.location = fresh_location;
+
+      var url = location.pathname.replace(/\.(txt|html)$/, "");
+      var format = /html/.test(part_param) ? ".html" : ".txt";
+      var state_to_replace = locale_param ? (url + format + "?" + locale_param) : (url + format);
+
+      if (reload) {
+        location.href = state_to_replace;
+      } else if (history.replaceState) {
+        window.history.replaceState({}, "", state_to_replace);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<% if notice.present? %>
+  <div class="flash flash-notice" data-controller="flash">
+    <span class="flash__icon" aria-hidden="true">✓</span>
+    <%= notice %>
+  </div>
+<% end %>
+
+<% if alert.present? %>
+  <div class="flash flash-alert" data-controller="flash">
+    <span class="flash__icon" aria-hidden="true">!</span>
+    <%= alert %>
+  </div>
+<% end %>

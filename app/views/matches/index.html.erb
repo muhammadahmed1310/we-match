@@ -1,0 +1,30 @@
+<div class="page-header">
+  <h1>Matches</h1>
+  <%= link_to "Back to cycle", match_cycle_path(@match_cycle), class: "btn btn-secondary" %>
+</div>
+
+<p class="muted">
+  <%= @match_cycle.group.name %> —
+  <span class="badge badge-<%= @match_cycle.status %>"><%= @match_cycle.status %></span>
+</p>
+
+<div class="card">
+  <% if @matches.any? %>
+    <% @matches.each do |match| %>
+      <div class="match-pair">
+        <h3><%= match.pair_label %></h3>
+        <% match.match_responses.each do |response| %>
+          <p>
+            <strong><%= response.member.name %></strong> —
+            <%= response.topic %> —
+            <%= response.availability_start.strftime("%b %d %H:%M") %> to
+            <%= response.availability_end.strftime("%H:%M UTC") %>
+          </p>
+        <% end %>
+        <p class="muted">Introduction email sent to both members (logged in development).</p>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="muted">No matches for this cycle yet. Submit responses and run matching.</p>
+  <% end %>
+</div>

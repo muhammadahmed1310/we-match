@@ -1,0 +1,36 @@
+<%= form_with model: match_cycle, local: true do |form| %>
+  <% if match_cycle.errors.any? %>
+    <div class="form-errors">
+      <ul>
+        <% match_cycle.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :group_id, "Group" %>
+    <%= form.collection_select :group_id, @groups, :id, :name, prompt: "Select a group" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :status %>
+    <%= form.select :status, MatchCycle.statuses.keys.map { |s| [ s.humanize, s ] } %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :opens_at %>
+    <%= form.datetime_local_field :opens_at %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :closes_at %>
+    <%= form.datetime_local_field :closes_at %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", match_cycles_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>
