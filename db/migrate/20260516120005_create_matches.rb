@@ -7,7 +7,5 @@ class CreateMatches < ActiveRecord::Migration[7.2]
 
       t.timestamps
     end
-
-    add_index :matches, :match_cycle_id
   end
 end

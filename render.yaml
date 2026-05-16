@@ -16,6 +16,7 @@ services:
     runtime: ruby
     plan: free
     buildCommand: "./bin/render-build.sh"
+    releaseCommand: "./bin/render-release.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
     healthCheckPath: /up
     envVars:
