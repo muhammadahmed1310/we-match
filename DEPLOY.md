@@ -55,6 +55,10 @@ Config: [`render.yaml`](render.yaml) + [`bin/render-build.sh`](bin/render-build.
    - **Run Matching** → **View matches**
    - Mailer previews: `https://YOUR-APP.onrender.com/rails/mailers` (enabled via `SHOW_MAILER_PREVIEWS=true`)
 
+### Blueprint note
+
+Migrations run via `preDeployCommand` in [`render.yaml`](render.yaml) (not `releaseCommand` — that field is not valid in Blueprints).
+
 ### Notes for Render free tier
 
 - App **sleeps after ~15 min** of no traffic; first visit may take 30–60 seconds to wake.
