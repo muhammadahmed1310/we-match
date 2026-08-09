@@ -2,10 +2,16 @@ Hi <%= @member.name %>,
 
 It's time for the next WE Match round in <%= @group.name %>.
 
-Please share your preferred time window and a topic you'd like to discuss.
+The link below is personal to you. Please don't forward it.
 
-Submit your response: <%= @response_url %>
+You'll choose a topic you'd like to explore and one or two 1-hour windows in the
+week of <%= @meeting_week.first.strftime("%b %-d") %>, shown in your own time zone.
 
-Matching runs within your group only. WE Match introduces pairs — it does not schedule the meeting.
+Share your availability: <%= @response_url %>
+<% if @closes_at.present? %>
+Please respond by <%= @closes_at.strftime("%A %b %-d, %H:%M UTC") %>.
+<% end %>
+Matching runs within your group only. WE Match introduces pairs — you and your
+match agree the exact date between yourselves.
 
 — WE Match

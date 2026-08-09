@@ -1,0 +1,38 @@
+<% content_for :title, "Thank you — WE Match" %>
+
+<div class="card participant-card">
+  <h1>Thank you, <%= @member.name.split.first %></h1>
+  <p>Your response for <strong><%= @group.name %></strong> is in.</p>
+
+  <dl class="summary-list">
+    <div>
+      <dt>Topic</dt>
+      <dd><%= @match_response.topic&.name || "—" %></dd>
+    </div>
+    <div>
+      <dt>Your windows</dt>
+      <dd>
+        <% if @match_response.response_slots.any? %>
+          <ul class="plain-list">
+            <% @match_response.slot_labels(@member.time_zone).each do |label| %>
+              <li><%= label %></li>
+            <% end %>
+          </ul>
+        <% else %>
+          —
+        <% end %>
+      </dd>
+    </div>
+  </dl>
+
+  <p class="muted">
+    When the round closes we'll match you with someone who picked the same topic and
+    the same window, and introduce you both by email. You two agree the exact date.
+  </p>
+
+  <% if @can_edit %>
+    <div class="actions">
+      <%= link_to "Change my response", participant_response_path(token: @invitation.token), class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,24 @@
+<% content_for :title, "This round is closed — WE Match" %>
+
+<div class="card participant-card">
+  <h1>This round is closed</h1>
+
+  <% if @match_cycle.matched? %>
+    <p>Matching has already run for <strong><%= @group.name %></strong>, so responses can no longer be changed.</p>
+    <p class="muted">If you were matched, look out for an introduction email. If you weren't, you'll be included in the next round.</p>
+  <% elsif @match_cycle.draft? %>
+    <p>This round for <strong><%= @group.name %></strong> hasn't opened yet.</p>
+    <p class="muted">Your link will start working when the round opens. It's worth keeping this email.</p>
+  <% elsif @match_cycle.closes_at.present? && Time.current > @match_cycle.closes_at %>
+    <p>Responses for <strong><%= @group.name %></strong> closed on <%= utc_time(@match_cycle.closes_at, format: "%A %b %-d, %H:%M UTC") %>.</p>
+    <p class="muted">You'll get a fresh link for the next round.</p>
+  <% else %>
+    <p>Responses for <strong><%= @group.name %></strong> aren't being collected right now.</p>
+  <% end %>
+
+  <% if @invitation.responded? %>
+    <p><%= link_to "See the response you submitted", participant_response_confirmation_path(token: @invitation.token) %></p>
+  <% end %>
+
+  <p class="muted">Questions? Reply to the email that brought you here and a Community Manager will pick it up.</p>
+</div>

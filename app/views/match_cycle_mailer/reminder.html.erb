@@ -1,0 +1,15 @@
+<p>Hi <%= @member.name %>,</p>
+
+<p>A gentle nudge: we haven't heard from you yet for this WE Match round in <strong><%= @group.name %></strong>.</p>
+
+<p>
+  <a href="<%= @response_url %>">Share your availability</a>
+</p>
+
+<% if @closes_at.present? %>
+  <p>Responses close <%= @closes_at.strftime("%A %b %-d, %H:%M UTC") %>.</p>
+<% end %>
+
+<p>If this round isn't a good time for you, you can simply ignore this email.</p>
+
+<p>— WE Match</p>

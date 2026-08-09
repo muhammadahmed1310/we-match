@@ -2,30 +2,30 @@
   <h2>How WE Match works</h2>
   <p class="product-workflow__intro muted">
     <strong>Admin flow:</strong> create a match cycle (per group) → send invitations → run matching.
-    <strong>Member flow:</strong> submit topic + availability from the email link.
-    <%= link_to "Full flow guide", flow_guide_path %>.
+    <strong>Explorer and WE Fellow flow:</strong> submit topic + availability from the email link.
+    <%= link_to "How it works", flow_guide_path %>.
   </p>
   <ol class="product-workflow__steps">
     <li class="product-workflow__step <%= local_assigns[:step] == 1 ? "product-workflow__step--active" : "" %>">
       <span class="product-workflow__number">1</span>
       <div>
-        <strong>Groups & members</strong>
+        <strong>Groups & WE Community</strong>
         <p>Women belong to one or more groups. Matching never crosses groups.</p>
-        <%= link_to "View groups", groups_path %> · <%= link_to "View members", members_path %>
+        <%= link_to "View groups", groups_path %> · <%= link_to "View WE Community", members_path %>
       </div>
     </li>
     <li class="product-workflow__step <%= local_assigns[:step] == 2 ? "product-workflow__step--active" : "" %>">
       <span class="product-workflow__number">2</span>
       <div>
         <strong>Biweekly invitation & response</strong>
-        <p>Each member gets an email asking for a time window and topic, then submits her response.</p>
+        <p>Each Explorer or WE Fellow gets a private link asking for a topic and one or two 1-hour windows in her own time zone.</p>
         <% if local_assigns[:match_cycle] && !match_cycle.matched? %>
           <%= button_to "Send invitations to group",
                 send_invitations_match_cycle_path(match_cycle),
                 method: :post,
                 class: "btn btn-secondary btn-sm" %>
-          <%= link_to "Submit response",
-                new_match_cycle_match_response_path(match_cycle),
+          <%= link_to "Invitation links",
+                invitations_match_cycle_path(match_cycle),
                 class: "btn btn-secondary btn-sm" %>
         <% else %>
           <span class="muted">Open a match cycle to send invitations.</span>
@@ -36,7 +36,7 @@
       <span class="product-workflow__number">3</span>
       <div>
         <strong>Match & introduce</strong>
-        <p>Pairs in the same group with compatible topic and overlapping availability receive an introduction email. WE Match does not schedule the meeting.</p>
+        <p>Pairs in the same group who chose the same topic and the same 1-hour window receive an introduction email. WE Match does not schedule the meeting.</p>
         <% if local_assigns[:match_cycle] %>
           <% if match_cycle.matched? %>
             <%= link_to "View matches", match_cycle_matches_path(match_cycle), class: "btn btn-secondary btn-sm" %>

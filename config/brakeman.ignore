@@ -1,0 +1,13 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "d84924377155b41e094acae7404ec2e521629d86f97b0ff628e3d1b263f8101c",
+      "note": "Rails 7.2 reached end of support on 2026-08-09. The upgrade to Rails 8 is tracked as a Phase 1 follow-up and must land before the pilot goes on a public URL."
+    },
+    {
+      "fingerprint": "edf687f759ec9765bd5db185dbc615c80af77d6e7e19386fc42934e7a80307af",
+      "note": "Ruby 3.2 reached end of support on 2026-03-31. Bundled with the Rails 8 upgrade above; see the project plan follow-ups."
+    }
+  ],
+  "brakeman_version": "8.0.4"
+}

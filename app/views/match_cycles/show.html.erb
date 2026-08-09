@@ -1,16 +1,15 @@
+<% content_for :title, "#{@match_cycle.group.name} cycle — WE Match" %>
+
 <div class="page-header">
   <h1><%= @match_cycle.group.name %> — Match Cycle</h1>
   <div class="actions">
-    <%= link_to "Submit response", new_match_cycle_match_response_path(@match_cycle), class: "btn btn-secondary" %>
     <% unless @match_cycle.matched? %>
-      <%= button_to "Send Invitations", send_invitations_match_cycle_path(@match_cycle), method: :post, class: "btn btn-secondary" %>
-      <%= button_to "Run Matching",
-            run_matching_match_cycle_path(@match_cycle),
-            method: :post,
-            class: "btn btn-primary",
-            data: { turbo_confirm: "Run matching for this cycle? This cannot be undone." } %>
+      <%= button_to "Send invitations", send_invitations_match_cycle_path(@match_cycle), method: :post, class: "btn btn-primary" %>
+      <%= button_to "Resend to everyone", send_invitations_match_cycle_path(@match_cycle, resend: 1), method: :post, class: "btn btn-secondary" %>
     <% end %>
-    <%= link_to "View matches", match_cycle_matches_path(@match_cycle), class: "btn btn-secondary" %>
+    <%= link_to "Invitation links", invitations_match_cycle_path(@match_cycle), class: "btn btn-secondary" %>
+    <%= link_to "Report", cycle_report_path(@match_cycle), class: "btn btn-secondary" %>
+    <%= link_to "Edit", edit_match_cycle_path(@match_cycle), class: "btn btn-secondary" %>
   </div>
 </div>
 
@@ -18,10 +17,47 @@
 
 <p>
   <span class="badge badge-<%= @match_cycle.status %>"><%= @match_cycle.status %></span>
+  <span class="muted">
+    Responses <%= @match_cycle.accepting_responses? ? "are open" : "are not being accepted" %> ·
+    meeting week of <%= @match_cycle.meeting_week_range.first.strftime("%b %-d, %Y") %>
+  </span>
   <% if @match_cycle.matched_at %>
-    <span class="muted">Matched at <%= @match_cycle.matched_at.strftime("%b %d, %Y %H:%M UTC") %></span>
+    <span class="muted">· matched <%= utc_time(@match_cycle.matched_at) %></span>
   <% end %>
 </p>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <h2><%= @match_cycle.responded_count %> / <%= @match_cycle.invited_count %></h2>
+    <p>Responded</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= percentage(@match_cycle.response_rate) %></h2>
+    <p>Response rate</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= @matches.size %></h2>
+    <p>Matches</p>
+  </div>
+</div>
+
+<% unless @match_cycle.matched? %>
+  <div class="card">
+    <h2>Next step</h2>
+    <div class="actions">
+      <% unless @match_cycle.closed? %>
+        <%= button_to "Close responses", close_match_cycle_path(@match_cycle), method: :post, class: "btn btn-secondary",
+              data: { turbo_confirm: "Stop accepting responses for this cycle?" } %>
+      <% end %>
+      <%= button_to "Run matching",
+            run_matching_match_cycle_path(@match_cycle),
+            method: :post,
+            class: "btn btn-primary",
+            data: { turbo_confirm: "Run matching for this cycle? This cannot be undone." } %>
+      <%= link_to "Enter a response for someone", new_match_cycle_match_response_path(@match_cycle), class: "btn btn-secondary" %>
+    </div>
+  </div>
+<% end %>
 
 <div class="card">
   <h2>Responses (<%= @match_responses.size %>)</h2>
@@ -29,9 +65,9 @@
     <table>
       <thead>
         <tr>
-          <th>Member</th>
+          <th>Name</th>
           <th>Topic</th>
-          <th>Availability</th>
+          <th>Windows (UTC)</th>
           <th>Status</th>
           <th></th>
         </tr>
@@ -39,12 +75,9 @@
       <tbody>
         <% @match_responses.each do |response| %>
           <tr>
-            <td><%= response.member.name %></td>
-            <td><%= response.topic %></td>
-            <td>
-              <%= response.availability_start.strftime("%b %d %H:%M") %> –
-              <%= response.availability_end.strftime("%H:%M UTC") %>
-            </td>
+            <td><%= link_to response.member.name, member_path(response.member) %></td>
+            <td><%= response.topic&.name || "—" %></td>
+            <td><%= response.response_slots.map(&:utc_label).join(" · ").presence || "—" %></td>
             <td><%= response.matched? ? "Matched" : "Unmatched" %></td>
             <td>
               <% unless @match_cycle.matched? %>
@@ -60,13 +93,49 @@
   <% end %>
 </div>
 
+<div class="card">
+  <h2>Private links (<%= @invitations.size %>)</h2>
+  <p class="muted">
+    One link per person. Links are how people are identified, so they should never be shared.
+  </p>
+  <% if @invitations.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Invitation sent</th>
+          <th>Responded</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @invitations.each do |invitation| %>
+          <tr>
+            <td><%= invitation.member.name %></td>
+            <td><%= invitation.sent_at ? "#{utc_time(invitation.sent_at)} (#{invitation.send_count}×)" : "not sent" %></td>
+            <td><%= invitation.responded_at ? utc_time(invitation.responded_at) : "—" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="muted">No links issued yet. Sending invitations issues them.</p>
+  <% end %>
+</div>
+
 <% if @matches.any? %>
   <div class="card">
     <h2>Matches (<%= @matches.size %>)</h2>
     <% @matches.each do |match| %>
       <div class="match-pair">
         <strong><%= match.pair_label %></strong>
+        <p class="muted">
+          <%= match.topic&.name || "topic not recorded" %>
+          <% if match.slot_label_utc.present? %>
+            · <%= match.slot_label_utc %>
+          <% end %>
+        </p>
       </div>
     <% end %>
+    <%= link_to "See all matches", match_cycle_matches_path(@match_cycle), class: "btn btn-secondary" %>
   </div>
 <% end %>

@@ -1,5 +1,11 @@
+<% content_for :title, "Groups — WE Match" %>
+
 <div class="page-header">
   <h1>Groups</h1>
+  <div class="actions">
+    <%= link_to "New group", new_group_path, class: "btn btn-primary" %>
+    <%= link_to "Import CSV", new_import_path, class: "btn btn-secondary" %>
+  </div>
 </div>
 
 <table>
@@ -7,18 +13,31 @@
     <tr>
       <th>Name</th>
       <th>Description</th>
-      <th>Members</th>
+      <th>People</th>
+      <th>Biweekly automation</th>
       <th></th>
     </tr>
   </thead>
   <tbody>
     <% @groups.each do |group| %>
       <tr>
-        <td><%= group.name %></td>
+        <td><%= link_to group.name, group_path(group) %></td>
         <td><%= truncate(group.description.to_s, length: 80) %></td>
         <td><%= group.members.size %></td>
-        <td><%= link_to "View", group_path(group) %></td>
+        <td>
+          <span class="badge badge-<%= group.auto_cycle? ? "open" : "draft" %>">
+            <%= group.auto_cycle? ? "On" : "Off" %>
+          </span>
+        </td>
+        <td>
+          <%= link_to "View", group_path(group) %>
+          <%= link_to "Edit", edit_group_path(group) %>
+        </td>
       </tr>
     <% end %>
   </tbody>
 </table>
+
+<% if @groups.none? %>
+  <p class="muted">No groups yet. Create one, then import the people who belong to it.</p>
+<% end %>

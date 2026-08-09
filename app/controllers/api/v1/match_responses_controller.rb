@@ -6,22 +6,22 @@ module Api
       before_action :set_match_cycle
 
       def create
-        response = @match_cycle.match_responses.new(match_response_params)
+        match_response = @match_cycle.match_responses.new(match_response_params)
 
-        if response.save
-          render json: response, status: :created
+        if match_response.save
+          render json: payload(match_response), status: :created
         else
-          render json: { errors: response.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: match_response.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
       def update
-        response = @match_cycle.match_responses.find(params[:id])
+        match_response = @match_cycle.match_responses.find(params[:id])
 
-        if response.update(match_response_params)
-          render json: response
+        if match_response.update(match_response_params)
+          render json: payload(match_response)
         else
-          render json: { errors: response.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: match_response.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
@@ -34,10 +34,23 @@ module Api
       def match_response_params
         params.require(:match_response).permit(
           :member_id,
-          :topic,
-          :availability_start,
-          :availability_end
+          :topic_id,
+          :topic_option_id,
+          :topic_option_other,
+          :time_zone,
+          slot_selections: []
         )
+      end
+
+      def payload(match_response)
+        {
+          id: match_response.id,
+          member_id: match_response.member_id,
+          topic_id: match_response.topic_id,
+          match_id: match_response.match_id,
+          time_zone: match_response.time_zone,
+          slots: match_response.response_slots.map { |slot| { starts_at: slot.starts_at, ends_at: slot.ends_at } }
+        }
       end
     end
   end

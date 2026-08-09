@@ -1,0 +1,53 @@
+<%= form_with model: @member, local: true do |form| %>
+  <% if @member.errors.any? %>
+    <div class="form-errors">
+      <ul>
+        <% @member.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :name, "Full name" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :email, "Email" %>
+    <%= form.email_field :email %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :time_zone, "Time zone" %>
+    <%= form.select :time_zone, options_for_select(time_zone_options, @member.time_zone.presence || "UTC") %>
+    <p class="field-hint">People can correct this themselves when they respond.</p>
+  </div>
+
+  <fieldset class="form-group membership-picker">
+    <legend>Groups</legend>
+    <p class="field-hint">A cohort label is optional and is only used for reporting.</p>
+
+    <% @groups.each do |group| %>
+      <% membership = @member.group_memberships.detect { |gm| gm.group_id == group.id } %>
+      <div class="membership-picker__row">
+        <label class="membership-picker__check">
+          <%= check_box_tag "member[memberships][#{group.id}][selected]", "1", membership.present?, id: "member_group_#{group.id}" %>
+          <%= group.name %>
+        </label>
+        <%= text_field_tag "member[memberships][#{group.id}][cohort]", membership&.cohort,
+              placeholder: "Cohort (optional)", id: "member_group_#{group.id}_cohort" %>
+      </div>
+    <% end %>
+
+    <% if @groups.none? %>
+      <p class="muted"><%= link_to "Create a group", new_group_path %> first.</p>
+    <% end %>
+  </fieldset>
+
+  <div class="actions">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", @member.persisted? ? member_path(@member) : members_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>

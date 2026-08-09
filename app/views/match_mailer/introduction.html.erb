@@ -2,15 +2,21 @@
 
 <p>You've been matched in <strong><%= @group.name %></strong> for a one-on-one conversation.</p>
 
-<% @responses.each do |response| %>
-  <p>
-    <strong><%= response.member.name %></strong><br>
-    Topic: <%= response.topic %><br>
-    Availability: <%= response.availability_start.strftime("%b %d, %Y %H:%M UTC") %> –
-    <%= response.availability_end.strftime("%H:%M UTC") %>
-  </p>
+<% if @topic.present? %>
+  <p>You both chose the same topic: <strong><%= @topic.name %></strong>.</p>
 <% end %>
 
-<p>Reach out to each other directly to find a time that works. WE Match does not schedule the meeting.</p>
+<% if @slot_utc.present? %>
+  <p>You both marked this 1-hour window as workable:</p>
+  <p><strong><%= @slot_utc %></strong></p>
+  <ul>
+    <% @local_slots.each do |member, label| %>
+      <% next if label.blank? %>
+      <li><%= member.name %>: <%= label %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<p>Reach out to each other directly to agree the exact date. WE Match introduces pairs — it does not schedule the meeting.</p>
 
 <p>— WE Match</p>

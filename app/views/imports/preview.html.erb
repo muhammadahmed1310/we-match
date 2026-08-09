@@ -1,0 +1,94 @@
+<% content_for :title, "Import preview — WE Match" %>
+
+<div class="page-header">
+  <h1>Import preview</h1>
+  <div class="actions">
+    <%= link_to "Start over", new_import_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<% if @result.header_error.present? %>
+  <div class="form-errors">
+    <p><%= @result.header_error %></p>
+  </div>
+<% else %>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <h2><%= @result.created %></h2>
+      <p>To add</p>
+    </div>
+    <div class="stat-card">
+      <h2><%= @result.updated %></h2>
+      <p>To update</p>
+    </div>
+    <div class="stat-card">
+      <h2><%= @result.unchanged %></h2>
+      <p>Already correct</p>
+    </div>
+    <div class="stat-card">
+      <h2><%= @result.invalid %></h2>
+      <p>Problems</p>
+    </div>
+  </div>
+
+  <% if @result.new_groups.any? %>
+    <div class="notice notice--info">
+      New groups that will be created: <%= @result.new_groups.join(", ") %>.
+    </div>
+  <% end %>
+
+  <div class="card">
+    <h2>Rows (<%= @result.total %>)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Line</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Time zone</th>
+          <th>Groups</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @result.rows.each do |row| %>
+          <tr class="<%= "import-row--invalid" unless row.valid? %>">
+            <td><%= row.line %></td>
+            <td><%= row.name %></td>
+            <td><%= row.email %></td>
+            <td><%= row.time_zone %></td>
+            <td><%= row.group_names.join(", ") %></td>
+            <td>
+              <span class="badge badge-<%= row.valid? ? "open" : "closed" %>"><%= row.action %></span>
+              <span class="muted"><%= row.messages.join(" ") %></span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <% if @result.invalid.positive? %>
+      <p>
+        <strong><%= pluralize(@result.invalid, "row") %> cannot be imported.</strong>
+        Fix the file and preview again — importing part of a file tends to cause more work than it saves.
+      </p>
+    <% else %>
+      <p>Everything checks out. Nothing has been written yet.</p>
+    <% end %>
+
+    <%= form_with url: import_path, method: :post, local: true do |form| %>
+      <%= hidden_field_tag :csv_text, @csv_text %>
+      <%= hidden_field_tag :create_missing_groups, @create_missing_groups ? "1" : "0" %>
+      <%= hidden_field_tag :confirm, "1" %>
+
+      <div class="actions">
+        <%= form.submit "Import #{@result.created + @result.updated} row(s)",
+              class: "btn btn-primary",
+              disabled: @result.invalid.positive? || (@result.created + @result.updated).zero? %>
+        <%= link_to "Cancel", members_path, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

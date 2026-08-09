@@ -2,10 +2,10 @@
 
 class TopicCompatibility
   ALIAS_GROUPS = [
-    %w[leadership leading teams leading_teams],
-    %w[career transitions career_transitions career change],
-    %w[mentorship mentoring],
-    %w[wellness work life balance work-life balance]
+    [ "leadership", "leading teams", "leading_teams" ],
+    [ "career transitions", "career_transitions", "career change" ],
+    [ "mentorship", "mentoring" ],
+    [ "wellness", "work life balance", "work-life balance" ]
   ].freeze
 
   def self.normalize(topic)

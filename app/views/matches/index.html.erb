@@ -1,6 +1,11 @@
+<% content_for :title, "Matches — WE Match" %>
+
 <div class="page-header">
   <h1>Matches</h1>
-  <%= link_to "Back to cycle", match_cycle_path(@match_cycle), class: "btn btn-secondary" %>
+  <div class="actions">
+    <%= link_to "Back to cycle", match_cycle_path(@match_cycle), class: "btn btn-secondary" %>
+    <%= link_to "Report", cycle_report_path(@match_cycle), class: "btn btn-secondary" %>
+  </div>
 </div>
 
 <p class="muted">
@@ -13,18 +18,29 @@
     <% @matches.each do |match| %>
       <div class="match-pair">
         <h3><%= match.pair_label %></h3>
-        <% match.match_responses.each do |response| %>
+        <p>
+          <strong>Topic:</strong> <%= match.topic&.name || "not recorded" %>
+        </p>
+        <% if match.slot_label_utc.present? %>
           <p>
-            <strong><%= response.member.name %></strong> —
-            <%= response.topic %> —
-            <%= response.availability_start.strftime("%b %d %H:%M") %> to
-            <%= response.availability_end.strftime("%H:%M UTC") %>
+            <strong>Shared window:</strong> <%= match.slot_label_utc %>
           </p>
+          <ul class="plain-list">
+            <% [ match.member_one, match.member_two ].each do |member| %>
+              <li class="muted"><%= member.name %>: <%= match.slot_label_for(member) %></li>
+            <% end %>
+          </ul>
         <% end %>
-        <p class="muted">Introduction email sent to both members (logged in development).</p>
+        <p class="muted">
+          <% if MailDelivery.enabled? %>
+            Introduction email queued to both people.
+          <% else %>
+            Email delivery is off — introduce these two yourself.
+          <% end %>
+        </p>
       </div>
     <% end %>
   <% else %>
-    <p class="muted">No matches for this cycle yet. Submit responses and run matching.</p>
+    <p class="muted">No matches for this cycle yet. Collect responses and run matching.</p>
   <% end %>
 </div>

@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <style>
     html, body.mailer-preview-email-body { height: 100%; margin: 0; }
     body.mailer-preview-email-body {
       display: flex;
       flex-direction: column;
-      font-family: "DM Sans", sans-serif;
-      background: #f8f6fc;
+      font-family: "Montserrat", sans-serif;
+      background: #f4fafc;
     }
     .mailer-preview-email-frame {
       flex: 1;
@@ -28,13 +28,7 @@
   <header class="mailer-preview-email-toolbar">
     <div class="mailer-preview-email-toolbar__brand">
       <%= link_to root_path, class: "mailer-preview-email-toolbar__home" do %>
-        <span class="site-brand__mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
-            <circle cx="11" cy="14" r="5" stroke="currentColor" stroke-width="2"/>
-            <circle cx="21" cy="14" r="5" stroke="currentColor" stroke-width="2"/>
-            <path d="M8 24c2.5-3 5-4 8-4s5.5 1 8 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </span>
+        <%= we_logo_image(html_class: "we-logo--toolbar") %>
         WE Match
       <% end %>
     </div>

@@ -1,149 +1,115 @@
-# Deploy WE Match (live demo)
+# Deploy WE Match
 
-Deploy for **$0** on **[Render](https://render.com)** — free web + Postgres. The app **sleeps when idle** (~15 min); the first visit after sleep may take 30–60 seconds to wake. Fine for sharing with reviewers.
+The pilot needs three things: a web process, a Postgres database, and a worker process for
+the biweekly automation. [`render.yaml`](render.yaml) describes all three.
 
-Config: [`render.yaml`](render.yaml) + [`bin/render-build.sh`](bin/render-build.sh)
+**Free plans cover the web process and the database, but not a worker.** Without a worker
+the app is fully usable — a CM presses **Send invitations**, **Close responses**, and **Run
+matching** on the cycle page — but nothing happens on a schedule. Budget the smallest paid
+instance if you want the automation.
 
-## Other free options (optional)
-
-| Platform | Cost | Idle sleep? |
-|----------|------|-------------|
-| **Render** (use this) | $0 | Yes — recommended |
-| **Fly.io** | Free allowance* | Yes (`auto_stop`) — [`fly.toml`](fly.toml) |
-| **Koyeb** | Limited free hours | Varies |
-| **Neon + Render** | DB free on Neon | Depends on Render |
-
-\*Card often required; allowances change.
-
----
-
-## Render (recommended — free, sleeps when idle)
+## Render
 
 ### Prerequisites
 
-- GitHub account
-- [Render](https://render.com) account
-- This repo pushed to GitHub
-- Your `config/master.key` value (local file; **never commit it**)
+- The repo on GitHub, and a [Render](https://render.com) account
+- The value of your local `config/master.key` (never commit it)
 
 ### Steps
 
-1. **Push to GitHub** (if you have not already):
+1. **Dashboard → New + → Blueprint**, connect the repo. Render reads
+   [`render.yaml`](render.yaml) and creates the database, the web service, and the worker.
+2. **Set `RAILS_MASTER_KEY`** when prompted, on both the web and worker services.
+3. **Set `APP_HOST`** to the final hostname once you know it — the subdomain if you have
+   one, otherwise the `*.onrender.com` name. Email links are built from it.
+4. **Deploy.** The build runs `assets:precompile` and `db:prepare`.
+5. **Create the first admin.** Web service → Shell:
+
    ```bash
-   git remote add origin git@github.com:YOUR_USER/we-match.git
-   git push -u origin main
+   ADMIN_EMAIL=you@womenemerging.org ADMIN_PASSWORD=a-long-passphrase bin/rails admin:create
    ```
 
-2. **Create Blueprint on Render**
-   - [dashboard.render.com](https://dashboard.render.com) → **New +** → **Blueprint**
-   - Connect the `we-match` repository
-   - Render reads [`render.yaml`](render.yaml) and creates:
-     - PostgreSQL database (`we-match-db`)
-     - Web service (`we-match`)
+6. **Sign in** and check the dashboard. It flags anything still missing, such as no groups,
+   no topics, or email delivery being off.
 
-3. **Set `RAILS_MASTER_KEY`**
-   - When prompted, paste the contents of your local `config/master.key`
-   - Or in the web service → **Environment** → add `RAILS_MASTER_KEY`
+### Custom subdomain
 
-4. **Deploy**
-   - First deploy runs migrations and seeds demo data (`SEED_DEMO=true` in `render.yaml`)
-   - Wait until status is **Live**
-   - Open the URL, e.g. `https://we-match-xxxx.onrender.com`
+Point a CNAME for `wematch.womenemerging.org` at the Render hostname, add the domain in
+Render, then set `APP_HOST` to it. Render issues the certificate.
 
-5. **Share the link** with testers. Suggested flow:
-   - Dashboard → **Match Cycles** → **Expedition Alumni**
-   - **Run Matching** → **View matches**
-   - Mailer previews: `https://YOUR-APP.onrender.com/rails/mailers` (enabled via `SHOW_MAILER_PREVIEWS=true`)
+## Switching on email
 
-### Notes for Render free tier
+Nothing is sent until `EMAIL_DELIVERY_ENABLED` is set. Before setting it, WE IT needs SPF,
+DKIM, and DMARC records for the sending domain on `womenemerging.org`, and the domain wants
+a week or two of low volume before real sends. Until then, invitations are recorded and
+handed out as the CSV of links from the cycle page.
 
-Migrations run in [`bin/render-build.sh`](bin/render-build.sh) during the build (`db:prepare` + optional seed). Free tier does not support `preDeployCommand`.
+When the records exist, set these on **both** the web and worker services:
 
-- App **sleeps after ~15 min** of no traffic; first visit may take 30–60 seconds to wake.
-- Emails are **not really sent** in production (`delivery_method = :test`); matching still runs and pairs are saved.
-- To **re-seed** demo data: Shell → `bundle exec rails db:seed`
-- To disable auto-seed on rebuild: set env `SEED_DEMO` to `false`
+| Variable | Example |
+|----------|---------|
+| `EMAIL_DELIVERY_ENABLED` | `true` |
+| `MAIL_FROM` | `WE Match <no-reply@womenemerging.org>` |
+| `SMTP_ADDRESS` | your provider's host |
+| `SMTP_PORT` | `587` |
+| `SMTP_USERNAME` / `SMTP_PASSWORD` | from the provider |
 
----
-
-## Fly.io (optional — Docker)
-
-Uses [`Dockerfile`](Dockerfile) and [`fly.toml`](fly.toml).
-
-1. Install [flyctl](https://fly.io/docs/hands-on/install-flyctl/) and sign up.
-2. From the project folder:
-   ```bash
-   fly auth login
-   fly launch          # accept defaults; don't deploy yet if asked
-   fly postgres create --name we-match-db --region iad
-   fly postgres attach we-match-db
-   fly secrets set RAILS_MASTER_KEY="$(cat config/master.key)"
-   fly secrets set APP_HOST="$(fly info -j | jq -r .Hostname)"   # or set manually after first deploy
-   fly deploy
-   fly ssh console -C "/rails/bin/rails db:prepare db:seed"
-   ```
-3. Open `https://YOUR-APP.fly.dev`
-
-Machines can **auto-stop** when idle (like Render). Set `min_machines_running = 1` in `fly.toml` if you upgrade to stay warm (uses more free credits).
-
----
-
-## Koyeb (optional — limited free hours)
-
-1. [koyeb.com](https://www.koyeb.com) → Create app → **GitHub** → this repo  
-2. **Runtime**: Docker (use repo `Dockerfile`) or buildpack  
-3. Add **PostgreSQL** from Koyeb dashboard (free instance has **~5 compute hours/month** — fine for a short review window)  
-4. Set env: `DATABASE_URL`, `RAILS_MASTER_KEY`, `RAILS_ENV=production`, `APP_HOST`, `PORT=3000`  
-5. Deploy; run `db:prepare` and `db:seed` from console  
-
-Check [Koyeb pricing](https://www.koyeb.com/pricing) before relying on it long-term.
-
----
-
-## Neon (optional — free Postgres) + Render
-
-Use **free database only**, deploy the app on Render:
-
-1. [neon.tech](https://neon.tech) → create project → copy **connection string**  
-2. On Render, set `DATABASE_URL` to Neon’s URL (instead of bundled Postgres)  
-3. Deploy app as usual; run `db:prepare db:seed` once  
-
-Neon free tier is generous for DB size; good if Render’s free Postgres expires or you hit limits.
-
----
+Send one cycle to yourself first. `EmailDelivery` rows record every attempt and its error,
+so failures are visible on the dashboard rather than silent.
 
 ## Environment variables
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `DATABASE_URL` | Yes (hosted) | PostgreSQL connection |
+| `DATABASE_URL` | Yes | Postgres connection |
 | `RAILS_MASTER_KEY` | Yes | Decrypt credentials |
-| `SECRET_KEY_BASE` | Yes | Sessions (Render can auto-generate) |
+| `SECRET_KEY_BASE` | Yes | Sessions. Render generates it |
 | `RAILS_ENV` | Yes | `production` |
-| `APP_HOST` | Yes | Host for URLs in emails, e.g. `we-match.onrender.com` |
-| `SEED_DEMO` | No | `true` to run `db:seed` on build |
+| `APP_HOST` | Yes | Host used in email links, no scheme |
+| `EMAIL_DELIVERY_ENABLED` | No | Unset means nothing is sent, only recorded |
+| `MAIL_FROM`, `SMTP_*` | With email on | Provider credentials |
+| `WE_MATCH_API_TOKEN` | No | Only if something outside the app calls the JSON API |
+| `SHOW_MAILER_PREVIEWS` | No | `true` exposes `/rails/mailers`. Leave off in production |
+| `SEED_DEMO` | No | `true` seeds demo data on build. See the warning below |
 
----
+### Do not seed the pilot database
 
-## Production vs local differences
+`db:seed` **deletes every group, person, cycle, and response** before inserting demo data.
+It refuses to run in production unless `ALLOW_DESTRUCTIVE_SEED=true`, and `SEED_DEMO` is
+`false` in the blueprint. Real data arrives through **Import CSV**, not seeds.
 
-| Feature | Local | Production |
-|---------|-------|------------|
-| Emails | Logged / test adapter | Test adapter (not delivered to real inboxes) |
-| Mailer previews | `/rails/mailers` | Same URL (fine for demo) |
-| Auth | None | None (anyone with URL can use app) |
-| HTTPS | No | Yes (`force_ssl`) |
+## Before handing the URL to the WE team
 
-For a **public demo**, the lack of login is acceptable; add authentication before a real launch.
-
----
+- Sign in works, and signing out then visiting `/groups` sends you back to sign-in
+- An admin account exists for each CM, with a passphrase sent separately
+- `APP_HOST` matches the URL you are sharing, so links in emails are right
+- A test cycle end to end: invitations, one response through a private link, close, match
+- `SHOW_MAILER_PREVIEWS` is off
+- If the worker is running, `bin/jobs` shows the recurring tasks registered
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
-| `Blocked hosts` | Set `APP_HOST` to your exact hostname (no `https://`) |
-| Database error on boot | Check `DATABASE_URL`; run `db:prepare` in shell |
-| Assets 404 | Ensure `assets:precompile` ran in build |
-| Empty app | Run `bin/rails db:seed` in Render shell |
-| Slow first load | Free tier cold start — wait and refresh |
+| `Blocked hosts` | Set `APP_HOST` to the exact hostname, no `https://` |
+| Links in emails point at the wrong host | Same — `APP_HOST` on both web and worker |
+| Signed in but immediately signed out | `SECRET_KEY_BASE` changed between deploys |
+| Nothing on a schedule | Worker not running, or the group does not have auto-cycling on |
+| Emails recorded but never sent | `EMAIL_DELIVERY_ENABLED` not set, which is the default |
+| Database error on boot | Check `DATABASE_URL`, run `bin/rails db:prepare` in the shell |
+| Assets 404 | `assets:precompile` did not run in the build |
+
+## Other platforms
+
+The [`Dockerfile`](Dockerfile) and [`fly.toml`](fly.toml) work for Fly.io. Same
+requirements: a web process, Postgres, and a second process running `bin/jobs` if you want
+the automation.
+
+```bash
+fly launch
+fly postgres create --name we-match-db && fly postgres attach we-match-db
+fly secrets set RAILS_MASTER_KEY="$(cat config/master.key)" APP_HOST=your-app.fly.dev
+fly deploy
+fly ssh console -C "/rails/bin/rails db:prepare"
+fly ssh console -C "/rails/bin/rails admin:create"   # with ADMIN_EMAIL and ADMIN_PASSWORD set
+```

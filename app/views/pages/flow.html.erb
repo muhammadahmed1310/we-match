@@ -1,60 +1,51 @@
 <% content_for :title, "How it works" %>
 
 <div class="page-header">
-  <h1>Complete app flow</h1>
+  <h1>How WE Match works</h1>
   <%= link_to "Back to dashboard", root_path, class: "btn btn-secondary" %>
 </div>
 
 <div class="card flow-callout">
-  <h2>Do I create match cycles myself?</h2>
-  <p><strong>Yes.</strong> Each match cycle is one matching round for <strong>one group</strong>. You create it, then send invitations, then run matching when responses are in.</p>
-  <p class="muted">Production would auto-create a cycle every two weeks; this MVP uses buttons instead of a scheduler.</p>
+  <h2>One cycle, one group</h2>
+  <p>A <strong>match cycle</strong> is one matching round for <strong>one group</strong>. WE Match introduces the pair; the two of them agree the meeting time themselves.</p>
+  <p class="muted">Groups with auto-cycling on get a cycle every second Monday, closed on Thursday and matched on Friday. You can also run every step yourself from the cycle page.</p>
 </div>
 
 <div class="card">
-  <h2>The three product steps</h2>
-
-  <h3>1. Groups & members (setup)</h3>
-  <p>Women belong to one or more groups. Matching never crosses groups.</p>
-  <p><%= link_to "Groups", groups_path %> · <%= link_to "Members", members_path %></p>
-
-  <h3>2. Invitation & response (biweekly round)</h3>
+  <h2>Before your first cycle</h2>
   <ol>
-    <li><%= link_to "New Match Cycle", new_match_cycle_path %> — pick <strong>one group</strong>, status <strong>Open</strong></li>
-    <li>On the cycle page → <strong>Send Invitations</strong> (email to every member in that group)</li>
-    <li>Each member → <strong>Submit response</strong> (topic + availability window)</li>
+    <li><strong>Create the group</strong> — <%= link_to "Groups", groups_path %></li>
+    <li><strong>Add the topics</strong>, and the private options under each one — <%= link_to "Topics", topics_path %></li>
+    <li><strong>Add the people</strong>, one at a time or from a spreadsheet — <%= link_to "WE Community", members_path %> · <%= link_to "Import CSV", new_import_path %></li>
   </ol>
-
-  <h3>3. Match & introduce</h3>
-  <ol>
-    <li>On the cycle page → <strong>Run Matching</strong> (same group, compatible topic + overlapping times)</li>
-    <li><strong>View matches</strong> — pairs get an introduction email (no meeting scheduled)</li>
-  </ol>
+  <p class="muted">The importer previews every row and shows you what would be created, updated, or rejected. Nothing is saved until you confirm.</p>
 </div>
 
 <div class="card">
-  <h2>Quick demo (seeded data)</h2>
+  <h2>Running a cycle</h2>
   <ol>
-    <li><%= link_to "Match Cycles", match_cycles_path %> → open <strong>Expedition Alumni</strong> (already has 5 responses)</li>
-    <li>Click <strong>Run Matching</strong></li>
-    <li>Expect <strong>2 pairs</strong> and <strong>1 unmatched</strong></li>
+    <li><strong>Create the cycle</strong> — pick the group, the response deadline, and the week the meetings are for. <%= link_to "New match cycle", new_match_cycle_path %></li>
+    <li><strong>Send invitations</strong> — each woman gets her own private link. Nobody can answer on anyone else's behalf.</li>
+    <li><strong>Hand out the links</strong> while in-app email is off: <strong>Invitation links → Download CSV</strong>, then mail merge from Outlook or Mailchimp. Each link is personal, so keep it out of group emails.</li>
+    <li><strong>Close responses</strong> after the deadline, then <strong>Run matching</strong>. Matching runs once per cycle.</li>
+    <li><strong>Read the numbers</strong> — <%= link_to "Reports", reports_path %> shows the response rate, the pairs, who was unmatched, and what topics women are choosing.</li>
   </ol>
 </div>
 
 <div class="card">
-  <h2>Document requirements</h2>
-  <table>
-    <thead>
-      <tr><th>Requirement</th><th>In this app</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Groups & members DB</td><td>Yes</td></tr>
-      <tr><td>Multi-group membership</td><td>Yes</td></tr>
-      <tr><td>Match only within group</td><td>Yes — one cycle per group</td></tr>
-      <tr><td>Biweekly email</td><td>Manual “Send Invitations”</td></tr>
-      <tr><td>Time window + topic response</td><td>Yes</td></tr>
-      <tr><td>Compatible match + intro email</td><td>Yes</td></tr>
-      <tr><td>No meeting scheduling</td><td>Yes</td></tr>
-    </tbody>
-  </table>
+  <h2>What she sees</h2>
+  <p>Her link asks for three things: her <strong>time zone</strong> (the browser guesses it, she can correct it), <strong>one topic</strong> and optionally the specific option under it, and <strong>one or two one-hour windows</strong> shown in her own local time.</p>
+  <p>She can reopen the same link and change her answer until the cycle closes.</p>
+  <p class="muted">The option she picks under a topic is private. It never appears in her introduction email and is never shown to the woman she is matched with — it is collected for the aggregate counts in Reports only.</p>
+</div>
+
+<div class="card">
+  <h2>Who gets matched</h2>
+  <p>Two women are introduced when they are in the <strong>same group and cycle</strong>, chose the <strong>same topic</strong>, offered the <strong>same one-hour window</strong>, and were <strong>not introduced to each other recently</strong>.</p>
+  <p>Everyone is introduced at most once per cycle. Anyone left over is listed as unmatched — usually because she was alone on her topic, or her windows lined up with nobody. Fewer topics and two windows rather than one both raise the match rate in a small group.</p>
+</div>
+
+<div class="card">
+  <h2>More detail</h2>
+  <p>The <strong>CM runbook</strong> in the repository covers the same ground plus what to do when someone loses her link, replies to the wrong thing, or joins the group after invitations went out.</p>
 </div>

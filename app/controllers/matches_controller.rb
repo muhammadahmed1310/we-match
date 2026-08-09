@@ -4,16 +4,17 @@ class MatchesController < ApplicationController
   before_action :set_match_cycle
 
   def index
-    @matches = @match_cycle.matches.includes(:member_one, :member_two, :match_responses)
+    @matches = @match_cycle.matches.includes(:member_one, :member_two, :topic)
 
     respond_to do |format|
       format.html
       format.json do
         render json: @matches.as_json(
+          only: %i[id matched_slot_starts_at],
           include: {
             member_one: { only: %i[id name email] },
             member_two: { only: %i[id name email] },
-            match_responses: { only: %i[id topic availability_start availability_end] }
+            topic: { only: %i[id name] }
           }
         )
       end

@@ -1,0 +1,10 @@
+<% content_for :title, "Edit match cycle — WE Match" %>
+
+<div class="page-header">
+  <h1>Edit match cycle</h1>
+  <p class="muted"><%= @match_cycle.group.name %></p>
+</div>
+
+<div class="card form-card">
+  <%= render "form", match_cycle: @match_cycle %>
+</div>

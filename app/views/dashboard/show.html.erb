@@ -1,7 +1,22 @@
+<% content_for :title, "Dashboard — WE Match" %>
+
 <div class="page-header">
   <h1>Dashboard</h1>
-  <%= link_to "New Match Cycle", new_match_cycle_path, class: "btn btn-primary" %>
+  <div class="actions">
+    <%= link_to "New Match Cycle", new_match_cycle_path, class: "btn btn-primary" %>
+    <%= link_to "Reports", reports_path, class: "btn btn-secondary" %>
+  </div>
 </div>
+
+<% if @setup_warnings.any? %>
+  <div class="notice notice--warning">
+    <ul class="plain-list">
+      <% @setup_warnings.each do |warning| %>
+        <li><%= warning %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
 
 <%= render "shared/product_workflow" %>
 
@@ -12,11 +27,15 @@
   </div>
   <div class="stat-card">
     <h2><%= @members_count %></h2>
-    <p>Members</p>
+    <p>WE Community</p>
   </div>
   <div class="stat-card">
     <h2><%= @open_cycles_count %></h2>
     <p>Open cycles</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= @topics_count %></h2>
+    <p>Active topics</p>
   </div>
 </div>
 
@@ -28,6 +47,8 @@
         <tr>
           <th>Group</th>
           <th>Status</th>
+          <th>Closes</th>
+          <th>Responded</th>
           <th></th>
         </tr>
       </thead>
@@ -36,6 +57,8 @@
           <tr>
             <td><%= cycle.group.name %></td>
             <td><span class="badge badge-<%= cycle.status %>"><%= cycle.status %></span></td>
+            <td><%= cycle.closes_at&.strftime("%b %-d, %H:%M UTC") || "—" %></td>
+            <td><%= cycle.responded_count %> / <%= cycle.invited_count %></td>
             <td><%= link_to "View", match_cycle_path(cycle) %></td>
           </tr>
         <% end %>
@@ -56,6 +79,47 @@
       </div>
     <% end %>
   <% else %>
-    <p class="muted">No matches yet. Run matching on an open cycle after members submit responses.</p>
+    <p class="muted">No matches yet. Run matching on an open cycle after Explorers and WE Fellows submit responses.</p>
+  <% end %>
+</div>
+
+<div class="card">
+  <h2>Email</h2>
+  <p>
+    <span class="badge badge-<%= @email_delivery_enabled ? "open" : "closed" %>">
+      <%= @email_delivery_enabled ? "Delivery on" : "Delivery off" %>
+    </span>
+    <span class="muted">
+      <%= @email_delivery_enabled ? "Invitations and introductions are sent from the app." : "Emails are recorded but not sent. Export invitation links from each cycle instead." %>
+    </span>
+  </p>
+
+  <% if @recent_deliveries.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>To</th>
+          <th>Subject</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recent_deliveries.each do |delivery| %>
+          <tr>
+            <td><%= utc_time(delivery.created_at, format: "%b %-d, %H:%M") %></td>
+            <td><%= delivery.recipients %></td>
+            <td><%= delivery.subject %></td>
+            <td>
+              <span class="badge badge-<%= delivery.delivered? ? "matched" : (delivery.failed? ? "closed" : "draft") %>">
+                <%= delivery.status %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="muted">Nothing sent yet.</p>
   <% end %>
 </div>

@@ -1,0 +1,96 @@
+<% content_for :title, "Cycle report — WE Match" %>
+
+<div class="page-header">
+  <h1><%= @match_cycle.group.name %> — round report</h1>
+  <div class="actions">
+    <%= link_to "Download results (CSV)", cycle_report_path(@match_cycle, format: :csv), class: "btn btn-secondary" %>
+    <%= link_to "Back to the cycle", match_cycle_path(@match_cycle), class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<p>
+  <span class="badge badge-<%= @match_cycle.status %>"><%= @match_cycle.status %></span>
+  <span class="muted">
+    <%= @match_cycle.opens_at ? utc_time(@match_cycle.opens_at) : "not opened" %> →
+    <%= @match_cycle.closes_at ? utc_time(@match_cycle.closes_at) : "no close date" %>
+  </span>
+</p>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <h2><%= percentage(@report.response_rate) %></h2>
+    <p><%= @report.responded %> of <%= @report.invited %> responded</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= @report.matches_count %></h2>
+    <p>Matches</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= @report.unmatched_count %></h2>
+    <p>Responded but unmatched</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= @report.silent_count %></h2>
+    <p>Never responded</p>
+  </div>
+</div>
+
+<div class="card-grid">
+  <div class="card">
+    <h2>Topics chosen</h2>
+    <% if @report.topic_distribution.any? %>
+      <%= render "shared/distribution", rows: @report.topic_distribution %>
+    <% else %>
+      <p class="muted">No responses yet.</p>
+    <% end %>
+  </div>
+
+  <div class="card">
+    <h2>Focus within topics (private)</h2>
+    <% if @report.option_distribution.any? %>
+      <%= render "shared/distribution", rows: @report.option_distribution %>
+    <% else %>
+      <p class="muted">Nothing recorded yet.</p>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Windows people offered (UTC)</h2>
+  <% if @report.slot_distribution.any? %>
+    <%= render "shared/distribution", rows: @report.slot_distribution.map { |starts_at, count| [ "#{starts_at.strftime('%a %b %-d, %H:%M')}–#{(starts_at + 1.hour).strftime('%H:%M')}", count ] } %>
+  <% else %>
+    <p class="muted">No windows submitted yet.</p>
+  <% end %>
+</div>
+
+<div class="card">
+  <h2>Everyone invited</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Responded</th>
+        <th>Topic</th>
+        <th>Windows (their time)</th>
+        <th>Matched with</th>
+        <th>Agreed window</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @report.rows.each do |row| %>
+        <tr>
+          <td><%= link_to row[:member].name, member_path(row[:member]) %></td>
+          <td><%= row[:response] ? "Yes" : "No" %></td>
+          <td><%= row[:response]&.topic&.name || "—" %></td>
+          <td>
+            <% labels = row[:response]&.slot_labels(row[:member].time_zone) || [] %>
+            <%= labels.any? ? labels.join(" · ") : "—" %>
+          </td>
+          <td><%= row[:partner]&.name || "—" %></td>
+          <td><%= row[:agreed_window] || "—" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

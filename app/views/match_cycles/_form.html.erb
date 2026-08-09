@@ -17,16 +17,24 @@
   <div class="form-group">
     <%= form.label :status %>
     <%= form.select :status, MatchCycle.statuses.keys.map { |s| [ s.humanize, s ] } %>
+    <p class="field-hint">Draft links don't work yet. Sending invitations opens the cycle.</p>
   </div>
 
   <div class="form-group">
-    <%= form.label :opens_at %>
+    <%= form.label :opens_at, "Opens at (UTC)" %>
     <%= form.datetime_local_field :opens_at %>
   </div>
 
   <div class="form-group">
-    <%= form.label :closes_at %>
+    <%= form.label :closes_at, "Closes at (UTC)" %>
     <%= form.datetime_local_field :closes_at %>
+    <p class="field-hint">Responses are refused outside this window, and the cycle closes itself when it passes.</p>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :meeting_week_start, "Meeting week starts (Monday)" %>
+    <%= form.date_field :meeting_week_start %>
+    <p class="field-hint">The 1-hour windows offered on the response form fall in this week.</p>
   </div>
 
   <div class="actions">

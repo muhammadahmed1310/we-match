@@ -70,9 +70,9 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
-  # Use a real queuing backend for Active Job (and separate queues per environment).
-  # config.active_job.queue_adapter = :resque
-  # config.active_job.queue_name_prefix = "we_match_production"
+  # Solid Queue runs in the primary database, so the pilot needs one Postgres
+  # instance plus a worker process (`bin/jobs`) alongside the web process.
+  config.active_job.queue_adapter = :solid_queue
 
   # Disable caching for Action Mailer templates even if Action Controller
   # caching is enabled.
@@ -81,7 +81,29 @@ Rails.application.configure do
     host: ENV.fetch("APP_HOST", "example.com"),
     protocol: "https"
   }
-  config.action_mailer.delivery_method = :test
+  # Real delivery only switches on once EMAIL_DELIVERY_ENABLED is set, which keeps the
+  # pilot unblocked while SPF/DKIM/DMARC for womenemerging.org are still pending. With
+  # the flag off, invitations are recorded and handed out as exported links instead.
+  # Mirrors MailDelivery.enabled?, which app code uses. Checked inline because
+  # autoloading is not available while the environment is being configured.
+  if ActiveModel::Type::Boolean.new.cast(ENV["EMAIL_DELIVERY_ENABLED"]).present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.raise_delivery_errors = true
+    config.action_mailer.smtp_settings = {
+      address: ENV.fetch("SMTP_ADDRESS"),
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      domain: ENV.fetch("SMTP_DOMAIN", ENV.fetch("APP_HOST", "womenemerging.org")),
+      user_name: ENV.fetch("SMTP_USERNAME"),
+      password: ENV.fetch("SMTP_PASSWORD"),
+      authentication: ENV.fetch("SMTP_AUTHENTICATION", "plain").to_sym,
+      enable_starttls_auto: true,
+      open_timeout: 10,
+      read_timeout: 10
+    }
+  else
+    config.action_mailer.delivery_method = :test
+  end
+
   config.action_mailer.show_previews = ENV.fetch("SHOW_MAILER_PREVIEWS", "false") == "true"
 
   # Ignore bad email addresses and do not raise email delivery errors.

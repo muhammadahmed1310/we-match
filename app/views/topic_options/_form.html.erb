@@ -1,0 +1,31 @@
+<%= form_with model: [ @topic, @topic_option ], local: true do |form| %>
+  <% if @topic_option.errors.any? %>
+    <div class="form-errors">
+      <ul>
+        <% @topic_option.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :label, "Option" %>
+    <%= form.text_field :label, placeholder: "e.g. Having difficult conversations" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :position, "Position" %>
+    <%= form.number_field :position, min: 0 %>
+  </div>
+
+  <div class="form-group form-group--checkbox">
+    <%= form.check_box :active %>
+    <%= form.label :active, "Active" %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", topic_path(@topic), class: "btn btn-secondary" %>
+  </div>
+<% end %>

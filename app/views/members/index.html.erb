@@ -1,5 +1,11 @@
+<% content_for :title, "WE Community — WE Match" %>
+
 <div class="page-header">
-  <h1>Members</h1>
+  <h1>WE Community</h1>
+  <div class="actions">
+    <%= link_to "Add a person", new_member_path, class: "btn btn-primary" %>
+    <%= link_to "Import CSV", new_import_path, class: "btn btn-secondary" %>
+  </div>
 </div>
 
 <table>
@@ -7,6 +13,7 @@
     <tr>
       <th>Name</th>
       <th>Email</th>
+      <th>Time zone</th>
       <th>Groups</th>
       <th></th>
     </tr>
@@ -14,11 +21,19 @@
   <tbody>
     <% @members.each do |member| %>
       <tr>
-        <td><%= member.name %></td>
+        <td><%= link_to member.name, member_path(member) %></td>
         <td><%= member.email %></td>
+        <td><%= member.time_zone %></td>
         <td><%= member.groups.map(&:name).join(", ") %></td>
-        <td><%= link_to "View", member_path(member) %></td>
+        <td>
+          <%= link_to "View", member_path(member) %>
+          <%= link_to "Edit", edit_member_path(member) %>
+        </td>
       </tr>
     <% end %>
   </tbody>
 </table>
+
+<% if @members.none? %>
+  <p class="muted">Nobody here yet. <%= link_to "Import a CSV", new_import_path %> to get started.</p>
+<% end %>

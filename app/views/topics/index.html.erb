@@ -1,0 +1,47 @@
+<% content_for :title, "Topics — WE Match" %>
+
+<div class="page-header">
+  <h1>Topics</h1>
+  <div class="actions">
+    <%= link_to "New topic", new_topic_path, class: "btn btn-primary" %>
+  </div>
+</div>
+
+<p class="muted">
+  Topics are what people choose from when they respond. Matching only pairs people who
+  chose the same topic, so keep the list short. Each topic can carry its own dropdown of
+  options, which is collected for insight and never shown to the person someone is matched with.
+</p>
+
+<div class="card">
+  <% if @topics.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Topic</th>
+          <th>Available to</th>
+          <th>Options</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @topics.each do |topic| %>
+          <tr>
+            <td><%= link_to topic.name, topic %></td>
+            <td><%= topic.scope_label %></td>
+            <td><%= topic.topic_options.size %></td>
+            <td>
+              <span class="badge badge-<%= topic.active? ? "open" : "closed" %>">
+                <%= topic.active? ? "Active" : "Inactive" %>
+              </span>
+            </td>
+            <td><%= link_to "Edit", edit_topic_path(topic) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="muted">No topics yet. Add the handful of themes your groups actually talk about.</p>
+  <% end %>
+</div>

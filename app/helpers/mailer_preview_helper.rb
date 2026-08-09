@@ -2,7 +2,7 @@
 
 module MailerPreviewHelper
   PREVIEW_DESCRIPTIONS = {
-    "match_cycle_mailer" => "Biweekly invitation asking members to submit availability and topic.",
+    "match_cycle_mailer" => "Biweekly invitation asking Explorers and WE Fellows to submit availability and topic.",
     "match_mailer" => "Introduction email sent to a matched pair after matching runs."
   }.freeze
 

@@ -1,0 +1,12 @@
+<% total = rows.sum { |_label, count| count } %>
+<ul class="distribution">
+  <% rows.each do |label, count| %>
+    <li class="distribution__row">
+      <span class="distribution__label"><%= label %></span>
+      <span class="distribution__bar" aria-hidden="true">
+        <span style="width: <%= total.positive? ? (count.to_f / total * 100).round : 0 %>%"></span>
+      </span>
+      <span class="distribution__count"><%= count %></span>
+    </li>
+  <% end %>
+</ul>

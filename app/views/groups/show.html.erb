@@ -1,28 +1,72 @@
+<% content_for :title, "#{@group.name} — WE Match" %>
+
 <div class="page-header">
   <h1><%= @group.name %></h1>
-  <%= link_to "All groups", groups_path, class: "btn btn-secondary" %>
+  <div class="actions">
+    <%= link_to "Edit", edit_group_path(@group), class: "btn btn-secondary" %>
+    <%= link_to "New match cycle", new_match_cycle_path(group_id: @group.id), class: "btn btn-primary" %>
+    <%= link_to "All groups", groups_path, class: "btn btn-secondary" %>
+  </div>
 </div>
 
 <p class="muted"><%= @group.description %></p>
 
 <div class="card">
-  <h2>Members</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @group.members.each do |member| %>
+  <h2>Biweekly automation</h2>
+  <p class="muted">
+    When this is on, WE Match opens a cycle every other Monday, closes it on Thursday, and
+    runs matching on Friday. It needs the worker process to be running.
+  </p>
+  <p>
+    <span class="badge badge-<%= @group.auto_cycle? ? "open" : "draft" %>"><%= @group.auto_cycle? ? "On" : "Off" %></span>
+    <% if @group.auto_cycle_last_opened_on.present? %>
+      <span class="muted">Last automatic cycle opened <%= @group.auto_cycle_last_opened_on.strftime("%b %-d, %Y") %></span>
+    <% end %>
+  </p>
+  <%= button_to @group.auto_cycle? ? "Switch automation off" : "Switch automation on",
+        toggle_auto_cycle_group_path(@group), method: :patch, class: "btn btn-secondary" %>
+</div>
+
+<div class="card">
+  <h2>Explorers and WE Fellows (<%= @members.size %>)</h2>
+  <% if @members.any? %>
+    <table>
+      <thead>
         <tr>
-          <td><%= link_to member.name, member_path(member) %></td>
-          <td><%= member.email %></td>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Time zone</th>
         </tr>
+      </thead>
+      <tbody>
+        <% @members.each do |member| %>
+          <tr>
+            <td><%= link_to member.name, member_path(member) %></td>
+            <td><%= member.email %></td>
+            <td><%= member.time_zone %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="muted">
+      Nobody in this group yet. <%= link_to "Import a CSV", new_import_path %> or
+      <%= link_to "add someone", new_member_path %>.
+    </p>
+  <% end %>
+</div>
+
+<div class="card">
+  <h2>Topics offered here</h2>
+  <% if @topics.any? %>
+    <ul class="plain-list">
+      <% @topics.each do |topic| %>
+        <li><%= link_to topic.name, topic_path(topic) %> <span class="muted">(<%= topic.scope_label %>)</span></li>
       <% end %>
-    </tbody>
-  </table>
+    </ul>
+  <% else %>
+    <p class="muted">No active topics. <%= link_to "Add one", new_topic_path %> before opening a cycle.</p>
+  <% end %>
 </div>
 
 <div class="card">
@@ -33,6 +77,8 @@
         <tr>
           <th>Status</th>
           <th>Opens</th>
+          <th>Closes</th>
+          <th>Responses</th>
           <th></th>
         </tr>
       </thead>
@@ -40,7 +86,9 @@
         <% @match_cycles.each do |cycle| %>
           <tr>
             <td><span class="badge badge-<%= cycle.status %>"><%= cycle.status %></span></td>
-            <td><%= cycle.opens_at&.strftime("%b %d, %Y") || "—" %></td>
+            <td><%= cycle.opens_at&.strftime("%b %-d, %Y") || "—" %></td>
+            <td><%= cycle.closes_at&.strftime("%b %-d, %Y") || "—" %></td>
+            <td><%= cycle.responded_count %> / <%= cycle.invited_count %></td>
             <td><%= link_to "View", match_cycle_path(cycle) %></td>
           </tr>
         <% end %>
@@ -49,4 +97,11 @@
   <% else %>
     <p class="muted">No match cycles for this group yet.</p>
   <% end %>
+</div>
+
+<div class="card">
+  <h2>Danger zone</h2>
+  <p class="muted">Deleting a group also deletes its cycles, responses, and matches. People stay in the WE Community.</p>
+  <%= button_to "Delete group", group_path(@group), method: :delete, class: "btn btn-secondary",
+        data: { turbo_confirm: "Delete #{@group.name} and all of its cycles?" } %>
 </div>

@@ -2,7 +2,11 @@
 # 1. Push this repo to GitHub
 # 2. Render Dashboard → New → Blueprint → connect repo
 # 3. Set RAILS_MASTER_KEY when prompted (from config/master.key)
-# 4. After deploy, open the web URL and test
+# 4. After deploy, create the first admin: Shell → bin/rails admin:create
+#
+# The worker service below runs the biweekly automation. It needs a paid instance
+# type, so a free-plan deployment can run the app but cycles must be opened,
+# closed, and matched by hand from the cycle pages.
 
 databases:
   - name: we-match-db
@@ -34,7 +38,59 @@ services:
           type: web
           name: we-match
           property: host
+      # Seeding deletes every group, person, and cycle. Never "true" once the
+      # pilot data is loaded.
       - key: SEED_DEMO
-        value: "true"
+        value: "false"
       - key: SHOW_MAILER_PREVIEWS
-        value: "true"
+        value: "false"
+      # Leave unset until SPF, DKIM, and DMARC exist on womenemerging.org. Until
+      # then invitations are recorded and handed out as exported links.
+      - key: EMAIL_DELIVERY_ENABLED
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: SMTP_ADDRESS
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      # Only needed if something outside the app calls the JSON API.
+      - key: WE_MATCH_API_TOKEN
+        sync: false
+
+  - type: worker
+    name: we-match-jobs
+    runtime: ruby
+    plan: starter
+    buildCommand: "bundle install"
+    startCommand: "bin/jobs"
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: we-match-db
+          property: connectionString
+      - key: APP_HOST
+        fromService:
+          type: web
+          name: we-match
+          property: host
+      - key: EMAIL_DELIVERY_ENABLED
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: SMTP_ADDRESS
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false

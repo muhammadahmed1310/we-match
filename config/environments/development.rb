@@ -63,6 +63,11 @@ Rails.application.configure do
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
 
+  # Jobs run in-process by default so `bin/rails server` is enough locally. Set
+  # JOB_ADAPTER=solid_queue and run `bin/jobs` to exercise the real queue and the
+  # biweekly recurring schedule.
+  config.active_job.queue_adapter = ENV.fetch("JOB_ADAPTER", "async").to_sym
+
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 

@@ -1,13 +1,13 @@
 Hello <%= @member_one.name %> and <%= @member_two.name %>,
 
 You've been matched in <%= @group.name %> for a one-on-one conversation.
-
-<% @responses.each do |response| %>
-<%= response.member.name %>
-Topic: <%= response.topic %>
-Availability: <%= response.availability_start.strftime("%b %d, %Y %H:%M UTC") %> - <%= response.availability_end.strftime("%H:%M UTC") %>
-
-<% end %>
-Reach out to each other directly to find a time that works. WE Match does not schedule the meeting.
+<% if @topic.present? %>
+You both chose the same topic: <%= @topic.name %>.
+<% end %><% if @slot_utc.present? %>
+You both marked this 1-hour window as workable: <%= @slot_utc %>
+<% @local_slots.each do |member, label| %><% next if label.blank? %>  <%= member.name %>: <%= label %>
+<% end %><% end %>
+Reach out to each other directly to agree the exact date. WE Match introduces
+pairs — it does not schedule the meeting.
 
 — WE Match

@@ -1,0 +1,26 @@
+<% content_for :title, "Sign in — WE Match" %>
+
+<div class="card auth-card">
+  <h1>Sign in</h1>
+  <p class="muted">WE Match is private. Sign in with your Community Manager account.</p>
+
+  <%= form_with url: sign_in_path, method: :post, local: true do |form| %>
+    <div class="form-group">
+      <%= form.label :email, "Email" %>
+      <%= form.email_field :email, value: @email, autocomplete: "username", autofocus: true, required: true %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :password, "Password" %>
+      <%= form.password_field :password, autocomplete: "current-password", required: true %>
+    </div>
+
+    <div class="actions">
+      <%= form.submit "Sign in", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+
+  <p class="muted auth-card__note">
+    Accounts are created by the WE team. There is no public sign-up.
+  </p>
+</div>

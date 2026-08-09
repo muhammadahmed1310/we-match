@@ -1,0 +1,99 @@
+<% content_for :title, "Reports — WE Match" %>
+
+<div class="page-header">
+  <h1>Reports</h1>
+  <div class="actions">
+    <%= link_to "Download cycle summary (CSV)", reports_path(format: :csv, group_id: @group&.id), class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="card">
+  <%= form_with url: reports_path, method: :get, local: true do |form| %>
+    <div class="form-group">
+      <%= form.label :group_id, "Filter by group" %>
+      <%= form.collection_select :group_id, @groups, :id, :name, { include_blank: "All groups", selected: @group&.id } %>
+    </div>
+    <div class="actions">
+      <%= form.submit "Apply", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <h2><%= percentage(@report.average_response_rate) %></h2>
+    <p>Average response rate</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= @report.total_matches %></h2>
+    <p>Matches made</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= @report.unmatched_responses %></h2>
+    <p>Responses left unmatched</p>
+  </div>
+  <div class="stat-card">
+    <h2><%= @report.repeat_pairs %></h2>
+    <p>Pairs who met more than once</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Cycles</h2>
+  <% if @report.cycle_reports.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Group</th>
+          <th>Status</th>
+          <th>Closed</th>
+          <th>Responded</th>
+          <th>Response rate</th>
+          <th>Matches</th>
+          <th>Unmatched</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @report.cycle_reports.each do |cycle, report| %>
+          <tr>
+            <td><%= cycle.group.name %></td>
+            <td><span class="badge badge-<%= cycle.status %>"><%= cycle.status %></span></td>
+            <td><%= cycle.closes_at&.strftime("%b %-d, %Y") || "—" %></td>
+            <td><%= report.responded %> / <%= report.invited %></td>
+            <td><%= percentage(report.response_rate) %></td>
+            <td><%= report.matches_count %></td>
+            <td><%= report.unmatched_count %></td>
+            <td><%= link_to "Detail", cycle_report_path(cycle) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="muted">No cycles yet.</p>
+  <% end %>
+</div>
+
+<div class="card-grid">
+  <div class="card">
+    <h2>What people want to talk about</h2>
+    <% if @report.topic_distribution.any? %>
+      <%= render "shared/distribution", rows: @report.topic_distribution %>
+    <% else %>
+      <p class="muted">No responses yet.</p>
+    <% end %>
+  </div>
+
+  <div class="card">
+    <h2>Focus within each topic</h2>
+    <p class="muted">
+      From the topic option dropdown. Collected for insight only — never shown to the
+      person someone is matched with.
+    </p>
+    <% if @report.option_distribution.any? %>
+      <%= render "shared/distribution", rows: @report.option_distribution %>
+    <% else %>
+      <p class="muted">No options chosen yet.</p>
+    <% end %>
+  </div>
+</div>

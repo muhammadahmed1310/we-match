@@ -1,4 +1,4 @@
-<%= form_with model: [ @match_cycle, match_response ], local: true do |form| %>
+<%= form_with model: [ @match_cycle, match_response ], local: true, data: { controller: "topic-options" } do |form| %>
   <% if match_response.errors.any? %>
     <div class="form-errors">
       <ul>
@@ -9,25 +9,73 @@
     </div>
   <% end %>
 
+  <p class="muted">
+    Participants normally fill this in themselves through their private link. Use this
+    form only when you are entering a response on someone's behalf.
+  </p>
+
   <div class="form-group">
-    <%= form.label :member_id, "Member" %>
-    <%= form.collection_select :member_id, @members, :id, :name, prompt: "Select yourself" %>
+    <%= form.label :member_id, "Person" %>
+    <%= form.collection_select :member_id, @members, :id, :name, prompt: "Select a person" %>
   </div>
 
   <div class="form-group">
-    <%= form.label :topic, "Topic you'd like to discuss" %>
-    <%= form.text_field :topic, placeholder: "e.g. Leadership, Career Transitions" %>
+    <%= form.label :time_zone, "Their time zone" %>
+    <%= form.select :time_zone, options_for_select(time_zone_options, match_response.time_zone) %>
+    <p class="field-hint">Windows below are shown in this zone and stored in UTC.</p>
   </div>
 
   <div class="form-group">
-    <%= form.label :availability_start, "Availability start (UTC)" %>
-    <%= form.datetime_local_field :availability_start %>
+    <%= form.label :topic_id, "Topic" %>
+    <%= form.collection_select :topic_id, @topics, :id, :name,
+                               { prompt: "Choose a topic" },
+                               data: { topic_options_target: "topic", action: "change->topic-options#topicChanged" } %>
   </div>
 
+  <%= hidden_field_tag "match_response[topic_option_id]", "", id: nil %>
+
+  <% @topics.each do |topic| %>
+    <% next if topic.selectable_options.empty? %>
+    <div class="form-group topic-option-group"
+         data-topic-options-target="optionGroup"
+         data-topic-id="<%= topic.id %>"
+         <%= "hidden" unless match_response.topic_id == topic.id %>>
+      <%= label_tag "admin_topic_option_#{topic.id}", "Focus within #{topic.name} (private insight)" %>
+      <%= form.select :topic_option_id,
+                      options_from_collection_for_select(topic.selectable_options, :id, :label, match_response.topic_option_id),
+                      { include_blank: "No preference" },
+                      id: "admin_topic_option_#{topic.id}",
+                      disabled: match_response.topic_id != topic.id,
+                      data: { topic_options_target: "optionSelect" } %>
+    </div>
+  <% end %>
+
   <div class="form-group">
-    <%= form.label :availability_end, "Availability end (UTC)" %>
-    <%= form.datetime_local_field :availability_end %>
+    <%= form.label :topic_option_other, "Their own words (optional, private)" %>
+    <%= form.text_field :topic_option_other, maxlength: 200 %>
   </div>
+
+  <fieldset class="form-group slot-picker">
+    <legend>1-hour windows (choose one or two)</legend>
+    <p class="field-hint">Week of <%= @match_cycle.meeting_week_range.first.strftime("%b %-d, %Y") %>.</p>
+
+    <% selections = match_response.slot_selections %>
+    <div class="slot-picker__row">
+      <%= label_tag "admin_slot_1", "First window" %>
+      <%= select_tag "match_response[slot_selections][]",
+                     grouped_options_for_select(@windows.grouped_options, selections[0]),
+                     include_blank: "Choose a window",
+                     id: "admin_slot_1" %>
+    </div>
+
+    <div class="slot-picker__row">
+      <%= label_tag "admin_slot_2", "Second window (optional)" %>
+      <%= select_tag "match_response[slot_selections][]",
+                     grouped_options_for_select(@windows.grouped_options, selections[1]),
+                     include_blank: "No second window",
+                     id: "admin_slot_2" %>
+    </div>
+  </fieldset>
 
   <div class="actions">
     <%= form.submit class: "btn btn-primary" %>

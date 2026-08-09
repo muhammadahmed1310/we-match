@@ -1,17 +1,31 @@
+<% content_for :title, "#{@member.name} — WE Match" %>
+
 <div class="page-header">
   <h1><%= @member.name %></h1>
-  <%= link_to "All members", members_path, class: "btn btn-secondary" %>
+  <div class="actions">
+    <%= link_to "Edit", edit_member_path(@member), class: "btn btn-secondary" %>
+    <%= link_to "WE Community", members_path, class: "btn btn-secondary" %>
+  </div>
 </div>
 
-<p class="muted"><%= @member.email %></p>
+<p class="muted"><%= @member.email %> · <%= @member.time_zone %></p>
 
 <div class="card">
   <h2>Groups</h2>
-  <ul>
-    <% @member.groups.each do |group| %>
-      <li><%= link_to group.name, group_path(group) %></li>
-    <% end %>
-  </ul>
+  <% if @memberships.any? %>
+    <ul class="plain-list">
+      <% @memberships.each do |membership| %>
+        <li>
+          <%= link_to membership.group.name, group_path(membership.group) %>
+          <% if membership.cohort.present? %>
+            <span class="muted">· <%= membership.cohort %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="muted">Not in any group yet, so they won't be invited to a cycle.</p>
+  <% end %>
 </div>
 
 <div class="card">
@@ -22,7 +36,7 @@
         <tr>
           <th>Cycle</th>
           <th>Topic</th>
-          <th>Availability</th>
+          <th>Windows (their time)</th>
           <th>Matched</th>
         </tr>
       </thead>
@@ -30,10 +44,10 @@
         <% @match_responses.each do |response| %>
           <tr>
             <td><%= link_to response.match_cycle.group.name, match_cycle_path(response.match_cycle) %></td>
-            <td><%= response.topic %></td>
+            <td><%= response.topic&.name || "—" %></td>
             <td>
-              <%= response.availability_start.strftime("%b %d %H:%M") %> –
-              <%= response.availability_end.strftime("%H:%M UTC") %>
+              <% labels = response.slot_labels(@member.time_zone) %>
+              <%= labels.any? ? labels.join(" · ") : "—" %>
             </td>
             <td><%= response.matched? ? "Yes" : "No" %></td>
           </tr>
@@ -43,4 +57,11 @@
   <% else %>
     <p class="muted">No responses yet.</p>
   <% end %>
+</div>
+
+<div class="card">
+  <h2>Danger zone</h2>
+  <p class="muted">Removing someone deletes their responses and matches too.</p>
+  <%= button_to "Remove from the WE Community", member_path(@member), method: :delete, class: "btn btn-secondary",
+        data: { turbo_confirm: "Remove #{@member.name}?" } %>
 </div>

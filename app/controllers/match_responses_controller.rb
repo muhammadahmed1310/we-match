@@ -1,30 +1,25 @@
 # frozen_string_literal: true
 
+# Admin-side entry of a response on someone's behalf. Participants use
+# ParticipantResponsesController and their private link instead.
 class MatchResponsesController < ApplicationController
   before_action :set_match_cycle
   before_action :set_match_response, only: %i[edit update]
-  before_action :load_members, only: %i[new create edit update]
-  before_action :ensure_cycle_accepts_responses, only: %i[new create edit update]
+  before_action :load_form_data
+  before_action :ensure_cycle_accepts_responses
 
   def new
-    member = @match_cycle.group.members.find_by(id: params[:member_id]) if params[:member_id].present?
-
-    existing = member && @match_cycle.match_responses.find_by(member: member)
-    if existing
-      redirect_to edit_match_cycle_match_response_path(@match_cycle, existing),
-                  notice: "You already submitted a response. You can update it below."
-      return
-    end
-
-    @match_response = @match_cycle.match_responses.new(member: member)
+    @match_response = @match_cycle.match_responses.new
   end
 
   def create
     @match_response = @match_cycle.match_responses.new(match_response_params)
 
     if @match_response.save
-      redirect_to @match_cycle, notice: "Match response submitted."
+      mark_invitation_responded(@match_response)
+      redirect_to @match_cycle, notice: "Response recorded."
     else
+      @windows = windows_for(@match_response)
       render :new, status: :unprocessable_entity
     end
   end
@@ -34,8 +29,10 @@ class MatchResponsesController < ApplicationController
 
   def update
     if @match_response.update(match_response_params)
-      redirect_to @match_cycle, notice: "Match response updated."
+      mark_invitation_responded(@match_response)
+      redirect_to @match_cycle, notice: "Response updated."
     else
+      @windows = windows_for(@match_response)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -43,24 +40,36 @@ class MatchResponsesController < ApplicationController
   private
 
   def set_match_cycle
-    @match_cycle = MatchCycle.find(params[:match_cycle_id])
+    @match_cycle = MatchCycle.includes(:group).find(params[:match_cycle_id])
   end
 
   def set_match_response
     @match_response = @match_cycle.match_responses.find(params[:id])
   end
 
-  def load_members
+  def load_form_data
     @members = @match_cycle.group.members.order(:name)
+    @topics = @match_cycle.group.available_topics.includes(:topic_options)
+    @windows = windows_for(@match_response)
+  end
+
+  def windows_for(match_response)
+    MeetingWindows.new(@match_cycle, time_zone: match_response&.time_zone || "UTC")
   end
 
   def match_response_params
     params.require(:match_response).permit(
       :member_id,
-      :topic,
-      :availability_start,
-      :availability_end
+      :topic_id,
+      :topic_option_id,
+      :topic_option_other,
+      :time_zone,
+      slot_selections: []
     )
+  end
+
+  def mark_invitation_responded(match_response)
+    @match_cycle.cycle_invitations.find_by(member_id: match_response.member_id)&.mark_responded!
   end
 
   def ensure_cycle_accepts_responses

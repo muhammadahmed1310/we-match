@@ -1,174 +1,147 @@
 # WE Match
 
-Internal networking for women in leadership expedition communities: maintain groups and members, collect availability and topics via biweekly invitations, match pairs **within a group**, and send introduction emails (no meeting scheduling).
+Internal networking for women in the WE Community. WE Match keeps groups and people,
+runs biweekly cycles that ask each woman for a topic and her availability, pairs women
+**within a group**, and introduces the pair. It does not schedule the meeting — the pair
+agree the time themselves.
 
-## Understand the flow
+- Community Managers: start with the **[CM runbook](docs/CM_RUNBOOK.md)**, or **How it
+  works** at `/guide` in the app.
+- Where the project stands and what is next: **[project plan](docs/PROJECT_PLAN.md)**.
+- Data model, stack, and matching algorithm: **[TECHNICAL_PLAN.md](TECHNICAL_PLAN.md)**.
+- Hosting: **[DEPLOY.md](DEPLOY.md)**.
 
-**Do you create match cycles yourself?** → **Yes.** See **[Guide](/guide)** in the app (or [FLOW.md](FLOW.md) in the repo) for the full step-by-step and reviewer demo.
+## What it does
 
-## Product alignment
+| Requirement | How |
+|-------------|-----|
+| Groups and people, with people in more than one group | `Group`, `Member`, `GroupMembership`, plus a cohort label per membership |
+| Matching only within a group | Each `MatchCycle` belongs to one `Group`; responses are validated against membership |
+| Biweekly invitations | `OpenBiweeklyCyclesJob` opens a cycle every second Monday for groups flagged `auto_cycle`; also available as a button |
+| Each woman asked for a topic and availability | Private per-person link (`CycleInvitation#token`) to a form asking for one topic, an optional private option, and one or two one-hour windows |
+| Only she can answer for herself | The link identifies her; there is no name dropdown and no `member_id` in any URL |
+| Local time zones | Windows are shown in her own zone, stored and matched in UTC (`ResponseSlot`, `MeetingWindows`) |
+| Matching on topic and time | `MatchingService`: same group, same `topic_id`, an identical UTC window, avoiding recent repeat pairings where it can |
+| Introduction to the pair | `MatchMailer#introduction`, one per match |
+| Aggregate insight, kept private | `TopicOption` choices are never shown to the pair or in any email; they surface only as counts in **Reports** |
+| No meeting scheduling | Introductions only, no calendar links |
 
-| Product requirement | Implemented? | How in this MVP |
-|---------------------|--------------|-----------------|
-| Database of **groups** and **members** | Yes | `Group`, `Member`, `GroupMembership` — members can belong to multiple groups |
-| Matching **only within a group** | Yes | Each `MatchCycle` belongs to one `Group`; responses validated against group membership |
-| **Biweekly email** to all members | Partial | `MatchCycleMailer#invitation` sent via **Send Invitations** button or `rake match:send_invitations` — not auto-scheduled every 2 weeks |
-| Email asks for **time window** + **topic** | Yes | Invitation copy + response form fields |
-| Member **responds** with availability & interest | Yes | `MatchResponse` form (linked from email with `member_id`) |
-| **Matching** when same group, compatible topic & overlapping time | Yes | `MatchingService` + `TopicCompatibility` |
-| **Introduction email** to matched pairs | Yes | `MatchMailer#introduction` on each match |
-| Platform does **not** schedule meetings | Yes | Intro emails only; no calendar links |
+## Setup
 
-### Intentional MVP shortcuts
-
-- **No login** — admin picks member from a dropdown (simulates “this member is responding”).
-- **Biweekly send is manual** — use UI or rake; production would use cron + Solid Queue.
-- **No cross-group matching** — enforced by data model, not configurable.
-
----
-
-## Setup (local)
+Ruby 3.2.2 (see `.ruby-version`) and PostgreSQL.
 
 ```bash
-cd we-match
 bundle install
-bin/rails db:setup
+bin/rails db:setup   # creates, migrates, and seeds demo data
 bin/rails server
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open <http://localhost:3000> and sign in with the development admin the seeds print:
+`cm@womenemerging.org` / `change-me-please`.
 
-## Deploy live (share with reviewers)
-
-**Recommended: [Render](https://render.com)** — **$0**, sleeps when idle (fine for demos). One-click via [`render.yaml`](render.yaml).
-
-1. Push repo to GitHub  
-2. [Render](https://dashboard.render.com) → **New +** → **Blueprint** → connect repo  
-3. Set `RAILS_MASTER_KEY` from `config/master.key`  
-4. Share the `*.onrender.com` URL  
-
-Full steps: **[DEPLOY.md](DEPLOY.md)**. Optional alternatives: Fly.io, Koyeb (see DEPLOY).
-
----
-
-## End-to-end test (full product flow)
-
-Use this once after `db:setup` to walk through all three product functions.
-
-### Function 1 — Groups & members
-
-| Step | Action | Expected result |
-|------|--------|-----------------|
-| 1.1 | Visit **Groups** | See *Expedition Alumni* and *Fellows Circle* |
-| 1.2 | Open **Expedition Alumni** | 6 members listed |
-| 1.3 | Visit **Members** → open **Grace Kim** | Member appears in **both** groups (multi-group membership) |
-| 1.4 | Confirm **Fellows Circle** has a separate member list | Matching later stays inside each group’s cycle |
-
-### Function 2 — Invitation & response
-
-| Step | Action | Expected result |
-|------|--------|-----------------|
-| 2.1 | **Match Cycles** → open **Expedition Alumni** cycle (status `open`) | 5 seeded responses visible |
-| 2.2 | Click **Send Invitations** (or run `bin/rails "match:send_invitations[ID]"`) | Flash: N emails sent; check `log/development.log` for `[WE Match Mail]` lines |
-| 2.3 | Preview email at [/rails/mailers](http://localhost:3000/rails/mailers) → **Match Cycle Mailer → invitation** | Mentions time window + topic; link includes member |
-| 2.4 | **Submit response** — choose **Elena Rossi**, topic `Mentorship`, overlapping times with existing Mentorship response if any | Response saved or validation shown |
-| 2.5 | Try submitting again as **Elena** | Redirected to **edit** existing response |
-
-**Fresh cycle test (optional):**
-
-1. **New Match Cycle** → group *Fellows Circle* → status `open` → Create  
-2. **Send Invitations** → **Submit response** for 2+ members with same topic and overlapping UTC windows  
-
-### Function 3 — Match & introduce
-
-| Step | Action | Expected result |
-|------|--------|-----------------|
-| 3.1 | On **Expedition Alumni** cycle, click **Run Matching** | Redirect to matches page |
-| 3.2 | View **Matches** | **2 pairs** expected from seeds: Leadership (Ava + Brianna), Career Transitions (Claire + Diana); **Elena** (Mentorship) unmatched alone |
-| 3.3 | Check log for introduction emails | Two `[WE Match Mail]` entries with both recipients per match |
-| 3.4 | Preview at **Match Mailer → introduction** | Shows both names, topics, availability; states no scheduling |
-| 3.5 | Try **Run Matching** again | Blocked — cycle already `matched` |
-
-### Negative / edge-case tests
-
-| Scenario | How to test | Expected |
-|----------|-------------|----------|
-| Cross-group match impossible | Create responses only in Fellows cycle; run matching | Only Fellows members paired |
-| No overlap on time | Two members, same topic, non-overlapping windows | Both stay unmatched |
-| Different topics | Same window, topics `Leadership` vs `Mentorship` | No match |
-| Alias topics | `Leadership` + `Leading Teams`, overlapping times | Match created |
-| Run matching with zero responses | New empty cycle → Run Matching | Alert: no responses yet |
-| Member not in group | (API) POST response with outsider `member_id` | Validation error |
-
----
-
-## Seeded demo data
-
-| Item | Detail |
-|------|--------|
-| Groups | Expedition Alumni (6 members), Fellows Circle (5 members, overlap with Alumni) |
-| Open cycle | Expedition Alumni — 5 responses pre-loaded |
-| Expected matches after **Run Matching** | 2 pairs, 1 unmatched (Mentorship only has one person) |
-
-Reset data: `bin/rails db:seed`
-
----
-
-## UI map (where each feature lives)
-
-| Screen | URL | Product function |
-|--------|-----|------------------|
-| Dashboard | `/` | Overview + **How WE Match works** workflow |
-| Groups | `/groups` | Function 1 |
-| Members | `/members` | Function 1 |
-| Match cycles | `/match_cycles` | Cycles per group |
-| Cycle detail | `/match_cycles/:id` | Send invitations, submit responses, run matching |
-| Submit response | `/match_cycles/:id/match_responses/new` | Function 2 |
-| Matches | `/match_cycles/:id/matches` | Function 3 results |
-| Mailer previews | `/rails/mailers` | Dev email preview |
-
----
-
-## Email (development)
-
-- Delivery: `:test` adapter + log interceptor  
-- Previews: [http://localhost:3000/rails/mailers](http://localhost:3000/rails/mailers)  
-- Rake: `bin/rails "match:send_invitations[CYCLE_ID]"`
-
----
-
-## Automated tests
+Create your own admin at any time:
 
 ```bash
-bin/rails test test/services/
+ADMIN_EMAIL=you@womenemerging.org ADMIN_PASSWORD=at-least-12-chars bin/rails admin:create
+bin/rails admin:list
 ```
 
-Covers topic compatibility, matching pairs, unmatched leftovers, and blocked re-run.
+Background jobs run inline in development. To exercise the real queue:
 
----
+```bash
+JOB_ADAPTER=solid_queue bin/rails server
+bin/jobs   # in a second terminal
+```
 
-## API (JSON)
+## Walking the whole flow locally
+
+The seeds leave an open WE Fellows cycle with responses already in, so you can see a
+match on the first try.
+
+1. **Match Cycles → WE Fellows** → **Send invitations**. Every woman in the group gets a
+   private link; `log/development.log` shows the mail.
+2. **Invitation links** → **Download CSV** — this is what a CM hands out while in-app
+   email is off.
+3. Open one of those links in a private window. This is the participant view: time zone,
+   one topic with its private option, one or two one-hour windows. Submit, then reopen the
+   same link and change the answer.
+4. Back on the cycle: **Close responses**, then **Run matching**.
+5. **View matches** — the seeded data gives two pairs and one woman unmatched, because she
+   is the only one on her topic.
+6. **Reports → the cycle** — response rate, pairs, unmatched, and the topic and option
+   counts. **Download CSV** for the same thing as a spreadsheet.
+7. `/rails/mailers` — invitation, reminder, and introduction previews. Check that the
+   introduction shows the topic and the shared window but **never** the private option.
+
+Worth trying deliberately: an invented token (`/respond/nonsense`), a link after the
+cycle is closed, matching a cycle with no responses, and two women with the same topic but
+no shared window.
+
+## Email
+
+Delivery goes through `MailDelivery`, which records every intended message as an
+`EmailDelivery` row and then queues the send. It only really sends when
+`EMAIL_DELIVERY_ENABLED` is set — off in production by default, on everywhere else. With
+it off, nothing is lost: the dashboard lists what would have gone out, and CMs send the
+exported links by hand.
+
+This is deliberate. Sending from `womenemerging.org` needs SPF, DKIM, and DMARC records
+that WE IT has to add; see the [project plan](docs/PROJECT_PLAN.md) for the date that is
+needed by.
+
+## Tests
+
+```bash
+bin/rails test          # models, services, requests, mailers, jobs
+bin/rails test:system   # browser tests of sign-in and the participant flow (needs Chrome)
+```
+
+Both run in CI, along with RuboCop, Brakeman, and an importmap audit.
+
+## JSON API
+
+Every endpoint needs a token in `Authorization: Bearer <token>` or `X-Api-Token`, from
+`WE_MATCH_API_TOKEN` or the `api_token` credential. Without it, everything returns 401.
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| GET | `/api/v1/groups` | List groups + members |
-| GET | `/api/v1/members` | List members + groups |
-| GET | `/api/v1/match_cycles/:id` | Cycle detail |
-| POST | `/api/v1/match_cycles/:id/match_responses` | Submit response |
-| POST | `/api/v1/match_cycles/:id/run_matching` | Run matching |
-| GET | `/api/v1/match_cycles/:match_cycle_id/matches` | List matches |
+| GET | `/api/v1/groups` | Groups with their people |
+| GET | `/api/v1/members` | People with their groups |
+| GET | `/api/v1/topics` | Active topics and their options |
+| GET | `/api/v1/match_cycles/:id` | Cycle with responses and matches |
+| POST | `/api/v1/match_cycles/:id/match_responses` | Submit a response |
+| PATCH | `/api/v1/match_cycles/:id/match_responses/:id` | Update a response |
+| POST | `/api/v1/match_cycles/:id/run_matching` | Run matching, with the same guards as the admin screen |
+| GET | `/api/v1/match_cycles/:id/matches` | Matches for a cycle |
 
----
+## Screens
 
-## Technical plan
+| Screen | URL |
+|--------|-----|
+| Sign in | `/sign_in` |
+| Dashboard | `/` |
+| Groups | `/groups` |
+| WE Community | `/members` |
+| Topics and their options | `/topics` |
+| CSV import | `/import/new` |
+| Match cycles | `/match_cycles` |
+| Invitation links for a cycle | `/match_cycles/:id/invitations` |
+| Matches for a cycle | `/match_cycles/:id/matches` |
+| Reports | `/reports` |
+| Participant response | `/respond/:token` — the only screen that does not need an admin session |
+| Guide, "How WE Match works" | `/guide` |
 
-See [TECHNICAL_PLAN.md](TECHNICAL_PLAN.md) for the written exercise (data model, stack, matching algorithm, build order).
-
-## Project structure
+## Layout
 
 ```
-app/models/       Member, Group, GroupMembership, MatchCycle, MatchResponse, Match
-app/services/     MatchingService, TopicCompatibility
-app/mailers/      MatchCycleMailer (invitation), MatchMailer (introduction)
-db/seeds.rb       Demo groups, members, open cycle with sample responses
+app/models/       Group, Member, GroupMembership, Topic, TopicOption, MatchCycle,
+                  CycleInvitation, MatchResponse, ResponseSlot, Match, EmailDelivery,
+                  AdminUser
+app/services/     MatchingService, MeetingWindows, CycleInvitationService, PeopleImport,
+                  MailDelivery, CycleReport, ProgrammeReport, InvitationLinkExport
+app/jobs/         OpenBiweeklyCyclesJob, SendResponseRemindersJob, CloseDueCyclesJob,
+                  RunDueMatchingJob, SendTrackedEmailJob
+app/mailers/      MatchCycleMailer (invitation, reminder), MatchMailer (introduction)
+config/recurring.yml   The biweekly rhythm
+docs/             CM runbook, project plan, draft reply to Mia
 ```
