@@ -81,6 +81,9 @@ GEM
     ast (2.4.3)
     base64 (0.3.0)
     bcrypt (3.1.22)
+    bcrypt_pbkdf (1.1.2)
+    bcrypt_pbkdf (1.1.2-arm64-darwin)
+    bcrypt_pbkdf (1.1.2-x86_64-darwin)
     benchmark (0.5.0)
     bigdecimal (4.1.2)
     bindex (0.8.1)
@@ -129,6 +132,7 @@ GEM
       dotenv (= 3.2.0)
       railties (>= 6.1)
     drb (2.2.3)
+    ed25519 (1.4.0)
     erb (6.0.4)
     erubi (1.13.1)
     et-orbi (1.4.1)
@@ -381,6 +385,7 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt (~> 3.1.7)
+  bcrypt_pbkdf (>= 1.0, < 2.0)
   bootsnap
   brakeman
   capistrano (~> 3.19)
@@ -391,6 +396,7 @@ DEPENDENCIES
   caxlsx
   debug
   dotenv-rails
+  ed25519 (>= 1.2, < 2.0)
   importmap-rails
   jbuilder
   pg (~> 1.1)
