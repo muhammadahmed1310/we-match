@@ -3,6 +3,7 @@
 server "34.147.171.215", user: "konkabetse24", roles: %w[app db web]
 
 set :ssh_options, {
+  keys: [ File.expand_path("~/.ssh/womenemerging") ],
   forward_agent: true,
   auth_methods: %w[publickey]
 }

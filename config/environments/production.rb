@@ -114,7 +114,6 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
-  # Allow Render (and optional custom domain) host headers.
+  # Allow the public hostname from APP_HOST (e.g. match.womenemerging.org).
   config.hosts << ENV["APP_HOST"] if ENV["APP_HOST"].present?
-  config.hosts << /.*\.onrender\.com/
 end
