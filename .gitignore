@@ -40,3 +40,8 @@
 # Capistrano shared secrets (keep env.example)
 /config/deploy/shared/.env
 /config/deploy/shared/config/master.key
+
+# Local / generated junk
+.DS_Store
+/config/credentials.yml.enc.bak*
+/docs/CM_RUNBOOK.html
