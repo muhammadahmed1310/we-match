@@ -45,7 +45,7 @@ gem "dotenv-rails"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
+  gem "debug", platforms: %i[ mri windows ], require: false
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
@@ -62,6 +62,9 @@ group :development do
   gem "capistrano-rails", "~> 1.6", require: false
   gem "capistrano-rbenv", "~> 2.2", require: false
   gem "capistrano-bundler", "~> 2.1", require: false
+  # net-ssh needs these for ed25519 deploy keys
+  gem "ed25519", ">= 1.2", "< 2.0", require: false
+  gem "bcrypt_pbkdf", ">= 1.0", "< 2.0", require: false
 end
 
 group :test do
