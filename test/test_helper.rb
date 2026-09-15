@@ -16,7 +16,8 @@ module WeMatchTestHelpers
   end
 
   def create_group(name: "WE Fellows", **attributes)
-    Group.create!(name: name, **attributes)
+    defaults = { cycle_programme_starts_on: Date.current }
+    Group.create!(name: name, **defaults.merge(attributes))
   end
 
   def create_member(name:, email:, time_zone: "UTC", groups: [])
@@ -63,6 +64,34 @@ module WeMatchTestHelpers
       time_zone: zone,
       slot_selections: Array(windows).map { |utc_time| selection_for(cycle, utc_time, time_zone: zone) }
     )
+  end
+
+  # Builds a temporary .xlsx upload for import tests.
+  def xlsx_upload(rows, filename: "people.xlsx")
+    require "caxlsx"
+
+    headers = rows.first.keys.map(&:to_s)
+    package = Axlsx::Package.new
+    package.workbook.add_worksheet(name: "People") do |sheet|
+      sheet.add_row headers
+      rows.each { |row| sheet.add_row headers.map { |header| row[header] || row[header.to_sym] } }
+    end
+
+    file = Tempfile.new([ "people", ".xlsx" ])
+    file.binmode
+    file.write(package.to_stream.read)
+    file.rewind
+
+    Rack::Test::UploadedFile.new(
+      file.path,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      original_filename: filename
+    )
+  end
+
+  def import_rows(*rows, **single)
+    list = single.any? ? [ single ] : rows.flatten
+    list.map { |hash| hash.stringify_keys }
   end
 end
 

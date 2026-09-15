@@ -98,12 +98,12 @@ a:hover {
 }
 
 .site-header__inner {
-  max-width: 1040px;
+  position: relative;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 0.75rem 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
 }
 
@@ -113,6 +113,7 @@ a:hover {
   gap: 0.75rem;
   text-decoration: none;
   color: var(--color-text);
+  flex: 0 0 auto;
   transition: transform 0.25s var(--ease-out);
 }
 
@@ -173,8 +174,17 @@ a:hover {
 .site-nav {
   display: flex;
   align-items: center;
-  flex: 1;
+  flex: 0 0 auto;
   gap: 0.125rem;
+}
+
+.site-header__end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .nav-link {
@@ -253,20 +263,23 @@ a:hover {
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Below this the seven labels plus the signed-in name cannot sit on one line without
-   wrapping mid-phrase, so hand over to the menu rather than cram them. */
-@media (max-width: 1100px) {
+/* Full nav needs more than ~1200px once the signed-in block is present. */
+@media (max-width: 1200px) {
   .nav-toggle {
     display: flex;
+    margin-left: auto;
   }
 
-  .site-nav {
+  .site-header__end {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
+    flex: none;
     flex-direction: column;
     align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
     padding: 0.75rem 1rem 1rem;
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
@@ -275,19 +288,25 @@ a:hover {
     visibility: hidden;
     transform: translateY(-8px);
     transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out), visibility 0.25s;
+    z-index: 120;
   }
 
-  .site-nav--open {
+  .site-header__end--open {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+  }
+
+  .site-nav {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
   }
 
   .site-brand__tagline {
     display: none;
   }
 
-  /* Centred under a full-width row the dot just floats; the pill already reads as active. */
   .nav-link--active::after {
     display: none;
   }
@@ -1040,78 +1059,6 @@ tr:last-child td {
   margin-bottom: 0;
 }
 
-.product-workflow__intro {
-  margin: 0 0 1rem;
-  font-size: 0.875rem;
-}
-
-.product-workflow {
-  margin-bottom: 1.75rem;
-}
-
-.product-workflow h2 {
-  margin-top: 0;
-}
-
-.product-workflow__steps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 1rem;
-}
-
-@media (min-width: 900px) {
-  .product-workflow__steps {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.product-workflow__step {
-  display: flex;
-  gap: 0.875rem;
-  padding: 1rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.product-workflow__step--active {
-  background: rgba(118, 205, 225, 0.16);
-  border-color: rgba(118, 205, 225, 0.4);
-}
-
-.product-workflow__number {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--color-accent);
-  color: white;
-  font-weight: 700;
-  font-size: 0.875rem;
-}
-
-.product-workflow__step strong {
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.product-workflow__step p {
-  margin: 0 0 0.5rem;
-  font-size: 0.8125rem;
-  color: var(--color-muted);
-  line-height: 1.45;
-}
-
-.product-workflow__step .btn-sm {
-  margin-right: 0.35rem;
-  margin-top: 0.25rem;
-}
-
 @media (max-width: 768px) {
   .mailer-preview-email-toolbar {
     flex-direction: column;
@@ -1194,18 +1141,38 @@ tr:last-child td {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  margin-left: auto;
-  padding-left: 1rem;
+  padding: 0.35rem 0.35rem 0.35rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: rgba(43, 59, 105, 0.04);
+  flex: 0 0 auto;
+}
+
+.site-account__identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.site-account__label {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
 }
 
 .site-account__name {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-muted);
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 13rem;
+  max-width: 10.5rem;
 }
 
 .site-account form {
@@ -1213,23 +1180,31 @@ tr:last-child td {
 }
 
 .site-account .btn {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.8125rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
   white-space: nowrap;
+  background: var(--color-surface);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .site-account {
-    margin-left: 0;
-    padding-left: 0;
-    justify-content: space-between;
-    width: 100%;
-    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem 0 0;
+    border: none;
     border-top: 1px solid var(--color-border);
+    border-radius: 0;
+    background: transparent;
+    width: 100%;
+    justify-content: space-between;
   }
 
   .site-account__name {
     max-width: none;
+    font-size: 0.875rem;
+  }
+
+  .site-account .btn {
+    font-size: 0.8125rem;
   }
 }
 

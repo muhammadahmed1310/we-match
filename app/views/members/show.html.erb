@@ -4,7 +4,7 @@
   <h1><%= @member.name %></h1>
   <div class="actions">
     <%= link_to "Edit", edit_member_path(@member), class: "btn btn-secondary" %>
-    <%= link_to "WE Community", members_path, class: "btn btn-secondary" %>
+    <%= link_to "Users", members_path, class: "btn btn-secondary" %>
   </div>
 </div>
 
@@ -62,6 +62,6 @@
 <div class="card">
   <h2>Danger zone</h2>
   <p class="muted">Removing someone deletes their responses and matches too.</p>
-  <%= button_to "Remove from the WE Community", member_path(@member), method: :delete, class: "btn btn-secondary",
+  <%= button_to "Remove user", member_path(@member), method: :delete, class: "btn btn-secondary",
         data: { turbo_confirm: "Remove #{@member.name}?" } %>
 </div>

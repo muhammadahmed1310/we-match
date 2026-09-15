@@ -22,8 +22,7 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
       topic_path(topic),
       reports_path,
       cycle_report_path(cycle),
-      new_import_path,
-      flow_guide_path
+      new_import_path
     ].each do |path|
       get path
       assert_redirected_to sign_in_path, "#{path} should be private"
@@ -35,15 +34,6 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
 
     get root_path
     assert_response :success
-  end
-
-  test "the how it works guide renders for a signed-in admin" do
-    sign_in_admin
-
-    get flow_guide_path
-
-    assert_response :success
-    assert_match "How WE Match works", response.body
   end
 
   test "the sign in page is reachable without a session" do

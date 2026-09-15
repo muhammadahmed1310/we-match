@@ -1,0 +1,60 @@
+<% content_for :title, "How was your conversation — WE Match" %>
+
+<div class="card participant-card">
+  <h1>Hello <%= @member.name.split.first %></h1>
+  <p class="muted">
+    <%= @group.name %>
+    <% if @partner.present? %>
+      · conversation with <%= @partner.name %>
+    <% end %>
+  </p>
+
+  <%= form_with model: @feedback,
+                url: match_feedback_path(token: @feedback.token),
+                method: :patch,
+                local: true do |form| %>
+    <% if @feedback.errors.any? %>
+      <div class="form-errors">
+        <ul>
+          <% @feedback.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <fieldset class="form-group">
+      <legend>Did you actually meet?</legend>
+      <div class="form-group form-group--checkbox">
+        <%= form.radio_button :did_meet, true, id: "did_meet_yes" %>
+        <%= label_tag "did_meet_yes", "Yes, we met" %>
+      </div>
+      <div class="form-group form-group--checkbox">
+        <%= form.radio_button :did_meet, false, id: "did_meet_no" %>
+        <%= label_tag "did_meet_no", "No, we did not meet" %>
+      </div>
+    </fieldset>
+
+    <div class="form-group">
+      <%= form.label :value_for_time, "What was the value for the time of the conversation?" %>
+      <%= form.select :value_for_time,
+                      options_for_select(MatchFeedback::VALUE_LABELS.map { |value, label| [ label, value ] }, @feedback.value_for_time),
+                      { include_blank: "Choose a rating" } %>
+      <p class="field-hint">Skip this if you did not meet.</p>
+    </div>
+
+    <% if @topic.present? && @options.any? %>
+      <div class="form-group">
+        <%= form.label :topic_option_id, "You spoke about #{@topic.name}. Which one resonated most with you?" %>
+        <%= form.collection_select :topic_option_id, @options, :id, :label, include_blank: "Choose one" %>
+        <p class="field-hint">This stays private — it is never shown to your match.</p>
+      </div>
+    <% elsif @topic.present? %>
+      <p class="muted">You spoke about <strong><%= @topic.name %></strong>.</p>
+    <% end %>
+
+    <div class="actions">
+      <%= form.submit "Submit feedback", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

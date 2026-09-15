@@ -37,7 +37,7 @@ class MembersController < ApplicationController
 
     if @member.save
       sync_memberships(@member)
-      redirect_to @member, notice: "Added to the WE Community."
+      redirect_to @member, notice: "User added."
     else
       render :new, status: :unprocessable_entity
     end

@@ -32,10 +32,24 @@ class MatchCycleMailerTest < ActionMailer::TestCase
     assert_match "reminder", mail.subject
   end
 
+  test "html emails carry the WE logo and Montserrat" do
+    mail = MatchCycleMailer.invitation(@invitation)
+    html = mail.html_part.decoded
+
+    assert mail.attachments["we-logo.png"].present?
+    assert_match "Montserrat", html
+    assert_match "WE Match", html
+    assert_match "Women Emerging", html
+  end
+
   private
 
   # Quoted-printable wraps long lines, so URLs only survive intact once decoded.
+  # Inline logo attachments are binary and must be skipped.
   def decoded_parts(mail)
-    mail.all_parts.map(&:decoded).join("\n")
+    parts = mail.multipart? ? mail.all_parts : [ mail ]
+    parts.select { |part| part.text? || part.mime_type.to_s.start_with?("text/") }
+         .map(&:decoded)
+         .join("\n")
   end
 end

@@ -2,17 +2,19 @@
 
 class TopicOptionsController < ApplicationController
   before_action :set_topic
-  before_action :set_topic_option, only: %i[edit update destroy]
+  before_action :set_topic_option, only: %i[edit update destroy toggle_active]
 
   def new
-    @topic_option = @topic.topic_options.new(active: true, position: next_position)
+    @topic_option = @topic.topic_options.new
   end
 
   def create
     @topic_option = @topic.topic_options.new(topic_option_params)
+    @topic_option.active = true
+    @topic_option.position = next_position
 
     if @topic_option.save
-      redirect_to @topic, notice: "Option added."
+      redirect_to @topic, notice: "Subtopic added."
     else
       render :new, status: :unprocessable_entity
     end
@@ -23,17 +25,23 @@ class TopicOptionsController < ApplicationController
 
   def update
     if @topic_option.update(topic_option_params)
-      redirect_to @topic, notice: "Option updated."
+      redirect_to @topic, notice: "Subtopic updated."
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
+  def toggle_active
+    @topic_option.update!(active: !@topic_option.active?)
+    status = @topic_option.active? ? "offered again" : "hidden from new forms"
+    redirect_to @topic, notice: "#{@topic_option.label} is #{status}."
+  end
+
   def destroy
     if @topic_option.destroy
-      redirect_to @topic, notice: "Option removed."
+      redirect_to @topic, notice: "Subtopic removed."
     else
-      redirect_to @topic, alert: "#{@topic_option.label} has been chosen by someone, so it is kept for reporting. Set it to inactive to stop offering it."
+      redirect_to @topic, alert: "#{@topic_option.label} has been chosen by someone, so it is kept for reporting. Hide it from new forms instead."
     end
   end
 
@@ -48,7 +56,7 @@ class TopicOptionsController < ApplicationController
   end
 
   def topic_option_params
-    params.require(:topic_option).permit(:label, :active, :position)
+    params.require(:topic_option).permit(:label)
   end
 
   def next_position

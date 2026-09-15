@@ -51,7 +51,8 @@ class CycleReport
   end
 
   def option_distribution
-    responses.group_by { |response| response.insight_label.presence || "No preference given" }
+    feedbacks.select(&:submitted?)
+             .group_by { |feedback| feedback.insight_label.presence || "No preference given" }
              .transform_values(&:size)
              .sort_by { |label, count| [ -count, label ] }
   end
@@ -63,6 +64,21 @@ class CycleReport
              .sort_by { |starts_at, _count| starts_at }
   end
 
+  def met_count
+    feedbacks.count { |feedback| feedback.submitted? && feedback.did_meet? }
+  end
+
+  def feedback_submitted_count
+    feedbacks.count(&:submitted?)
+  end
+
+  def average_value_for_time
+    values = feedbacks.filter_map(&:value_for_time)
+    return nil if values.empty?
+
+    (values.sum.to_f / values.size).round(1)
+  end
+
   def rows
     invited_member_ids = invitations.map(&:member_id)
     members = invitations.map(&:member)
@@ -71,10 +87,12 @@ class CycleReport
 
     members.uniq.sort_by(&:name).map do |member|
       response = responses.detect { |candidate| candidate.member_id == member.id }
+      feedback = feedbacks.detect { |candidate| candidate.member_id == member.id }
 
       {
         member: member,
         response: response,
+        feedback: feedback,
         partner: partner_for(response),
         agreed_window: response&.match&.slot_label_utc
       }
@@ -88,6 +106,7 @@ class CycleReport
       rows.each do |row|
         member = row[:member]
         response = row[:response]
+        feedback = row[:feedback]
 
         csv << [
           member.name,
@@ -95,7 +114,7 @@ class CycleReport
           member.time_zone,
           response ? "yes" : "no",
           response&.topic&.name,
-          response&.insight_label,
+          feedback&.insight_label,
           response ? response.response_slots.map(&:utc_label).join(" | ") : nil,
           row[:partner]&.name,
           row[:agreed_window]
@@ -112,6 +131,13 @@ class CycleReport
 
   def responses
     @responses ||= @cycle.match_responses.includes(:member, :topic, :topic_option, :response_slots, match: %i[member_one member_two]).to_a
+  end
+
+  def feedbacks
+    @feedbacks ||= MatchFeedback.joins(:match)
+                                .where(matches: { match_cycle_id: @cycle.id })
+                                .includes(:topic_option, :member)
+                                .to_a
   end
 
   def partner_for(response)

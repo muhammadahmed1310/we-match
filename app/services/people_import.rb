@@ -1,18 +1,29 @@
 # frozen_string_literal: true
 
-require "csv"
+require "roo"
+require "json"
 
-# CSV import for the WE Community. Runs the exact same parsing and validation twice:
-# once as a dry run that only reports what would happen, and once for real inside a
-# transaction, so a CM can see every problem before anything is written.
+# Excel (.xlsx) import for the WE Community. Runs the same parsing and validation
+# twice: once as a dry run, then for real inside a transaction after the CM confirms.
 class PeopleImport
   REQUIRED_HEADERS = %w[name email].freeze
   OPTIONAL_HEADERS = %w[time_zone groups cohort].freeze
+  ACCEPTED_HEADERS = (REQUIRED_HEADERS + OPTIONAL_HEADERS).freeze
   GROUP_SEPARATOR = /[;|]/
 
   Row = Struct.new(:line, :name, :email, :time_zone, :group_names, :cohort, :action, :messages, keyword_init: true) do
     def valid?
       action != :invalid
+    end
+
+    def to_payload
+      {
+        "name" => name,
+        "email" => email,
+        "time_zone" => time_zone,
+        "groups" => group_names.join(";"),
+        "cohort" => cohort
+      }
     end
   end
 
@@ -24,19 +35,67 @@ class PeopleImport
     def total
       rows.size
     end
+
+    def payload_json
+      JSON.generate(rows.map(&:to_payload))
+    end
   end
 
-  def initialize(csv_text, create_missing_groups: false)
-    @csv_text = csv_text.to_s
+  def self.from_xlsx(upload, create_missing_groups: false)
+    new(read_xlsx(upload), create_missing_groups: create_missing_groups)
+  end
+
+  def self.from_payload(json_or_rows, create_missing_groups: false)
+    rows = json_or_rows.is_a?(String) ? JSON.parse(json_or_rows) : json_or_rows
+    new(Array(rows), create_missing_groups: create_missing_groups)
+  rescue JSON::ParserError
+    new([], create_missing_groups: create_missing_groups, header_error: "The import preview expired. Upload the Excel file again.")
+  end
+
+  def self.read_xlsx(upload)
+    path = upload.respond_to?(:tempfile) ? upload.tempfile.path : upload.to_s
+    extension = File.extname(upload.respond_to?(:original_filename) ? upload.original_filename.to_s : path).downcase
+
+    raise ArgumentError, "Please upload an Excel file (.xlsx)." unless extension == ".xlsx"
+
+    sheet = Roo::Excelx.new(path)
+    raise ArgumentError, "The spreadsheet is empty." if sheet.last_row.nil? || sheet.last_row < 1
+
+    headers = Array(sheet.row(1)).map { |header| normalize_header(header) }
+    missing = REQUIRED_HEADERS - headers
+    raise ArgumentError, "Missing required column(s): #{missing.join(', ')}. Expected #{ACCEPTED_HEADERS.join(', ')}." if missing.any?
+
+    (2..sheet.last_row).filter_map do |line|
+      values = headers.zip(Array(sheet.row(line))).to_h
+      next if values.values.all? { |value| value.to_s.strip.blank? }
+
+      {
+        "name" => values["name"].to_s.strip,
+        "email" => values["email"].to_s.strip.downcase,
+        "time_zone" => values["time_zone"].to_s.strip.presence || "UTC",
+        "groups" => values["groups"].to_s.strip,
+        "cohort" => values["cohort"].to_s.strip.presence,
+        "line" => line
+      }
+    end
+  rescue Zip::Error, ArgumentError, RuntimeError => e
+    raise ArgumentError, e.message
+  end
+
+  def self.normalize_header(header)
+    header.to_s.strip.downcase.tr(" ", "_")
+  end
+
+  def initialize(raw_rows, create_missing_groups: false, header_error: nil)
+    @raw_rows = Array(raw_rows)
     @create_missing_groups = create_missing_groups
+    @header_error = header_error
   end
 
   def preview
     analyse
   end
 
-  # Refuses partial imports: a half-imported file is harder to reason about than a
-  # rejected one.
   def commit!
     result = analyse
     return result unless result.ok?
@@ -51,15 +110,20 @@ class PeopleImport
   private
 
   def analyse
-    table = parse_table
-    return Result.new(rows: [], header_error: @header_error, created: 0, updated: 0, unchanged: 0, invalid: 0, new_groups: []) if @header_error
+    if @header_error.present?
+      return Result.new(rows: [], header_error: @header_error, created: 0, updated: 0, unchanged: 0, invalid: 0, new_groups: [])
+    end
+
+    if @raw_rows.empty?
+      return Result.new(rows: [], header_error: "The spreadsheet has no data rows.", created: 0, updated: 0, unchanged: 0, invalid: 0, new_groups: [])
+    end
 
     seen_emails = {}
     rows = []
     new_groups = []
 
-    table.each_with_index do |csv_row, index|
-      row = build_row(csv_row, index + 2)
+    @raw_rows.each_with_index do |raw, index|
+      row = build_row(raw, raw["line"] || raw[:line] || index + 2)
       next if row.nil?
 
       classify(row, seen_emails, new_groups)
@@ -77,30 +141,9 @@ class PeopleImport
     )
   end
 
-  def parse_table
-    if @csv_text.strip.empty?
-      @header_error = "The file is empty."
-      return []
-    end
-
-    table = CSV.parse(@csv_text, headers: true, header_converters: ->(header) { header.to_s.strip.downcase.tr(" ", "_") })
-    headers = table.headers.compact
-    missing = REQUIRED_HEADERS - headers
-
-    if missing.any?
-      @header_error = "Missing required column(s): #{missing.join(', ')}. Expected #{(REQUIRED_HEADERS + OPTIONAL_HEADERS).join(', ')}."
-      return []
-    end
-
-    table
-  rescue CSV::MalformedCSVError => e
-    @header_error = "That file could not be read as CSV (#{e.message})."
-    []
-  end
-
-  def build_row(csv_row, line)
-    values = csv_row.to_h.transform_values { |value| value.to_s.strip }
-    return nil if values.values.all?(&:blank?)
+  def build_row(raw, line)
+    values = raw.stringify_keys.transform_values { |value| value.to_s.strip }
+    return nil if values.values_at("name", "email", "time_zone", "groups", "cohort").all?(&:blank?)
 
     Row.new(
       line: line,

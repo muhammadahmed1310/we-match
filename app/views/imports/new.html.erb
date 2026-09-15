@@ -1,19 +1,20 @@
-<% content_for :title, "Import people — WE Match" %>
+<% content_for :title, "Import Excel — WE Match" %>
 
 <div class="page-header">
-  <h1>Import people</h1>
+  <h1>Import Excel</h1>
 </div>
 
 <div class="card">
   <h2>What the file needs</h2>
   <p class="muted">
-    A header row with <code>name</code> and <code>email</code>. Optionally
+    Upload an Excel workbook (<code>.xlsx</code>). The first sheet needs a header row with
+    <code>name</code> and <code>email</code>. Optionally
     <code>time_zone</code> (an IANA name such as <code>Europe/London</code>),
     <code>groups</code> (separated by <code>;</code>), and <code>cohort</code>.
   </p>
-  <pre class="code-sample">name,email,time_zone,groups,cohort
-Amara Okafor,amara@example.org,Africa/Lagos,WE Fellows;Explorers Circle,2026
-Priya Nair,priya@example.org,Asia/Kolkata,WE Fellows,2026</pre>
+  <pre class="code-sample">name | email | time_zone | groups | cohort
+Amara Okafor | amara@example.org | Africa/Lagos | WE Fellows;Explorers Circle | 2026
+Priya Nair | priya@example.org | Asia/Kolkata | WE Fellows | 2026</pre>
   <p class="muted">
     People are matched on email: an existing email is updated, a new one is added. Nothing
     is written until you review the preview on the next screen.
@@ -21,15 +22,11 @@ Priya Nair,priya@example.org,Asia/Kolkata,WE Fellows,2026</pre>
 </div>
 
 <div class="card form-card">
-  <%= form_with url: import_path, method: :post, multipart: true, local: true do |form| %>
+  <%= form_with url: import_path, method: :post, multipart: true, data: { turbo: false } do |form| %>
     <div class="form-group">
-      <%= form.label :file, "CSV file" %>
-      <%= form.file_field :file, accept: ".csv,text/csv" %>
-    </div>
-
-    <div class="form-group">
-      <%= form.label :csv_text, "…or paste the rows" %>
-      <%= form.text_area :csv_text, rows: 8, value: @csv_text, placeholder: "name,email,time_zone,groups,cohort" %>
+      <%= form.label :file, "Excel file (.xlsx)" %>
+      <%= form.file_field :file, accept: ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", required: true %>
+      <p class="field-hint">Choose a <strong>.xlsx</strong> file, then click <strong>Preview import</strong> below.</p>
     </div>
 
     <div class="form-group form-group--checkbox">

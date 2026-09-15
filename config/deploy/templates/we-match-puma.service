@@ -1,0 +1,21 @@
+[Unit]
+Description=WE Match Puma
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=konkabetse24
+Group=konkabetse24
+WorkingDirectory=/var/www/we-match/current
+EnvironmentFile=/var/www/we-match/shared/.env
+Environment=RAILS_ENV=production
+Environment=PUMA_BIND=unix:///var/www/we-match/shared/tmp/sockets/puma.sock
+Environment=PIDFILE=/var/www/we-match/shared/tmp/pids/puma.pid
+ExecStart=/home/konkabetse24/.rbenv/shims/bundle exec puma -C config/puma.rb
+ExecReload=/bin/kill -USR1 $MAINPID
+Restart=always
+RestartSec=5
+SyslogIdentifier=we-match-puma
+
+[Install]
+WantedBy=multi-user.target

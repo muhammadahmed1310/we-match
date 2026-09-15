@@ -6,14 +6,30 @@ class CycleAutomationTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   setup do
-    @group = create_group(name: "Automated Group", auto_cycle: true)
-    @manual_group = create_group(name: "Manual Group")
+    @group = create_group(name: "Automated Group")
+    @future_group = create_group(name: "Future Group", cycle_programme_starts_on: 1.month.from_now.to_date)
     @topic = create_topic(name: "Leadership")
-    @member_a = create_member(name: "Alice", email: "alice@example.com", groups: [ @group, @manual_group ])
-    @member_b = create_member(name: "Bob", email: "bob@example.com", groups: [ @group, @manual_group ])
+    @member_a = create_member(name: "Alice", email: "alice@example.com", groups: [ @group, @future_group ])
+    @member_b = create_member(name: "Bob", email: "bob@example.com", groups: [ @group, @future_group ])
   end
 
-  test "opens a cycle and sends the invitations for an automated group" do
+  test "skips a group before its programme start date" do
+    @group.update!(cycle_programme_starts_on: 1.week.from_now.to_date)
+
+    assert_empty OpenBiweeklyCyclesJob.perform_now
+  end
+
+  test "skips a group after its programme end date" do
+    @group.update!(
+      cycle_programme_starts_on: 1.month.ago.to_date,
+      cycle_programme_ends_on: 1.week.ago.to_date
+    )
+    @group.match_cycles.each { |cycle| cycle.update!(status: :matched, matched_at: Time.current) }
+
+    assert_empty OpenBiweeklyCyclesJob.perform_now
+  end
+
+  test "opens a cycle and sends the invitations for a group in its programme window" do
     cycles = OpenBiweeklyCyclesJob.perform_now
 
     assert_equal 1, cycles.size
@@ -24,10 +40,25 @@ class CycleAutomationTest < ActiveSupport::TestCase
     assert_equal Date.current, @group.reload.auto_cycle_last_opened_on
   end
 
-  test "leaves groups without automation alone" do
+  test "leaves a group whose programme has not started yet alone" do
     OpenBiweeklyCyclesJob.perform_now
 
-    assert_equal 0, @manual_group.match_cycles.count
+    assert_equal 0, @future_group.match_cycles.count
+  end
+
+  test "opens on the next Monday when programme starts mid-week" do
+    thursday = Date.current.beginning_of_week(:monday) + 3 # Thursday this week
+    @group.update!(cycle_programme_starts_on: thursday)
+    @group.update_columns(auto_cycle_last_opened_on: nil)
+
+    # The Monday before the Thursday start must not open.
+    assert_empty OpenBiweeklyCyclesJob.perform_now(thursday - 3)
+
+    # The Monday on or after the Thursday start should open.
+    next_monday = thursday + 4
+    cycles = OpenBiweeklyCyclesJob.perform_now(next_monday)
+
+    assert_equal 1, cycles.size
   end
 
   test "does not open a second cycle within the fortnight" do
@@ -46,7 +77,7 @@ class CycleAutomationTest < ActiveSupport::TestCase
   end
 
   test "skips a group with fewer than two people" do
-    solo_group = create_group(name: "Solo Group", auto_cycle: true)
+    solo_group = create_group(name: "Solo Group")
     create_member(name: "Solo", email: "solo@example.com", groups: [ solo_group ])
 
     OpenBiweeklyCyclesJob.perform_now

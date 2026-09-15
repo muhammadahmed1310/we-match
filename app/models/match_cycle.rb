@@ -19,6 +19,17 @@ class MatchCycle < ApplicationRecord
     (from + 7).beginning_of_week(:monday)
   end
 
+  # Same rhythm as automation: open now, close in ~3 days, meeting week = the week after.
+  def self.manual_defaults(from: Time.current)
+    moment = from.change(sec: 0)
+    {
+      status: :draft,
+      opens_at: moment.beginning_of_hour,
+      closes_at: moment.beginning_of_hour.advance(days: 3).change(hour: 17, min: 0, sec: 0),
+      meeting_week_start: default_meeting_week_start(moment.to_date)
+    }
+  end
+
   def ready_for_matching?
     open? || closed?
   end

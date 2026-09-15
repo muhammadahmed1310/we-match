@@ -16,16 +16,16 @@ class MatchCyclesController < ApplicationController
   end
 
   def new
-    @match_cycle = MatchCycle.new(
-      status: :draft,
-      opens_at: Time.current.beginning_of_hour,
-      closes_at: 3.days.from_now.beginning_of_hour
-    )
+    defaults = MatchCycle.manual_defaults
+    defaults[:group_id] = params[:group_id] if params[:group_id].present?
+    @match_cycle = MatchCycle.new(defaults)
     @groups = Group.ordered
   end
 
   def create
-    @match_cycle = MatchCycle.new(match_cycle_params)
+    attrs = MatchCycle.manual_defaults
+    attrs[:group_id] = create_match_cycle_params[:group_id]
+    @match_cycle = MatchCycle.new(attrs)
 
     if @match_cycle.save
       CycleInvitationService.new(@match_cycle).ensure_all!
@@ -37,14 +37,12 @@ class MatchCyclesController < ApplicationController
   end
 
   def edit
-    @groups = Group.ordered
   end
 
   def update
-    if @match_cycle.update(match_cycle_params)
+    if @match_cycle.update(update_match_cycle_params)
       redirect_to @match_cycle, notice: "Match cycle updated."
     else
-      @groups = Group.ordered
       render :edit, status: :unprocessable_entity
     end
   end
@@ -82,7 +80,7 @@ class MatchCyclesController < ApplicationController
     end
 
     if @match_cycle.match_responses.none?
-      redirect_to @match_cycle, alert: "No responses yet. Explorers and WE Fellows must submit availability and a topic before matching."
+      redirect_to @match_cycle, alert: "No responses yet. Users must submit availability and a topic before matching."
       return
     end
 
@@ -114,8 +112,12 @@ class MatchCyclesController < ApplicationController
     @match_cycle = MatchCycle.includes(:group).find(params[:id])
   end
 
-  def match_cycle_params
-    params.require(:match_cycle).permit(:group_id, :status, :opens_at, :closes_at, :meeting_week_start)
+  def create_match_cycle_params
+    params.require(:match_cycle).permit(:group_id)
+  end
+
+  def update_match_cycle_params
+    params.require(:match_cycle).permit(:closes_at, :meeting_week_start)
   end
 
   def invitation_notice(result)

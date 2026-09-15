@@ -5,8 +5,7 @@ runs biweekly cycles that ask each woman for a topic and her availability, pairs
 **within a group**, and introduces the pair. It does not schedule the meeting — the pair
 agree the time themselves.
 
-- Community Managers: start with the **[CM runbook](docs/CM_RUNBOOK.md)**, or **How it
-  works** at `/guide` in the app.
+- Community Managers: start with the **[CM runbook](docs/CM_RUNBOOK.md)**.
 - Where the project stands and what is next: **[project plan](docs/PROJECT_PLAN.md)**.
 - Data model, stack, and matching algorithm: **[TECHNICAL_PLAN.md](TECHNICAL_PLAN.md)**.
 - Hosting: **[DEPLOY.md](DEPLOY.md)**.
@@ -18,12 +17,12 @@ agree the time themselves.
 | Groups and people, with people in more than one group | `Group`, `Member`, `GroupMembership`, plus a cohort label per membership |
 | Matching only within a group | Each `MatchCycle` belongs to one `Group`; responses are validated against membership |
 | Biweekly invitations | `OpenBiweeklyCyclesJob` opens a cycle every second Monday for groups flagged `auto_cycle`; also available as a button |
-| Each woman asked for a topic and availability | Private per-person link (`CycleInvitation#token`) to a form asking for one topic, an optional private option, and one or two one-hour windows |
+| Each woman asked for a topic and availability | Private per-person link (`CycleInvitation#token`) to a form asking for one topic and one or two one-hour windows |
 | Only she can answer for herself | The link identifies her; there is no name dropdown and no `member_id` in any URL |
 | Local time zones | Windows are shown in her own zone, stored and matched in UTC (`ResponseSlot`, `MeetingWindows`) |
 | Matching on topic and time | `MatchingService`: same group, same `topic_id`, an identical UTC window, avoiding recent repeat pairings where it can |
 | Introduction to the pair | `MatchMailer#introduction`, one per match |
-| Aggregate insight, kept private | `TopicOption` choices are never shown to the pair or in any email; they surface only as counts in **Reports** |
+| Post-match feedback | Two weeks after meeting-week Monday, matched people get a private link asking if they met, value for time, and which subtopic resonated |
 | No meeting scheduling | Introductions only, no calendar links |
 
 ## Setup
@@ -121,15 +120,14 @@ Every endpoint needs a token in `Authorization: Bearer <token>` or `X-Api-Token`
 | Sign in | `/sign_in` |
 | Dashboard | `/` |
 | Groups | `/groups` |
-| WE Community | `/members` |
+| Users | `/members` |
 | Topics and their options | `/topics` |
-| CSV import | `/import/new` |
+| Excel import | `/import/new` |
 | Match cycles | `/match_cycles` |
 | Invitation links for a cycle | `/match_cycles/:id/invitations` |
 | Matches for a cycle | `/match_cycles/:id/matches` |
 | Reports | `/reports` |
 | Participant response | `/respond/:token` — the only screen that does not need an admin session |
-| Guide, "How WE Match works" | `/guide` |
 
 ## Layout
 

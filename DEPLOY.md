@@ -1,115 +1,123 @@
-# Deploy WE Match
+# Deploy WE Match (GCP + Capistrano)
 
-The pilot needs three things: a web process, a Postgres database, and a worker process for
-the biweekly automation. [`render.yaml`](render.yaml) describes all three.
+Production: **https://match.womenemerging.org**  
+VM: `we-match-web` · IP `34.147.171.215` · project We Connect  
+Email: **Resend** (domain `womenemerging.org` verified)
 
-**Free plans cover the web process and the database, but not a worker.** Without a worker
-the app is fully usable — a CM presses **Send invitations**, **Close responses**, and **Run
-matching** on the cycle page — but nothing happens on a schedule. Budget the smallest paid
-instance if you want the automation.
+Needs on the server: **Puma**, **Postgres**, **`bin/jobs`** (Solid Queue).
 
-## Render
+---
 
-### Prerequisites
+## 1. Server prep (already mostly done)
 
-- The repo on GitHub, and a [Render](https://render.com) account
-- The value of your local `config/master.key` (never commit it)
+- VM + static IP + HTTP/HTTPS firewall
+- GoDaddy A record `match` → `34.147.171.215`
+- Packages: git, build tools, Postgres, Nginx, Certbot
+- Ruby **3.2.2** via rbenv
+- DB user/db `we_match` / `we_match_production`
+- Dirs: `/var/www/we-match/{shared,releases}`
 
-### Steps
+### Linked secrets on the server
 
-1. **Dashboard → New + → Blueprint**, connect the repo. Render reads
-   [`render.yaml`](render.yaml) and creates the database, the web service, and the worker.
-2. **Set `RAILS_MASTER_KEY`** when prompted, on both the web and worker services.
-3. **Set `APP_HOST`** to the final hostname once you know it — the subdomain if you have
-   one, otherwise the `*.onrender.com` name. Email links are built from it.
-4. **Deploy.** The build runs `assets:precompile` and `db:prepare`.
-5. **Create the first admin.** Web service → Shell:
+```bash
+# .env — see paste template in chat / env.example
+nano /var/www/we-match/shared/.env
 
-   ```bash
-   ADMIN_EMAIL=you@womenemerging.org ADMIN_PASSWORD=a-long-passphrase bin/rails admin:create
-   ```
+# master.key — same file as local/Docker (never commit)
+nano /var/www/we-match/shared/config/master.key
+# or:  scp config/master.key konkabetse24@34.147.171.215:/var/www/we-match/shared/config/master.key
+chmod 600 /var/www/we-match/shared/.env /var/www/we-match/shared/config/master.key
+```
 
-6. **Sign in** and check the dashboard. It flags anything still missing, such as no groups,
-   no topics, or email delivery being off.
+### Passwordless sudo for Capistrano restarts
 
-### Custom subdomain
+```bash
+sudo tee /etc/sudoers.d/we-match <<'EOF'
+konkabetse24 ALL=(ALL) NOPASSWD: /bin/systemctl restart we-match-puma, /bin/systemctl restart we-match-jobs, /bin/systemctl status we-match-puma, /bin/systemctl status we-match-jobs, /bin/systemctl is-active we-match-puma, /bin/systemctl is-active we-match-jobs
+EOF
+sudo chmod 440 /etc/sudoers.d/we-match
+```
 
-Point a CNAME for `wematch.womenemerging.org` at the Render hostname, add the domain in
-Render, then set `APP_HOST` to it. Render issues the certificate.
+### GitHub deploy key (server must `git clone` the repo)
 
-## Switching on email
+Add the server’s SSH public key as a GitHub deploy key on `muhammadahmed1310/we-match`, or use your personal key with agent forwarding.
 
-Nothing is sent until `EMAIL_DELIVERY_ENABLED` is set. Before setting it, WE IT needs SPF,
-DKIM, and DMARC records for the sending domain on `womenemerging.org`, and the domain wants
-a week or two of low volume before real sends. Until then, invitations are recorded and
-handed out as the CSV of links from the cycle page.
+```bash
+ssh-keygen -t ed25519 -C "we-match-web" -f ~/.ssh/id_ed25519 -N ""
+cat ~/.ssh/id_ed25519.pub
+# Add that as a read-only deploy key on the GitHub repo
+ssh -T git@github.com
+```
 
-When the records exist, set these on **both** the web and worker services:
+---
 
-| Variable | Example |
-|----------|---------|
-| `EMAIL_DELIVERY_ENABLED` | `true` |
-| `MAIL_FROM` | `WE Match <no-reply@womenemerging.org>` |
-| `SMTP_ADDRESS` | your provider's host |
-| `SMTP_PORT` | `587` |
-| `SMTP_USERNAME` / `SMTP_PASSWORD` | from the provider |
+## 2. Capistrano from your laptop
 
-Send one cycle to yourself first. `EmailDelivery` rows record every attempt and its error,
-so failures are visible on the dashboard rather than silent.
+```bash
+bundle install
+# Commit + push Capistrano files and app changes to admin-cruds-ui-updates (or main)
+
+# Laptop SSH to the VM must work:
+ssh konkabetse24@34.147.171.215
+
+bundle exec cap production deploy
+```
+
+First deploy creates `current/`. Then on the **server**:
+
+```bash
+bash /var/www/we-match/current/config/deploy/templates/install-server-services.sh
+```
+
+That installs Nginx site, systemd units, and Certbot for `match.womenemerging.org`.
+
+Redeploy afterwards so services restart cleanly:
+
+```bash
+bundle exec cap production deploy
+```
+
+---
+
+## 3. First admin + email check
+
+On the server:
+
+```bash
+cd /var/www/we-match/current
+bin/rails admin:create   # with ADMIN_EMAIL / ADMIN_PASSWORD set
+bin/rails mail:test[you@example.com]
+```
+
+Visit https://match.womenemerging.org
+
+---
 
 ## Environment variables
 
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `DATABASE_URL` | Yes | Postgres connection |
-| `RAILS_MASTER_KEY` | Yes | Decrypt credentials |
-| `SECRET_KEY_BASE` | Yes | Sessions. Render generates it |
-| `RAILS_ENV` | Yes | `production` |
-| `APP_HOST` | Yes | Host used in email links, no scheme |
-| `EMAIL_DELIVERY_ENABLED` | No | Unset means nothing is sent, only recorded |
-| `MAIL_FROM`, `SMTP_*` | With email on | Provider credentials |
-| `WE_MATCH_API_TOKEN` | No | Only if something outside the app calls the JSON API |
-| `SHOW_MAILER_PREVIEWS` | No | `true` exposes `/rails/mailers`. Leave off in production |
-| `SEED_DEMO` | No | `true` seeds demo data on build. See the warning below |
+| Variable | Purpose |
+|----------|---------|
+| `APP_HOST` | `match.womenemerging.org` |
+| `DATABASE_URL` | Postgres on localhost |
+| `RAILS_MASTER_KEY` | Decrypt credentials |
+| `SECRET_KEY_BASE` | Sessions |
+| `EMAIL_DELIVERY_ENABLED` | `true` to send |
+| `MAIL_FROM` / `SMTP_*` | Resend SMTP |
+
+Template: [`config/deploy/shared/env.example`](config/deploy/shared/env.example)  
+Units / Nginx: [`config/deploy/templates/`](config/deploy/templates/)
 
 ### Do not seed the pilot database
 
-`db:seed` **deletes every group, person, cycle, and response** before inserting demo data.
-It refuses to run in production unless `ALLOW_DESTRUCTIVE_SEED=true`, and `SEED_DEMO` is
-`false` in the blueprint. Real data arrives through **Import CSV**, not seeds.
-
-## Before handing the URL to the WE team
-
-- Sign in works, and signing out then visiting `/groups` sends you back to sign-in
-- An admin account exists for each CM, with a passphrase sent separately
-- `APP_HOST` matches the URL you are sharing, so links in emails are right
-- A test cycle end to end: invitations, one response through a private link, close, match
-- `SHOW_MAILER_PREVIEWS` is off
-- If the worker is running, `bin/jobs` shows the recurring tasks registered
+`db:seed` deletes real data unless `ALLOW_DESTRUCTIVE_SEED=true`. Use **Import Excel**.
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
-| `Blocked hosts` | Set `APP_HOST` to the exact hostname, no `https://` |
-| Links in emails point at the wrong host | Same — `APP_HOST` on both web and worker |
-| Signed in but immediately signed out | `SECRET_KEY_BASE` changed between deploys |
-| Nothing on a schedule | Worker not running, or the group does not have auto-cycling on |
-| Emails recorded but never sent | `EMAIL_DELIVERY_ENABLED` not set, which is the default |
-| Database error on boot | Check `DATABASE_URL`, run `bin/rails db:prepare` in the shell |
-| Assets 404 | `assets:precompile` did not run in the build |
-
-## Other platforms
-
-The [`Dockerfile`](Dockerfile) and [`fly.toml`](fly.toml) work for Fly.io. Same
-requirements: a web process, Postgres, and a second process running `bin/jobs` if you want
-the automation.
-
-```bash
-fly launch
-fly postgres create --name we-match-db && fly postgres attach we-match-db
-fly secrets set RAILS_MASTER_KEY="$(cat config/master.key)" APP_HOST=your-app.fly.dev
-fly deploy
-fly ssh console -C "/rails/bin/rails db:prepare"
-fly ssh console -C "/rails/bin/rails admin:create"   # with ADMIN_EMAIL and ADMIN_PASSWORD set
-```
+| Capistrano can’t SSH | Add laptop key to VM `~/.ssh/authorized_keys` |
+| Git clone fails on server | Deploy key / `ssh -T git@github.com` |
+| Linked file missing | Create `shared/.env` and `shared/config/master.key` before deploy |
+| Blocked hosts | `APP_HOST=match.womenemerging.org` |
+| No scheduled cycles | `systemctl status we-match-jobs` |
+| Email not sending | Resend key + `EMAIL_DELIVERY_ENABLED=true`; check dashboard `EmailDelivery` |

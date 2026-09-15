@@ -1,0 +1,18 @@
+[Unit]
+Description=WE Match Solid Queue (bin/jobs)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=konkabetse24
+Group=konkabetse24
+WorkingDirectory=/var/www/we-match/current
+EnvironmentFile=/var/www/we-match/shared/.env
+Environment=RAILS_ENV=production
+ExecStart=/home/konkabetse24/.rbenv/shims/bundle exec bin/jobs
+Restart=always
+RestartSec=5
+SyslogIdentifier=we-match-jobs
+
+[Install]
+WantedBy=multi-user.target

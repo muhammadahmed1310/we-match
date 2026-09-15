@@ -45,8 +45,8 @@ one group.
 | Screen | What it does |
 |--------|--------------|
 | **Groups** | Create, edit, delete; switch auto-cycling on or off |
-| **WE Community** | Create, edit, delete a person; set her time zone; put her in any number of groups with a cohort |
-| **Import CSV** | Load a spreadsheet of people. Previews created, updated, and invalid rows; nothing is written until confirmed. People are matched on email, so re-importing corrects rather than duplicates |
+| **Users** | Create, edit, delete a person; set her time zone; put her in any number of groups with a cohort |
+| **Import Excel** | Load an `.xlsx` spreadsheet of people. Previews created, updated, and invalid rows; nothing is written until confirmed. People are matched on email, so re-importing corrects rather than duplicates |
 | **Topics** | Topics offered to participants, each with its own dropdown of private options |
 
 Topics can be global or restricted to one group. Deleting a topic or option that has

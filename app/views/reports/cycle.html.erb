@@ -46,11 +46,22 @@
   </div>
 
   <div class="card">
-    <h2>Focus within topics (private)</h2>
+    <h2>After the match (private)</h2>
+    <p class="muted">Collected two weeks after the meeting week, from people who were matched.</p>
+    <% if @report.feedback_submitted_count.positive? %>
+      <p>
+        <%= @report.feedback_submitted_count %> feedback<%= @report.feedback_submitted_count == 1 ? "" : "s" %> ·
+        <%= @report.met_count %> met
+        <% if @report.average_value_for_time.present? %>
+          · average value <%= @report.average_value_for_time %>/5
+        <% end %>
+      </p>
+    <% end %>
     <% if @report.option_distribution.any? %>
+      <h3>What resonated</h3>
       <%= render "shared/distribution", rows: @report.option_distribution %>
     <% else %>
-      <p class="muted">Nothing recorded yet.</p>
+      <p class="muted">No post-match feedback yet.</p>
     <% end %>
   </div>
 </div>

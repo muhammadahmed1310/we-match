@@ -16,21 +16,25 @@
       <span></span>
     </button>
 
-    <nav class="site-nav" data-header-target="nav">
-      <%= link_to "Dashboard", root_path, class: nav_link_class(root_path) %>
-      <%= link_to "Groups", groups_path, class: nav_link_class(groups_path) %>
-      <%= link_to "WE Community", members_path, class: nav_link_class(members_path) %>
-      <%= link_to "Match Cycles", match_cycles_path, class: nav_link_class(match_cycles_path) %>
-      <%= link_to "Topics", topics_path, class: nav_link_class(topics_path) %>
-      <%= link_to "Reports", reports_path, class: nav_link_class(reports_path) %>
-      <%= link_to "Guide", flow_guide_path, class: nav_link_class(flow_guide_path) %>
+    <div class="site-header__end" data-header-target="nav">
+      <nav class="site-nav" aria-label="Main">
+        <%= link_to "Dashboard", root_path, class: nav_link_class(root_path) %>
+        <%= link_to "Groups", groups_path, class: nav_link_class(groups_path) %>
+        <%= link_to "Users", members_path, class: nav_link_class(members_path) %>
+        <%= link_to "Match Cycles", match_cycles_path, class: nav_link_class(match_cycles_path) %>
+        <%= link_to "Topics", topics_path, class: nav_link_class(topics_path) %>
+        <%= link_to "Reports", reports_path, class: nav_link_class(reports_path) %>
+      </nav>
 
-      <% if signed_in_as_admin? %>
-        <span class="site-account">
-          <span class="site-account__name"><%= current_admin.name %></span>
+      <% if respond_to?(:signed_in_as_admin?) && signed_in_as_admin? %>
+        <div class="site-account">
+          <div class="site-account__identity">
+            <span class="site-account__label">Signed in as</span>
+            <span class="site-account__name"><%= current_admin.name %></span>
+          </div>
           <%= button_to "Sign out", sign_out_path, method: :delete, class: "btn btn-secondary" %>
-        </span>
+        </div>
       <% end %>
-    </nav>
+    </div>
   </div>
 </header>

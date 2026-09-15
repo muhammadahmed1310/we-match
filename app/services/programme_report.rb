@@ -50,9 +50,9 @@ class ProgrammeReport
   end
 
   def option_distribution
-    MatchResponse.where(match_cycle_id: cycles.map(&:id))
-                 .where.not(topic_option_id: nil)
-                 .joins(topic_option: :topic)
+    MatchFeedback.joins(:match, topic_option: :topic)
+                 .where(matches: { match_cycle_id: cycles.map(&:id) })
+                 .where.not(submitted_at: nil)
                  .group("topics.name", "topic_options.label")
                  .count
                  .map { |(topic_name, label), count| [ "#{topic_name} — #{label}", count ] }

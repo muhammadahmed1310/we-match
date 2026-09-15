@@ -7,21 +7,19 @@ Rails.application.routes.draw do
   post "sign_in", to: "sessions#create"
   delete "sign_out", to: "sessions#destroy", as: :sign_out
 
-  get "guide", to: "pages#flow", as: :flow_guide
-
-  # Participant flow. Authenticated by the invitation token in the URL, so these
+  # Participant flow. Authenticated by the invitation / feedback token in the URL, so these
   # are the only non-API routes that do not require an admin session.
   get "respond/:token", to: "participant_responses#edit", as: :participant_response
   patch "respond/:token", to: "participant_responses#update"
   get "respond/:token/thank-you", to: "participant_responses#show", as: :participant_response_confirmation
 
+  get "feedback/:token", to: "match_feedbacks#edit", as: :match_feedback
+  patch "feedback/:token", to: "match_feedbacks#update"
+  get "feedback/:token/thank-you", to: "match_feedbacks#show", as: :match_feedback_confirmation
+
   resource :import, only: %i[new create], controller: "imports"
 
-  resources :groups do
-    member do
-      patch :toggle_auto_cycle
-    end
-  end
+  resources :groups
 
   resources :members
 

@@ -16,8 +16,7 @@
   <%= form_with model: @match_response,
                 url: participant_response_path(token: @invitation.token),
                 method: :patch,
-                local: true,
-                data: { controller: "topic-options" } do |form| %>
+                local: true do |form| %>
     <% if @match_response.errors.any? %>
       <div class="form-errors">
         <ul>
@@ -39,42 +38,13 @@
 
     <div class="form-group">
       <%= form.label :topic_id, "What would you like to talk about?" %>
-      <%= form.collection_select :topic_id, @topics, :id, :name,
-                                 { prompt: "Choose a topic" },
-                                 data: { topic_options_target: "topic", action: "change->topic-options#topicChanged" } %>
-    </div>
-
-    <%# Falls back to "no option" when the chosen topic has no dropdown of its own. %>
-    <%= hidden_field_tag "match_response[topic_option_id]", "", id: nil %>
-
-    <% @topics.each do |topic| %>
-      <% next if topic.selectable_options.empty? %>
-      <div class="form-group topic-option-group"
-           data-topic-options-target="optionGroup"
-           data-topic-id="<%= topic.id %>"
-           <%= "hidden" unless @match_response.topic_id == topic.id %>>
-        <%= label_tag "topic_option_#{topic.id}", "Which part of #{topic.name}?" %>
-        <%= form.select :topic_option_id,
-                        options_from_collection_for_select(topic.selectable_options, :id, :label, @match_response.topic_option_id),
-                        { include_blank: "No preference" },
-                        id: "topic_option_#{topic.id}",
-                        disabled: @match_response.topic_id != topic.id,
-                        data: { topic_options_target: "optionSelect" } %>
-        <p class="field-hint">
-          This helps us understand what the WE Community wants to explore. It is never shown to the person you're matched with.
-        </p>
-      </div>
-    <% end %>
-
-    <div class="form-group">
-      <%= form.label :topic_option_other, "Anything else you'd like us to know? (optional)" %>
-      <%= form.text_field :topic_option_other, maxlength: 200, placeholder: "In your own words" %>
+      <%= form.collection_select :topic_id, @topics, :id, :name, prompt: "Choose a topic" %>
     </div>
 
     <fieldset class="form-group slot-picker">
       <legend>Pick one or two 1-hour windows</legend>
       <p class="field-hint">
-        Week of <%= @match_cycle.meeting_week_range.first.strftime("%b %-d") %>. You and your match agree the exact date between yourselves — these windows just tell us who overlaps.
+        Week of <%= @match_cycle.meeting_week_range.first.strftime("%b %-d") %>. Pick from the dropdown — we'll match you with someone who chose the same topic and the same window.
       </p>
 
       <% selections = @match_response.slot_selections %>

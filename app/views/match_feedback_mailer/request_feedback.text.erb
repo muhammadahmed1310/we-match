@@ -1,0 +1,11 @@
+Hi <%= @member.name.split.first %>,
+
+Your WE Match conversation in <%= @group.name %><% if @partner.present? %> with <%= @partner.name %><% end %> was about two weeks ago. We'd love a quick reflection — it takes under a minute.
+
+Share your feedback: <%= @feedback_url %>
+<% if @topic.present? %>
+You were matched to talk about <%= @topic.name %>.
+<% end %>
+Your answers stay private and are only used as aggregate insight for the WE Community.
+
+— WE Match

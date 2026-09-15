@@ -10,34 +10,33 @@ class TopicsController < ApplicationController
   def show
     @topic_options = @topic.topic_options
     @response_count = @topic.match_responses.count
-    @option_counts = @topic.match_responses.group(:topic_option_id).count
+    @option_counts = MatchFeedback.where(topic_option_id: @topic.topic_options.select(:id)).group(:topic_option_id).count
   end
 
   def new
-    @topic = Topic.new(active: true, position: next_position)
-    @groups = Group.ordered
+    @topic = Topic.new
   end
 
   def create
     @topic = Topic.new(topic_params)
+    @topic.active = true
+    @topic.group_id = nil
+    @topic.position = next_position
 
     if @topic.save
-      redirect_to @topic, notice: "Topic created."
+      redirect_to topics_path, notice: "Topic created."
     else
-      @groups = Group.ordered
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
-    @groups = Group.ordered
   end
 
   def update
     if @topic.update(topic_params)
-      redirect_to @topic, notice: "Topic updated."
+      redirect_to topics_path, notice: "Topic updated."
     else
-      @groups = Group.ordered
       render :edit, status: :unprocessable_entity
     end
   end
@@ -46,18 +45,18 @@ class TopicsController < ApplicationController
     if @topic.destroy
       redirect_to topics_path, notice: "Topic deleted."
     else
-      redirect_to @topic, alert: "This topic is used by existing responses. Mark it inactive instead."
+      redirect_to topics_path, alert: "“#{@topic.name}” is used by existing responses, so it can't be deleted."
     end
   end
 
   private
 
   def set_topic
-    @topic = Topic.includes(:topic_options).find(params[:id])
+    @topic = Topic.find(params[:id])
   end
 
   def topic_params
-    params.require(:topic).permit(:name, :description, :group_id, :active, :position)
+    params.require(:topic).permit(:name)
   end
 
   def next_position

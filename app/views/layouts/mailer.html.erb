@@ -2,26 +2,106 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       body {
         margin: 0;
-        padding: 24px;
-        background: #ffffff;
+        padding: 0;
+        background: #f4f7fb;
         color: #2b3b69;
-        font-family: Montserrat, Arial, Helvetica, sans-serif;
+        font-family: "Montserrat", Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .email-shell {
+        width: 100%;
+        background: #f4f7fb;
+        padding: 24px 12px;
+      }
+      .email-card {
+        max-width: 560px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #d9e4f0;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .email-header {
+        padding: 20px 28px 16px;
+        border-bottom: 1px solid #e8eef5;
+        text-align: left;
+      }
+      .email-header img {
+        display: block;
+        width: 56px;
+        height: 56px;
+        border: 0;
+      }
+      .email-brand {
+        margin: 10px 0 0;
+        font-family: "Montserrat", Arial, Helvetica, sans-serif;
+        font-size: 18px;
+        font-weight: 600;
+        color: #2b3b69;
+        letter-spacing: -0.02em;
+      }
+      .email-tagline {
+        margin: 2px 0 0;
+        font-family: "Montserrat", Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        font-weight: 500;
+        color: #6b7c99;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .email-body {
+        padding: 24px 28px 8px;
+        font-family: "Montserrat", Arial, Helvetica, sans-serif;
+        color: #2b3b69;
         font-size: 16px;
         line-height: 1.55;
       }
-      a {
-        color: #2b3b69;
-      }
-      p {
+      .email-body p {
         margin: 0 0 1rem;
+        font-family: "Montserrat", Arial, Helvetica, sans-serif;
+      }
+      .email-body ul {
+        margin: 0 0 1rem;
+        padding-left: 1.25rem;
+      }
+      .email-body li {
+        margin: 0 0 0.35rem;
+        font-family: "Montserrat", Arial, Helvetica, sans-serif;
+      }
+      .email-body a {
+        color: #2b3b69;
+        font-weight: 600;
+      }
+      .email-footer {
+        padding: 8px 28px 24px;
+        font-family: "Montserrat", Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        color: #6b7c99;
       }
     </style>
   </head>
 
   <body>
-    <%= yield %>
+    <div class="email-shell">
+      <div class="email-card">
+        <div class="email-header">
+          <% if attachments["we-logo.png"].present? %>
+            <%= image_tag attachments["we-logo.png"].url, alt: "Women Emerging", width: 56, height: 56 %>
+          <% end %>
+          <p class="email-brand">WE Match</p>
+          <p class="email-tagline">Meet. Share. Learn</p>
+        </div>
+        <div class="email-body">
+          <%= yield %>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

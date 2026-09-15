@@ -14,7 +14,7 @@ export default class extends Controller {
   }
 
   toggleMenu() {
-    const expanded = this.navTarget.classList.toggle("site-nav--open")
+    const expanded = this.navTarget.classList.toggle("site-header__end--open")
     this.toggleTarget.setAttribute("aria-expanded", expanded)
     this.element.classList.toggle("site-header--menu-open", expanded)
   }

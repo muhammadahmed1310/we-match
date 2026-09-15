@@ -7,30 +7,35 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     sign_in_admin
   end
 
-  test "creates a group" do
+  test "creates a group with a programme start date" do
     assert_difference -> { Group.count }, 1 do
-      post groups_path, params: { group: { name: "New Circle", description: "A new circle" } }
+      post groups_path, params: {
+        group: {
+          name: "New Circle",
+          description: "A new circle",
+          cycle_programme_starts_on: Date.current
+        }
+      }
     end
 
-    assert_redirected_to group_path(Group.last)
+    group = Group.last
+    assert_redirected_to group_path(group)
+    assert group.auto_cycle?
+    assert_equal Date.current, group.cycle_programme_starts_on
+  end
+
+  test "rejects a group without a programme start date" do
+    post groups_path, params: { group: { name: "No Dates" } }
+
+    assert_response :unprocessable_entity
   end
 
   test "rejects a duplicate name" do
     create_group(name: "Fellows")
 
-    post groups_path, params: { group: { name: "fellows" } }
+    post groups_path, params: { group: { name: "fellows", cycle_programme_starts_on: Date.current } }
 
     assert_response :unprocessable_entity
-  end
-
-  test "switches biweekly automation on and off" do
-    group = create_group(name: "Fellows")
-
-    patch toggle_auto_cycle_group_path(group)
-    assert group.reload.auto_cycle?
-
-    patch toggle_auto_cycle_group_path(group)
-    refute group.reload.auto_cycle?
   end
 
   test "deleting a group takes its cycles with it" do
@@ -50,5 +55,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     get group_path(group)
 
     assert_response :success
+    assert_match "Programme", response.body
+    assert_no_match "Switch automation", response.body
   end
 end

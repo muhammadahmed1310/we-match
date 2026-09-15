@@ -13,8 +13,6 @@
   </div>
 </div>
 
-<%= render "shared/product_workflow", match_cycle: @match_cycle, step: (@match_cycle.matched? ? 3 : 2) %>
-
 <p>
   <span class="badge badge-<%= @match_cycle.status %>"><%= @match_cycle.status %></span>
   <span class="muted">

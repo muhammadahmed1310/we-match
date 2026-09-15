@@ -8,9 +8,8 @@
 </div>
 
 <p class="muted">
-  Topics are what people choose from when they respond. Matching only pairs people who
-  chose the same topic, so keep the list short. Each topic can carry its own dropdown of
-  options, which is collected for insight and never shown to the person someone is matched with.
+  Topics are what people choose when they respond. Add subtopics under each topic —
+  asked after the match in the feedback email for private insight.
 </p>
 
 <div class="card">
@@ -19,24 +18,21 @@
       <thead>
         <tr>
           <th>Topic</th>
-          <th>Available to</th>
-          <th>Options</th>
-          <th>Status</th>
+          <th>Subtopics</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         <% @topics.each do |topic| %>
           <tr>
-            <td><%= link_to topic.name, topic %></td>
-            <td><%= topic.scope_label %></td>
+            <td><%= topic.name %></td>
             <td><%= topic.topic_options.size %></td>
-            <td>
-              <span class="badge badge-<%= topic.active? ? "open" : "closed" %>">
-                <%= topic.active? ? "Active" : "Inactive" %>
-              </span>
+            <td class="actions">
+              <%= link_to "Subtopics", topic_path(topic), class: "btn btn-link" %>
+              <%= link_to "Edit", edit_topic_path(topic), class: "btn btn-link" %>
+              <%= button_to "Delete", topic_path(topic), method: :delete, class: "btn btn-link",
+                    data: { turbo_confirm: "Delete #{topic.name}?" } %>
             </td>
-            <td><%= link_to "Edit", edit_topic_path(topic) %></td>
           </tr>
         <% end %>
       </tbody>

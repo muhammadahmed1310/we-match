@@ -52,7 +52,7 @@ class ParticipantResponsesController < ApplicationController
   def set_match_response
     @match_response = @match_cycle.match_responses.find_by(member_id: @invitation.member_id) ||
                       @match_cycle.match_responses.new(member: @member)
-    @topics = @group.available_topics.includes(:topic_options)
+    @topics = @group.available_topics
   end
 
   def ensure_cycle_accepts_responses

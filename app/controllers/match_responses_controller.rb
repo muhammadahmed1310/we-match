@@ -49,7 +49,7 @@ class MatchResponsesController < ApplicationController
 
   def load_form_data
     @members = @match_cycle.group.members.order(:name)
-    @topics = @match_cycle.group.available_topics.includes(:topic_options)
+    @topics = @match_cycle.group.available_topics
     @windows = windows_for(@match_response)
   end
 

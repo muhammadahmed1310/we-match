@@ -21,6 +21,12 @@ class MailDelivery
     ENV.fetch("MAIL_FROM", DEFAULT_FROM)
   end
 
+  # The product flag can be on while Action Mailer is still using :test, which
+  # records mail but never reaches an inbox.
+  def self.delivers_to_inbox?
+    enabled? && ActionMailer::Base.delivery_method.to_sym != :test
+  end
+
   # Records what we intended to send, then queues the real delivery. The message is
   # materialised once here purely to capture the subject and recipients for the log.
   def self.deliver(mailer:, action:, args: [], member: nil, match_cycle: nil, match: nil)

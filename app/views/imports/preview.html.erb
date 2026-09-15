@@ -78,8 +78,8 @@
       <p>Everything checks out. Nothing has been written yet.</p>
     <% end %>
 
-    <%= form_with url: import_path, method: :post, local: true do |form| %>
-      <%= hidden_field_tag :csv_text, @csv_text %>
+    <%= form_with url: import_path, method: :post, data: { turbo: false } do |form| %>
+      <%= hidden_field_tag :import_payload, @import_payload %>
       <%= hidden_field_tag :create_missing_groups, @create_missing_groups ? "1" : "0" %>
       <%= hidden_field_tag :confirm, "1" %>
 

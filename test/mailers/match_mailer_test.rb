@@ -46,15 +46,18 @@ class MatchMailerTest < ActionMailer::TestCase
     assert_no_match "Leading without authority", body(mail)
   end
 
-  test "sends from a WE address rather than the Rails default" do
+  test "sends from the configured WE Match address" do
     mail = MatchMailer.introduction(@match)
 
-    assert_equal [ "no-reply@womenemerging.org" ], mail.from
+    assert_equal [ Mail::Address.new(MailDelivery.from_address).address ], mail.from
   end
 
   private
 
   def body(mail)
-    mail.all_parts.map(&:decoded).join("\n")
+    parts = mail.multipart? ? mail.all_parts : [ mail ]
+    parts.select { |part| part.text? || part.mime_type.to_s.start_with?("text/") }
+         .map(&:decoded)
+         .join("\n")
   end
 end

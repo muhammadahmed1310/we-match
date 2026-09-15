@@ -85,15 +85,15 @@
   </div>
 
   <div class="card">
-    <h2>Focus within each topic</h2>
+    <h2>What resonated after matches (private)</h2>
     <p class="muted">
-      From the topic option dropdown. Collected for insight only — never shown to the
-      person someone is matched with.
+      From the post-match feedback email, two weeks after the meeting week. Never shown
+      to the person someone is matched with.
     </p>
     <% if @report.option_distribution.any? %>
       <%= render "shared/distribution", rows: @report.option_distribution %>
     <% else %>
-      <p class="muted">No options chosen yet.</p>
+      <p class="muted">No post-match focus yet.</p>
     <% end %>
   </div>
 </div>

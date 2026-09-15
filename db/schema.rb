@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_09_120010) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_14_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -75,8 +75,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_09_120010) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "auto_cycle", default: false, null: false
+    t.boolean "auto_cycle", default: true, null: false
     t.date "auto_cycle_last_opened_on"
+    t.date "cycle_programme_starts_on"
+    t.date "cycle_programme_ends_on"
     t.index ["name"], name: "index_groups_on_name", unique: true
   end
 
@@ -92,6 +94,25 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_09_120010) do
     t.boolean "auto_created", default: false, null: false
     t.datetime "invitations_sent_at"
     t.index ["group_id"], name: "index_match_cycles_on_group_id"
+  end
+
+  create_table "match_feedbacks", force: :cascade do |t|
+    t.bigint "match_id", null: false
+    t.bigint "member_id", null: false
+    t.bigint "topic_option_id"
+    t.string "token", null: false
+    t.boolean "did_meet"
+    t.integer "value_for_time"
+    t.datetime "sent_at"
+    t.datetime "submitted_at"
+    t.integer "send_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id", "member_id"], name: "index_match_feedbacks_on_match_id_and_member_id", unique: true
+    t.index ["match_id"], name: "index_match_feedbacks_on_match_id"
+    t.index ["member_id"], name: "index_match_feedbacks_on_member_id"
+    t.index ["token"], name: "index_match_feedbacks_on_token", unique: true
+    t.index ["topic_option_id"], name: "index_match_feedbacks_on_topic_option_id"
   end
 
   create_table "match_responses", force: :cascade do |t|
@@ -299,6 +320,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_09_120010) do
   add_foreign_key "group_memberships", "groups"
   add_foreign_key "group_memberships", "members"
   add_foreign_key "match_cycles", "groups"
+  add_foreign_key "match_feedbacks", "matches"
+  add_foreign_key "match_feedbacks", "members"
+  add_foreign_key "match_feedbacks", "topic_options"
   add_foreign_key "match_responses", "match_cycles"
   add_foreign_key "match_responses", "matches"
   add_foreign_key "match_responses", "members"

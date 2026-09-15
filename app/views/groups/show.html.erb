@@ -4,7 +4,6 @@
   <h1><%= @group.name %></h1>
   <div class="actions">
     <%= link_to "Edit", edit_group_path(@group), class: "btn btn-secondary" %>
-    <%= link_to "New match cycle", new_match_cycle_path(group_id: @group.id), class: "btn btn-primary" %>
     <%= link_to "All groups", groups_path, class: "btn btn-secondary" %>
   </div>
 </div>
@@ -12,23 +11,19 @@
 <p class="muted"><%= @group.description %></p>
 
 <div class="card">
-  <h2>Biweekly automation</h2>
+  <h2>Programme</h2>
   <p class="muted">
-    When this is on, WE Match opens a cycle every other Monday, closes it on Thursday, and
-    runs matching on Friday. It needs the worker process to be running.
+    Cycles run every two weeks between the programme dates.
+    Invites Monday → respond by Thursday → matches Friday.
   </p>
-  <p>
-    <span class="badge badge-<%= @group.auto_cycle? ? "open" : "draft" %>"><%= @group.auto_cycle? ? "On" : "Off" %></span>
-    <% if @group.auto_cycle_last_opened_on.present? %>
-      <span class="muted">Last automatic cycle opened <%= @group.auto_cycle_last_opened_on.strftime("%b %-d, %Y") %></span>
-    <% end %>
-  </p>
-  <%= button_to @group.auto_cycle? ? "Switch automation off" : "Switch automation on",
-        toggle_auto_cycle_group_path(@group), method: :patch, class: "btn btn-secondary" %>
+  <p><%= @group.programme_window_label %></p>
+  <% if @group.auto_cycle_last_opened_on.present? %>
+    <p class="muted">Last automatic cycle opened <%= @group.auto_cycle_last_opened_on.strftime("%b %-d, %Y") %></p>
+  <% end %>
 </div>
 
 <div class="card">
-  <h2>Explorers and WE Fellows (<%= @members.size %>)</h2>
+  <h2>Users (<%= @members.size %>)</h2>
   <% if @members.any? %>
     <table>
       <thead>
@@ -50,8 +45,8 @@
     </table>
   <% else %>
     <p class="muted">
-      Nobody in this group yet. <%= link_to "Import a CSV", new_import_path %> or
-      <%= link_to "add someone", new_member_path %>.
+      Nobody in this group yet. <%= link_to "Add someone", new_member_path %> or
+      <%= link_to "import from Users", new_import_path %>.
     </p>
   <% end %>
 </div>
@@ -101,7 +96,7 @@
 
 <div class="card">
   <h2>Danger zone</h2>
-  <p class="muted">Deleting a group also deletes its cycles, responses, and matches. People stay in the WE Community.</p>
+  <p class="muted">Deleting a group also deletes its cycles, responses, and matches. People stay under Users.</p>
   <%= button_to "Delete group", group_path(@group), method: :delete, class: "btn btn-secondary",
         data: { turbo_confirm: "Delete #{@group.name} and all of its cycles?" } %>
 </div>

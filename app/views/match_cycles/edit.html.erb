@@ -2,9 +2,9 @@
 
 <div class="page-header">
   <h1>Edit match cycle</h1>
-  <p class="muted"><%= @match_cycle.group.name %></p>
+  <p class="muted"><%= @match_cycle.group.name %> · <%= @match_cycle.status %></p>
 </div>
 
 <div class="card form-card">
-  <%= render "form", match_cycle: @match_cycle %>
+  <%= render "form", match_cycle: @match_cycle, mode: :edit %>
 </div>

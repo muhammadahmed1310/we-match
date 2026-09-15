@@ -8,6 +8,7 @@ if Rails.env.production? && ENV["ALLOW_DESTRUCTIVE_SEED"] != "true"
   abort "Refusing to seed production: this deletes all groups, people, cycles, and responses. Set ALLOW_DESTRUCTIVE_SEED=true if that is really what you want."
 end
 
+MatchFeedback.destroy_all if defined?(MatchFeedback)
 ResponseSlot.destroy_all
 MatchResponse.destroy_all
 Match.destroy_all
@@ -49,12 +50,13 @@ members = members_data.map { |attrs| Member.create!(attrs) }
 we_fellows = Group.create!(
   name: "WE Fellows",
   description: "Women who completed a WE Expedition.",
-  auto_cycle: true
+  cycle_programme_starts_on: Date.current
 )
 
 explorers_circle = Group.create!(
   name: "Explorers Circle",
-  description: "Explorers currently engaging with the WE Community."
+  description: "Explorers currently engaging with the WE Community.",
+  cycle_programme_starts_on: Date.current
 )
 
 members[0..5].each { |member| GroupMembership.create!(member: member, group: we_fellows, cohort: "2026") }

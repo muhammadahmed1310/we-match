@@ -13,6 +13,11 @@ shared: &shared
     queue: mailers
     schedule: every wednesday at 9am
 
+  send_match_feedback_requests:
+    class: SendMatchFeedbackRequestsJob
+    queue: mailers
+    schedule: every day at 10am
+
   close_due_cycles:
     class: CloseDueCyclesJob
     queue: cycles

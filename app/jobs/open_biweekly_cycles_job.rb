@@ -16,6 +16,7 @@ class OpenBiweeklyCyclesJob < ApplicationJob
     opened = []
 
     Group.auto_cycling.includes(:members).find_each do |group|
+      next unless group.programme_active_on?(today)
       next unless due?(group, today)
       next if group.members.size < 2
 

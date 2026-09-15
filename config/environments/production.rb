@@ -86,20 +86,11 @@ Rails.application.configure do
   # the flag off, invitations are recorded and handed out as exported links instead.
   # Mirrors MailDelivery.enabled?, which app code uses. Checked inline because
   # autoloading is not available while the environment is being configured.
+  require Rails.root.join("config/smtp")
   if ActiveModel::Type::Boolean.new.cast(ENV["EMAIL_DELIVERY_ENABLED"]).present?
     config.action_mailer.delivery_method = :smtp
     config.action_mailer.raise_delivery_errors = true
-    config.action_mailer.smtp_settings = {
-      address: ENV.fetch("SMTP_ADDRESS"),
-      port: ENV.fetch("SMTP_PORT", 587).to_i,
-      domain: ENV.fetch("SMTP_DOMAIN", ENV.fetch("APP_HOST", "womenemerging.org")),
-      user_name: ENV.fetch("SMTP_USERNAME"),
-      password: ENV.fetch("SMTP_PASSWORD"),
-      authentication: ENV.fetch("SMTP_AUTHENTICATION", "plain").to_sym,
-      enable_starttls_auto: true,
-      open_timeout: 10,
-      read_timeout: 10
-    }
+    config.action_mailer.smtp_settings = WeMatchSmtp.settings
   else
     config.action_mailer.delivery_method = :test
   end

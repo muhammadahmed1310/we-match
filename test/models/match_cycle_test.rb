@@ -40,7 +40,12 @@ class MatchCycleTest < ActiveSupport::TestCase
   end
 
   test "defaults the meeting week to the Monday after closing" do
-    cycle = create_cycle(group: @group, closes_at: Time.utc(2026, 8, 13, 17), meeting_week_start: nil)
+    cycle = create_cycle(
+      group: @group,
+      opens_at: Time.utc(2026, 8, 10, 17),
+      closes_at: Time.utc(2026, 8, 13, 17),
+      meeting_week_start: nil
+    )
 
     assert_equal Date.new(2026, 8, 17), cycle.meeting_week_start
     assert_equal 1, cycle.meeting_week_start.wday

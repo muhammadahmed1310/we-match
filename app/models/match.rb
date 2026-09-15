@@ -4,6 +4,7 @@ class Match < ApplicationRecord
   belongs_to :member_two, class_name: "Member"
   belongs_to :topic, optional: true
   has_many :match_responses, dependent: :nullify
+  has_many :match_feedbacks, dependent: :destroy
   has_many :email_deliveries, dependent: :nullify
 
   validate :members_are_distinct

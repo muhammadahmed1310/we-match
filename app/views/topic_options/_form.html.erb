@@ -10,18 +10,8 @@
   <% end %>
 
   <div class="form-group">
-    <%= form.label :label, "Option" %>
-    <%= form.text_field :label, placeholder: "e.g. Having difficult conversations" %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :position, "Position" %>
-    <%= form.number_field :position, min: 0 %>
-  </div>
-
-  <div class="form-group form-group--checkbox">
-    <%= form.check_box :active %>
-    <%= form.label :active, "Active" %>
+    <%= form.label :label, "Subtopic" %>
+    <%= form.text_field :label, placeholder: "e.g. Having difficult conversations", autofocus: true %>
   </div>
 
   <div class="actions">

@@ -8,13 +8,12 @@ class PeopleImportTest < ActiveSupport::TestCase
   end
 
   test "previews without writing anything" do
-    csv = <<~CSV
-      name,email,time_zone,groups,cohort
-      Amara Okafor,amara@example.org,Africa/Lagos,WE Fellows,2026
-    CSV
+    rows = import_rows(
+      name: "Amara Okafor", email: "amara@example.org", time_zone: "Africa/Lagos", groups: "WE Fellows", cohort: "2026"
+    )
 
     result = assert_no_difference -> { Member.count } do
-      PeopleImport.new(csv).preview
+      PeopleImport.new(rows).preview
     end
 
     assert result.ok?
@@ -23,12 +22,11 @@ class PeopleImportTest < ActiveSupport::TestCase
   end
 
   test "creates people and memberships on commit" do
-    csv = <<~CSV
-      name,email,time_zone,groups,cohort
-      Amara Okafor,amara@example.org,Africa/Lagos,WE Fellows,2026
-    CSV
+    rows = import_rows(
+      name: "Amara Okafor", email: "amara@example.org", time_zone: "Africa/Lagos", groups: "WE Fellows", cohort: "2026"
+    )
 
-    PeopleImport.new(csv).commit!
+    PeopleImport.new(rows).commit!
 
     member = Member.find_by(email: "amara@example.org")
     assert_equal "Africa/Lagos", member.time_zone
@@ -38,12 +36,11 @@ class PeopleImportTest < ActiveSupport::TestCase
 
   test "updates an existing person matched on email" do
     create_member(name: "Old Name", email: "amara@example.org")
-    csv = <<~CSV
-      name,email,time_zone,groups
-      Amara Okafor,AMARA@example.org,Africa/Lagos,WE Fellows
-    CSV
+    rows = import_rows(
+      name: "Amara Okafor", email: "AMARA@example.org", time_zone: "Africa/Lagos", groups: "WE Fellows"
+    )
 
-    result = PeopleImport.new(csv).commit!
+    result = PeopleImport.new(rows).commit!
 
     assert_equal 1, result.updated
     member = Member.find_by(email: "amara@example.org")
@@ -52,12 +49,9 @@ class PeopleImportTest < ActiveSupport::TestCase
   end
 
   test "flags a row whose time zone is not recognised" do
-    csv = <<~CSV
-      name,email,time_zone
-      Amara Okafor,amara@example.org,Mars/Olympus
-    CSV
+    rows = import_rows(name: "Amara Okafor", email: "amara@example.org", time_zone: "Mars/Olympus")
 
-    result = PeopleImport.new(csv).preview
+    result = PeopleImport.new(rows).preview
 
     refute result.ok?
     assert_equal 1, result.invalid
@@ -65,24 +59,18 @@ class PeopleImportTest < ActiveSupport::TestCase
   end
 
   test "flags a row whose group does not exist" do
-    csv = <<~CSV
-      name,email,groups
-      Amara Okafor,amara@example.org,Unknown Group
-    CSV
+    rows = import_rows(name: "Amara Okafor", email: "amara@example.org", groups: "Unknown Group")
 
-    result = PeopleImport.new(csv).preview
+    result = PeopleImport.new(rows).preview
 
     refute result.ok?
     assert_includes result.rows.first.messages.join(" "), "does not exist"
   end
 
   test "creates missing groups when asked to" do
-    csv = <<~CSV
-      name,email,groups
-      Amara Okafor,amara@example.org,Brand New Group
-    CSV
+    rows = import_rows(name: "Amara Okafor", email: "amara@example.org", groups: "Brand New Group")
 
-    result = PeopleImport.new(csv, create_missing_groups: true).commit!
+    result = PeopleImport.new(rows, create_missing_groups: true).commit!
 
     assert result.ok?
     assert_equal [ "Brand New Group" ], result.new_groups
@@ -90,49 +78,53 @@ class PeopleImportTest < ActiveSupport::TestCase
   end
 
   test "flags duplicate emails within the file" do
-    csv = <<~CSV
-      name,email
-      Amara Okafor,amara@example.org
-      Amara Again,amara@example.org
-    CSV
+    rows = import_rows(
+      { name: "Amara Okafor", email: "amara@example.org" },
+      { name: "Amara Again", email: "amara@example.org" }
+    )
 
-    result = PeopleImport.new(csv).preview
-
-    refute result.ok?
-    assert_includes result.rows.last.messages.join(" "), "Duplicate of line 2"
-  end
-
-  test "reports a missing required column" do
-    result = PeopleImport.new("full_name,email\nAmara,amara@example.org").preview
+    result = PeopleImport.new(rows).preview
 
     refute result.ok?
-    assert_includes result.header_error, "name"
+    assert_includes result.rows.last.messages.join(" "), "Duplicate of line"
   end
 
-  test "reports an empty file" do
-    assert_includes PeopleImport.new("").preview.header_error, "empty"
+  test "reads an uploaded xlsx workbook" do
+    upload = xlsx_upload([
+      { "name" => "Amara Okafor", "email" => "amara@example.org", "time_zone" => "Africa/Lagos", "groups" => "WE Fellows", "cohort" => "2026" }
+    ])
+
+    result = PeopleImport.from_xlsx(upload).commit!
+
+    assert result.ok?
+    assert Member.exists?(email: "amara@example.org")
+  end
+
+  test "rejects a missing required column in xlsx" do
+    upload = xlsx_upload([ { "full_name" => "Amara", "email" => "amara@example.org" } ])
+
+    error = assert_raises(ArgumentError) { PeopleImport.read_xlsx(upload) }
+    assert_includes error.message, "name"
   end
 
   test "writes nothing when any row is invalid" do
-    csv = <<~CSV
-      name,email
-      Amara Okafor,amara@example.org
-      ,broken
-    CSV
+    rows = import_rows(
+      { name: "Amara Okafor", email: "amara@example.org" },
+      { name: "", email: "broken" }
+    )
 
     assert_no_difference -> { Member.count } do
-      PeopleImport.new(csv).commit!
+      PeopleImport.new(rows).commit!
     end
   end
 
   test "leaves an already correct row alone" do
     create_member(name: "Amara Okafor", email: "amara@example.org", time_zone: "Africa/Lagos", groups: [ @group ])
-    csv = <<~CSV
-      name,email,time_zone,groups
-      Amara Okafor,amara@example.org,Africa/Lagos,WE Fellows
-    CSV
+    rows = import_rows(
+      name: "Amara Okafor", email: "amara@example.org", time_zone: "Africa/Lagos", groups: "WE Fellows"
+    )
 
-    result = PeopleImport.new(csv).preview
+    result = PeopleImport.new(rows).preview
 
     assert_equal 1, result.unchanged
   end

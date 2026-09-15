@@ -1,0 +1,25 @@
+<% content_for :title, "Thank you — WE Match" %>
+
+<div class="card participant-card">
+  <h1>Thank you, <%= @member.name.split.first %></h1>
+  <p>Your feedback helps WE understand what the community is exploring.</p>
+
+  <dl class="summary-list">
+    <div>
+      <dt>Did you meet?</dt>
+      <dd><%= @feedback.did_meet? ? "Yes" : "No" %></dd>
+    </div>
+    <% if @feedback.value_for_time.present? %>
+      <div>
+        <dt>Value for time</dt>
+        <dd><%= @feedback.value_for_time_label %></dd>
+      </div>
+    <% end %>
+    <% if @feedback.insight_label.present? %>
+      <div>
+        <dt>What resonated</dt>
+        <dd><%= @feedback.insight_label %></dd>
+      </div>
+    <% end %>
+  </dl>
+</div>

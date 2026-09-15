@@ -11,33 +11,11 @@
 
   <div class="form-group">
     <%= form.label :name, "Topic name" %>
-    <%= form.text_field :name, placeholder: "e.g. Leading through change" %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :description, "Description (optional)" %>
-    <%= form.text_area :description, rows: 3 %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :group_id, "Available to" %>
-    <%= form.collection_select :group_id, @groups, :id, :name, include_blank: "All groups" %>
-    <p class="field-hint">Leave blank to offer this topic to every group.</p>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :position, "Position" %>
-    <%= form.number_field :position, min: 0 %>
-    <p class="field-hint">Lower numbers appear first on the response form.</p>
-  </div>
-
-  <div class="form-group form-group--checkbox">
-    <%= form.check_box :active %>
-    <%= form.label :active, "Active (offered on new response forms)" %>
+    <%= form.text_field :name, placeholder: "e.g. Leading through change", autofocus: true %>
   </div>
 
   <div class="actions">
     <%= form.submit class: "btn btn-primary" %>
-    <%= link_to "Cancel", @topic.persisted? ? topic_path(@topic) : topics_path, class: "btn btn-secondary" %>
+    <%= link_to "Cancel", topics_path, class: "btn btn-secondary" %>
   </div>
 <% end %>

@@ -1,13 +1,14 @@
+<% content_for :title, "New match cycle — WE Match" %>
+
 <div class="page-header">
-  <h1>New Match Cycle</h1>
-  <%= link_to "How it works", flow_guide_path, class: "btn btn-secondary" %>
+  <h1>New match cycle</h1>
 </div>
 
 <div class="card flow-callout">
-  <p><strong>Yes — you create each cycle manually.</strong> One cycle = one round for <strong>one group</strong>.</p>
-  <p class="muted">Next: open the cycle → Send Invitations → Explorers and WE Fellows submit a response → Run Matching.</p>
+  <p><strong>Usually you don’t need this.</strong> Groups with a start date get a cycle every two weeks automatically.</p>
+  <p class="muted">Use this only for an extra round. Pick the group — we’ll set the dates like the automatic cycles.</p>
 </div>
 
 <div class="card form-card">
-  <%= render "form", match_cycle: @match_cycle %>
+  <%= render "form", match_cycle: @match_cycle, mode: :new %>
 </div>

@@ -1,0 +1,21 @@
+<p>Hi <%= @member.name.split.first %>,</p>
+
+<p>
+  Your WE Match conversation in <strong><%= @group.name %></strong>
+  <% if @partner.present? %>
+    with <strong><%= @partner.name %></strong>
+  <% end %>
+  was about two weeks ago. We'd love a quick reflection — it takes under a minute.
+</p>
+
+<p>
+  <a href="<%= @feedback_url %>">Share your feedback</a>
+</p>
+
+<% if @topic.present? %>
+  <p>You were matched to talk about <strong><%= @topic.name %></strong>.</p>
+<% end %>
+
+<p>Your answers stay private and are only used as aggregate insight for the WE Community.</p>
+
+<p>— WE Match</p>

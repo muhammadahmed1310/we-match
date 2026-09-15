@@ -14,16 +14,25 @@ class MatchCyclesControllerTest < ActionDispatch::IntegrationTest
   test "creating a cycle issues a private link for everyone in the group" do
     assert_difference -> { CycleInvitation.count }, 2 do
       post match_cycles_path, params: {
-        match_cycle: {
-          group_id: @group.id,
-          status: "draft",
-          opens_at: 1.day.from_now.change(sec: 0),
-          closes_at: 4.days.from_now.change(sec: 0)
-        }
+        match_cycle: { group_id: @group.id }
       }
     end
 
-    assert_redirected_to match_cycle_path(MatchCycle.last)
+    cycle = MatchCycle.last
+    assert_redirected_to match_cycle_path(cycle)
+    assert cycle.draft?
+    assert cycle.opens_at.present?
+    assert cycle.closes_at.present?
+    assert cycle.meeting_week_start.present?
+  end
+
+  test "the new cycle form only asks for a group" do
+    get new_match_cycle_path
+
+    assert_response :success
+    assert_match "Select a group", response.body
+    assert_no_match "Opens at", response.body
+    assert_no_match "Status", response.body
   end
 
   test "sending invitations opens the cycle and records one email each" do

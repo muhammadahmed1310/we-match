@@ -36,3 +36,7 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Capistrano shared secrets (keep env.example)
+/config/deploy/shared/.env
+/config/deploy/shared/config/master.key

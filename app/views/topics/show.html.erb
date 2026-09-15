@@ -3,36 +3,25 @@
 <div class="page-header">
   <h1><%= @topic.name %></h1>
   <div class="actions">
-    <%= link_to "Edit topic", edit_topic_path(@topic), class: "btn btn-secondary" %>
-    <%= link_to "Add option", new_topic_topic_option_path(@topic), class: "btn btn-primary" %>
+    <%= link_to "Back to topics", topics_path, class: "btn btn-secondary" %>
+    <%= link_to "Add subtopic", new_topic_topic_option_path(@topic), class: "btn btn-primary" %>
   </div>
 </div>
 
-<p>
-  <span class="badge badge-<%= @topic.active? ? "open" : "closed" %>"><%= @topic.active? ? "Active" : "Inactive" %></span>
-  <span class="muted">Available to <%= @topic.scope_label %> · <%= pluralize(@response_count, "response") %></span>
-</p>
-
-<% if @topic.description.present? %>
-  <div class="card">
-    <p><%= @topic.description %></p>
-  </div>
-<% end %>
+<p class="muted"><%= pluralize(@response_count, "response") %> so far</p>
 
 <div class="card">
-  <h2>Options</h2>
+  <h2>Subtopics</h2>
   <p class="muted">
-    Julia's dropdown: the specific angle someone wants to explore. Shown to the person
-    responding, aggregated in reports, and never included in the introduction email.
+    Asked after the match in the feedback email: which angle resonated most.
+    Counted in Reports, never shown in introduction emails.
   </p>
 
   <% if @topic_options.any? %>
     <table>
       <thead>
         <tr>
-          <th>Option</th>
-          <th>Position</th>
-          <th>Status</th>
+          <th>Subtopic</th>
           <th>Chosen</th>
           <th></th>
         </tr>
@@ -41,33 +30,17 @@
         <% @topic_options.each do |option| %>
           <tr>
             <td><%= option.label %></td>
-            <td><%= option.position %></td>
-            <td>
-              <span class="badge badge-<%= option.active? ? "open" : "closed" %>">
-                <%= option.active? ? "Active" : "Inactive" %>
-              </span>
-            </td>
             <td><%= @option_counts[option.id] || 0 %></td>
-            <td>
-              <%= link_to "Edit", edit_topic_topic_option_path(@topic, option) %>
+            <td class="actions">
+              <%= link_to "Edit", edit_topic_topic_option_path(@topic, option), class: "btn btn-link" %>
               <%= button_to "Remove", topic_topic_option_path(@topic, option), method: :delete,
-                    class: "btn btn-link", data: { turbo_confirm: "Remove this option?" } %>
+                    class: "btn btn-link", data: { turbo_confirm: "Remove this subtopic?" } %>
             </td>
           </tr>
         <% end %>
       </tbody>
     </table>
   <% else %>
-    <p class="muted">No options yet. Without options, people simply choose the topic.</p>
+    <p class="muted">No subtopics yet. People can still choose the topic without picking a specific angle.</p>
   <% end %>
-</div>
-
-<div class="card">
-  <h2>Danger zone</h2>
-  <p class="muted">
-    Topics attached to responses cannot be deleted; mark them inactive so they stop
-    appearing on new forms while history stays intact.
-  </p>
-  <%= button_to "Delete topic", topic_path(@topic), method: :delete, class: "btn btn-secondary",
-        data: { turbo_confirm: "Delete #{@topic.name}?" } %>
 </div>

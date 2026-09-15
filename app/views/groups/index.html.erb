@@ -4,7 +4,6 @@
   <h1>Groups</h1>
   <div class="actions">
     <%= link_to "New group", new_group_path, class: "btn btn-primary" %>
-    <%= link_to "Import CSV", new_import_path, class: "btn btn-secondary" %>
   </div>
 </div>
 
@@ -14,7 +13,7 @@
       <th>Name</th>
       <th>Description</th>
       <th>People</th>
-      <th>Biweekly automation</th>
+      <th>Programme</th>
       <th></th>
     </tr>
   </thead>
@@ -24,11 +23,7 @@
         <td><%= link_to group.name, group_path(group) %></td>
         <td><%= truncate(group.description.to_s, length: 80) %></td>
         <td><%= group.members.size %></td>
-        <td>
-          <span class="badge badge-<%= group.auto_cycle? ? "open" : "draft" %>">
-            <%= group.auto_cycle? ? "On" : "Off" %>
-          </span>
-        </td>
+        <td><%= group.programme_window_label %></td>
         <td>
           <%= link_to "View", group_path(group) %>
           <%= link_to "Edit", edit_group_path(group) %>

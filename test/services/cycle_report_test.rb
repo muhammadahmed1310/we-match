@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "csv"
 
 class CycleReportTest < ActiveSupport::TestCase
   setup do
@@ -37,19 +38,55 @@ class CycleReportTest < ActiveSupport::TestCase
     assert_equal 1, report.unmatched_count
   end
 
-  test "aggregates topics and the private option choices" do
+  test "aggregates topics and post-match focus choices" do
+    create_response(cycle: @cycle, member: @member_a, topic: @topic, windows: [ @window ])
+    create_response(cycle: @cycle, member: @member_b, topic: @topic, windows: [ @window ])
+    MatchingService.new(@cycle).call
+    match = @cycle.matches.sole
     option = @topic.topic_options.first
-    create_response(cycle: @cycle, member: @member_a, topic: @topic, windows: [ @window ], option: option)
-    create_response(cycle: @cycle, member: @member_b, topic: @topic, windows: [ @window ], option: option)
+
+    MatchFeedback.create!(
+      match: match,
+      member: @member_a,
+      did_meet: true,
+      value_for_time: 4,
+      topic_option: option,
+      submitted_at: Time.current,
+      sent_at: Time.current
+    )
+    MatchFeedback.create!(
+      match: match,
+      member: @member_b,
+      did_meet: true,
+      value_for_time: 5,
+      topic_option: option,
+      submitted_at: Time.current,
+      sent_at: Time.current
+    )
 
     report = CycleReport.new(@cycle)
 
     assert_equal [ [ "Leadership", 2 ] ], report.topic_distribution
     assert_equal [ [ "Difficult conversations", 2 ] ], report.option_distribution
+    assert_equal 2, report.feedback_submitted_count
+    assert_equal 2, report.met_count
+    assert_equal 4.5, report.average_value_for_time
   end
 
   test "the CSV covers everyone invited, answered or not" do
-    create_response(cycle: @cycle, member: @member_a, topic: @topic, windows: [ @window ], option: @topic.topic_options.first)
+    create_response(cycle: @cycle, member: @member_a, topic: @topic, windows: [ @window ])
+    create_response(cycle: @cycle, member: @member_b, topic: @topic, windows: [ @window ])
+    MatchingService.new(@cycle).call
+    match = @cycle.matches.sole
+    MatchFeedback.create!(
+      match: match,
+      member: @member_a,
+      did_meet: true,
+      value_for_time: 4,
+      topic_option: @topic.topic_options.first,
+      submitted_at: Time.current,
+      sent_at: Time.current
+    )
 
     csv = CSV.parse(CycleReport.new(@cycle).to_csv, headers: true)
 
@@ -58,7 +95,7 @@ class CycleReportTest < ActiveSupport::TestCase
     assert_equal "yes", alice["Responded"]
     assert_equal "Leadership", alice["Topic"]
     assert_equal "Difficult conversations", alice["Focus (private insight)"]
-    assert_equal "no", csv.find { |row| row["Name"] == "Bob" }["Responded"]
+    assert_equal "no", csv.find { |row| row["Name"] == "Carol" }["Responded"]
   end
 
   test "the CSV names who each person was matched with" do

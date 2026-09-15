@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class GroupsController < ApplicationController
-  before_action :set_group, only: %i[show edit update destroy toggle_auto_cycle]
+  before_action :set_group, only: %i[show edit update destroy]
 
   def index
     @groups = Group.includes(:members).ordered
@@ -21,7 +21,7 @@ class GroupsController < ApplicationController
       format.html
       format.json do
         render json: @group.as_json(
-          only: %i[id name description auto_cycle],
+          only: %i[id name description cycle_programme_starts_on cycle_programme_ends_on],
           include: {
             members: { only: %i[id name email time_zone] },
             match_cycles: { only: %i[id status opens_at closes_at matched_at] }
@@ -32,7 +32,7 @@ class GroupsController < ApplicationController
   end
 
   def new
-    @group = Group.new
+    @group = Group.new(cycle_programme_starts_on: Date.current)
   end
 
   def create
@@ -62,18 +62,6 @@ class GroupsController < ApplicationController
     redirect_to groups_path, notice: "#{name} deleted along with its cycles."
   end
 
-  def toggle_auto_cycle
-    @group.update!(auto_cycle: !@group.auto_cycle)
-
-    notice = if @group.auto_cycle?
-      "#{@group.name} will now open a cycle automatically every other Monday."
-    else
-      "Automatic cycles switched off for #{@group.name}."
-    end
-
-    redirect_to @group, notice: notice
-  end
-
   private
 
   def set_group
@@ -81,6 +69,6 @@ class GroupsController < ApplicationController
   end
 
   def group_params
-    params.require(:group).permit(:name, :description, :auto_cycle)
+    params.require(:group).permit(:name, :description, :cycle_programme_starts_on, :cycle_programme_ends_on)
   end
 end

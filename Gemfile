@@ -28,13 +28,19 @@ gem "bcrypt", "~> 3.1.7"
 # Database-backed Active Job queue and recurring schedule [https://github.com/rails/solid_queue]
 gem "solid_queue", "~> 1.1"
 
+# Read Excel (.xlsx) uploads for people import
+gem "roo", "~> 2.10"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
-# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
+# Load Capistrano-linked .env in production
+gem "dotenv-rails"
+
+# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#image-variants]
 # gem "image_processing", "~> 1.2"
 
 group :development, :test do
@@ -51,10 +57,17 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+
+  gem "capistrano", "~> 3.19", require: false
+  gem "capistrano-rails", "~> 1.6", require: false
+  gem "capistrano-rbenv", "~> 2.2", require: false
+  gem "capistrano-bundler", "~> 2.1", require: false
 end
 
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+  # Build .xlsx fixtures for import tests
+  gem "caxlsx"
 end
