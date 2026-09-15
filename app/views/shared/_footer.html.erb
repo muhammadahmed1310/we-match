@@ -22,7 +22,9 @@
         <h3>Quick actions</h3>
         <ul>
           <li><%= link_to "New match cycle", new_match_cycle_path %></li>
-          <li><%= link_to "Mailer previews", "/rails/mailers" %></li>
+          <% if Rails.env.development? %>
+            <li><%= link_to "Mailer previews", "/rails/mailers" %></li>
+          <% end %>
         </ul>
       </div>
     </div>
