@@ -102,7 +102,7 @@ Visit https://match.womenemerging.org
 | `RAILS_MASTER_KEY` | Decrypt credentials |
 | `SECRET_KEY_BASE` | Sessions |
 | `EMAIL_DELIVERY_ENABLED` | `true` to send |
-| `SHOW_MAILER_PREVIEWS` | `true` for admin-only `/rails/mailers` (not linked in UI) |
+| `SHOW_MAILER_PREVIEWS` | `true` for open `/rails/mailers` (not linked in UI; share privately) |
 | `MAIL_FROM` / `SMTP_*` | Resend SMTP |
 
 Template: [`config/deploy/shared/env.example`](config/deploy/shared/env.example)  

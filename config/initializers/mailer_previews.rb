@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # Mailer previews are available in development always, and in production when
-# SHOW_MAILER_PREVIEWS=true. They stay off the public footer; share
-# https://match.womenemerging.org/rails/mailers privately. Access requires
-# an admin session so the index is not open to the internet.
+# SHOW_MAILER_PREVIEWS=true. They stay off the public footer — share
+# https://match.womenemerging.org/rails/mailers privately for language review.
+# No sign-in required (sample/preview data only).
 Rails.application.config.after_initialize do
   next unless Rails.application.config.action_mailer.show_previews
 
@@ -12,8 +12,7 @@ Rails.application.config.after_initialize do
     helper ApplicationHelper
     helper MailerPreviewHelper
 
-    before_action :require_admin_for_mailer_previews
-
+    # Header helpers from AdminAuthentication — optional if someone is signed in.
     helper_method :current_admin, :signed_in_as_admin?
 
     private
@@ -26,13 +25,6 @@ Rails.application.config.after_initialize do
 
     def signed_in_as_admin?
       current_admin.present?
-    end
-
-    def require_admin_for_mailer_previews
-      return if signed_in_as_admin?
-
-      session[:return_to] = request.fullpath if request.get? || request.head?
-      redirect_to "/sign_in", alert: "Please sign in to continue."
     end
   end
 end
