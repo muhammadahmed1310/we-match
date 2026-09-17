@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# Two weeks after each cycle's meeting-week Monday, ask matched people how it went.
+# One week after pairs are introduced, ask matched people how it went.
 class SendMatchFeedbackRequestsJob < ApplicationJob
   queue_as :mailers
 
-  PERIOD_DAYS = 14
+  PERIOD_DAYS = 7
 
   def perform(reference_date = nil)
     today = reference_date ? Date.parse(reference_date.to_s) : Date.current
@@ -22,7 +22,7 @@ class SendMatchFeedbackRequestsJob < ApplicationJob
 
   def due_cycles(today)
     MatchCycle.matched
-              .where.not(meeting_week_start: nil)
-              .where("meeting_week_start <= ?", today - PERIOD_DAYS)
+              .where.not(matched_at: nil)
+              .where("matched_at <= ?", (today - PERIOD_DAYS).end_of_day)
   end
 end

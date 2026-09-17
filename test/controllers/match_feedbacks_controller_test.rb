@@ -80,7 +80,7 @@ class SendMatchFeedbackRequestsJobTest < ActiveSupport::TestCase
     @member_b = create_member(name: "Bob", email: "bob@example.com", groups: [ @group ])
   end
 
-  test "sends feedback requests two weeks after meeting week starts" do
+  test "sends feedback requests one week after the match is paired" do
     cycle = create_cycle(
       group: @group,
       status: :open,
@@ -90,13 +90,14 @@ class SendMatchFeedbackRequestsJobTest < ActiveSupport::TestCase
     create_response(cycle: cycle, member: @member_a, topic: @topic, windows: [ window ])
     create_response(cycle: cycle, member: @member_b, topic: @topic, windows: [ window ])
     MatchingService.new(cycle).call
+    cycle.update!(matched_at: 7.days.ago)
 
     assert_difference -> { MatchFeedback.where.not(sent_at: nil).count }, 2 do
       SendMatchFeedbackRequestsJob.perform_now
     end
   end
 
-  test "does not send before the two-week match period ends" do
+  test "does not send before one week after pairing" do
     cycle = create_cycle(
       group: @group,
       status: :open,
@@ -106,6 +107,7 @@ class SendMatchFeedbackRequestsJobTest < ActiveSupport::TestCase
     create_response(cycle: cycle, member: @member_a, topic: @topic, windows: [ window ])
     create_response(cycle: cycle, member: @member_b, topic: @topic, windows: [ window ])
     MatchingService.new(cycle).call
+    cycle.update!(matched_at: 3.days.ago)
 
     assert_no_difference -> { MatchFeedback.where.not(sent_at: nil).count } do
       SendMatchFeedbackRequestsJob.perform_now

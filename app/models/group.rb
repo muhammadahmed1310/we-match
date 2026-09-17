@@ -53,6 +53,6 @@ class Group < ApplicationRecord
     return if cycle_programme_starts_on.blank? || cycle_programme_ends_on.blank?
     return if cycle_programme_ends_on >= cycle_programme_starts_on
 
-    errors.add(:cycle_programme_ends_on, "must be on or after the programme start date")
+    errors.add(:cycle_programme_ends_on, "must be on or after the matching start date")
   end
 end

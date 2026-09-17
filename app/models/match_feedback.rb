@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# One private feedback link per matched person. Sent after the two-week match
-# period that starts on the cycle's meeting-week Monday.
+# One private feedback link per matched person. Sent one week after pairs are
+# introduced (cycle matched_at).
 class MatchFeedback < ApplicationRecord
   VALUE_LABELS = {
     1 => "Not valuable",

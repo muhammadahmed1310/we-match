@@ -55,7 +55,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     get group_path(group)
 
     assert_response :success
-    assert_match "Programme", response.body
+    assert_match "Matching window", response.body
     assert_no_match "Switch automation", response.body
   end
 end

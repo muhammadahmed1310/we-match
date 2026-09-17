@@ -17,7 +17,7 @@ In the admin screens, people are called **Users**.
 
 ## How a normal fortnight works
 
-Once a group has a **programme start date** and at least two users, WE Match runs on its
+Once a group has a **matching start date** and at least two users, WE Match runs on its
 own. You do not need to create a match cycle for every round.
 
 | Day | What happens |
@@ -26,12 +26,13 @@ own. You do not need to create a match cycle for every round.
 | **Wednesday** | Reminder emails go to people who have not responded yet. |
 | **Thursday evening** | Responses close. |
 | **Friday morning** | Matching runs. Introduction emails go to each pair. |
-| **Two weeks after the meeting-week Monday** | Feedback emails go to people who were matched. |
+| **One week after pairs are introduced** | Feedback emails go to people who were matched. |
 
-Your day-to-day job is: keep **groups**, **users**, and **topics** correct, then watch
-responses and reports. Buttons on the cycle page (**Send invitations**, **Close
-responses**, **Run matching**) are backups — use them if something failed, someone needs
-a resend, or you need to act early.
+Your day-to-day job is: keep **groups** and **users** correct, then watch responses and
+reports. Conversation **topics** are the same across groups and only change when Mia
+initiates an update — you do not manage them day to day. Buttons on the cycle page
+(**Send invitations**, **Close responses**, **Run matching**) are backups — use them if
+something failed, someone needs a resend, or you need to act early.
 
 ---
 
@@ -40,9 +41,11 @@ a resend, or you need to act early.
 | # | Do this | Where |
 |---|---------|-------|
 | 1 | Sign in with the address Ahmed set up for you | **Sign in** |
-| 2 | Create the group and set its programme dates | **Groups → Create Group** (or **New group**) |
-| 3 | Add conversation topics, and the options under each one | **Topics → New topic** |
-| 4 | Load the people, either one at a time or from a spreadsheet | **Users → Add person**, or **Import Excel** |
+| 2 | Create the group and set its matching dates | **Groups → Create Group** (or **New group**) |
+| 3 | Load the people, either one at a time or from a spreadsheet | **Users → Add person**, or **Import Excel** |
+
+Topics are already set up for everyone. You do not need to add or edit them before the
+first cycle.
 
 ### Creating a group
 
@@ -50,8 +53,8 @@ On the group form you set:
 
 - **Group name** (required)
 - **Description** (optional)
-- **Programme start date** (required) — cycles will not open before this date
-- **Programme end date** (optional) — leave blank if the programme has no end date
+- **Matching start date** (required) — cycles will not open before this date
+- **Matching end date** (optional) — leave blank if matching has no end date
 
 Cycles run every two weeks between those dates: invites Monday → respond by Thursday →
 matches Friday. If the start date is not a Monday, the first cycle opens on the next
@@ -61,6 +64,9 @@ You need **at least two users** in the group before a cycle will open.
 
 ### Topics and their options
 
+Topics are shared across matching. Mia decides the wording; Ahmed implements changes in
+WE Match. CMs do not edit topics as part of normal work.
+
 A **topic** is what the pair will talk about — *Leadership*, *Women Emerging*. It is
 shown on the response form and in the introduction email.
 
@@ -69,9 +75,6 @@ An **option** under a topic (sometimes called a subtopic) is more specific —
 submits availability. They appear later on the **feedback** form, after the match, so WE
 can see in aggregate what resonated. Counts show under **Reports**. Options stay
 **private** — they never appear in introduction emails.
-
-Set a topic or option to inactive rather than deleting it when you stop offering it.
-Deleting is blocked once anyone has used it, so past cycles keep their meaning.
 
 ### Importing people from a spreadsheet
 
@@ -165,15 +168,15 @@ Almost always one of two things: she was the only person to pick that topic, or 
 windows did not line up with anyone else's. The report does not spell out which, but the
 topic and window counts on the same page usually make it obvious.
 
-Offering fewer topics, or nudging people to offer two windows rather than one, both raise
-the match rate in a small group.
+Nudging people to offer two windows rather than one raises the match rate in a small
+group.
 
 ---
 
 ## After the match — feedback
 
-About **two weeks after the meeting-week Monday**, each matched person gets an email with
-a private feedback link. The form asks:
+**One week after pairs are introduced**, each matched person gets an email with a private
+feedback link. The form asks:
 
 1. Did you actually meet?
 2. If yes — what was the value for the time of the conversation?
@@ -197,7 +200,7 @@ the cycle is open. After it closes you can edit her response from the cycle page
 press **Send invitations** again. Only people who have not been sent a link get one, so
 nobody is emailed twice by mistake.
 
-**Do I create a cycle every fortnight?** No. Set the group’s programme start date; the
+**Do I create a cycle every fortnight?** No. Set the group’s matching start date; the
 app opens cycles automatically.
 
 **Why are there still Send / Close / Match buttons?** Backups for failures, early runs,
@@ -219,8 +222,8 @@ and you can hand out links from the cycle page.
 
 | Situation | Who |
 |-----------|-----|
-| A screen is broken, or a number looks wrong | Ahmed |
+| A screen is broken, or a number looks wrong | Ahmed (implementor) |
 | Someone should be added to or removed from a group | You, in **Users** |
-| Topics need to change for the next round | WE team, then you in **Topics** |
-| Programme dates or automation questions | Ahmed |
+| Topics or topic options need to change | Mia (responsible for topics); Ahmed implements |
+| Matching dates or automation questions | Ahmed |
 | Switching on or fixing in-app email | Ahmed |

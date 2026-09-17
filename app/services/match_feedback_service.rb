@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# Creates private feedback links for every matched person and emails them once the
-# two-week match period after meeting-week Monday has passed.
+# Creates private feedback links for every matched person and emails them one week
+# after the cycle was matched (pairs introduced).
 class MatchFeedbackService
   Result = Struct.new(:created, :sent, keyword_init: true)
 
