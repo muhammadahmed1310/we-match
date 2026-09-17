@@ -45,7 +45,12 @@ class MatchFeedback < ApplicationRecord
   end
 
   def partner
-    match.member_one_id == member_id ? match.member_two : match.member_one
+    if member_id.present?
+      match.member_one_id == member_id ? match.member_two : match.member_one
+    else
+      # Unsaved preview records have no ids — compare by object.
+      member.equal?(match.member_one) ? match.member_two : match.member_one
+    end
   end
 
   def topic

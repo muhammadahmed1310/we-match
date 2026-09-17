@@ -2,13 +2,15 @@
 
 module MailerPreviewHelper
   PREVIEW_DESCRIPTIONS = {
-    "match_cycle_mailer" => "Biweekly invitation asking Explorers and WE Fellows to submit availability and topic.",
-    "match_mailer" => "Introduction email sent to a matched pair after matching runs."
+    "match_cycle_mailer" => "Invitation and reminder emails asking someone to submit availability and a topic.",
+    "match_mailer" => "Introduction email sent to a matched pair after matching runs.",
+    "match_feedback_mailer" => "Follow-up email one week after pairing, with a private feedback link."
   }.freeze
 
   PREVIEW_ICONS = {
     "match_cycle_mailer" => "✉️",
-    "match_mailer" => "🤝"
+    "match_mailer" => "🤝",
+    "match_feedback_mailer" => "📝"
   }.freeze
 
   def mailer_preview_description(preview_name)
