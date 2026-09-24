@@ -3,8 +3,8 @@ default: &default
     - polling_interval: 1
       batch_size: 500
   workers:
-    # Include solid_queue_recurring or scheduled jobs never leave that queue.
-    - queues: "solid_queue_recurring,cycles,mailers,default"
+    # "*" includes solid_queue_recurring; without it scheduled jobs never run.
+    - queues: "*"
       threads: 3
       processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
       polling_interval: 1

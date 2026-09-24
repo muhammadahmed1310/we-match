@@ -27,8 +27,10 @@ class MailDelivery
     enabled? && ActionMailer::Base.delivery_method.to_sym != :test
   end
 
-  # Records what we intended to send, then queues the real delivery. The message is
-  # materialised once here purely to capture the subject and recipients for the log.
+  # Records what we intended to send, then delivers it in-process. Invitation /
+  # resend / match emails must not depend on the Solid Queue worker (that worker
+  # still runs recurring cycle jobs). The message is materialised once here to
+  # capture subject and recipients for the dashboard log.
   def self.deliver(mailer:, action:, args: [], member: nil, match_cycle: nil, match: nil)
     message = mailer.public_send(action, *args).message
 
@@ -43,7 +45,7 @@ class MailDelivery
       match: match
     )
 
-    SendTrackedEmailJob.perform_later(delivery, mailer.name, action.to_s, *args) if enabled?
+    SendTrackedEmailJob.perform_now(delivery, mailer.name, action.to_s, *args) if enabled?
 
     delivery
   end

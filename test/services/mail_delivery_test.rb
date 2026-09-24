@@ -23,10 +23,10 @@ class MailDeliveryTest < ActiveSupport::TestCase
     end
   end
 
-  test "records what was intended and queues the send" do
+  test "records what was intended and sends immediately" do
     delivery = nil
 
-    assert_enqueued_with job: SendTrackedEmailJob do
+    assert_no_enqueued_jobs only: SendTrackedEmailJob do
       delivery = deliver_invitation
     end
 
@@ -34,14 +34,6 @@ class MailDeliveryTest < ActiveSupport::TestCase
     assert_equal "invitation", delivery.mailer_action
     assert_equal "alice@example.com", delivery.recipients
     assert_match "Share your availability", delivery.subject
-    assert delivery.pending?
-  end
-
-  test "marks the record delivered once the job runs" do
-    delivery = deliver_invitation
-
-    perform_enqueued_jobs
-
     assert delivery.reload.delivered?
     assert delivery.delivered_at.present?
     assert_equal 1, ActionMailer::Base.deliveries.size
