@@ -62,6 +62,28 @@ class MembersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to members_path
   end
 
+  test "removing someone who was emailed keeps the delivery log and clears the member link" do
+    member = create_member(name: "Amara", email: "amara@example.org", groups: [ @group ])
+    cycle = create_cycle(group: @group)
+    delivery = EmailDelivery.create!(
+      mailer: "MatchCycleMailer",
+      mailer_action: "invitation",
+      recipients: member.email,
+      subject: "Invite",
+      status: :delivered,
+      member: member,
+      match_cycle: cycle
+    )
+
+    assert_difference -> { Member.count }, -1 do
+      delete member_path(member)
+    end
+
+    assert_redirected_to members_path
+    assert_nil delivery.reload.member_id
+    assert_equal "amara@example.org", delivery.recipients
+  end
+
   test "the list loads" do
     create_member(name: "Amara", email: "amara@example.org", groups: [ @group ])
 

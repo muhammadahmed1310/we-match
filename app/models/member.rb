@@ -3,6 +3,8 @@ class Member < ApplicationRecord
   has_many :groups, through: :group_memberships
   has_many :match_responses, dependent: :destroy
   has_many :cycle_invitations, dependent: :destroy
+  has_many :match_feedbacks, dependent: :destroy
+  has_many :email_deliveries, dependent: :nullify
   has_many :matches_as_one, class_name: "Match", foreign_key: :member_one_id, dependent: :destroy, inverse_of: :member_one
   has_many :matches_as_two, class_name: "Match", foreign_key: :member_two_id, dependent: :destroy, inverse_of: :member_two
 

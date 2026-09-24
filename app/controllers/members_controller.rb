@@ -58,8 +58,13 @@ class MembersController < ApplicationController
 
   def destroy
     name = @member.name
-    @member.destroy
-    redirect_to members_path, notice: "#{name} removed, along with their responses and matches."
+    if @member.destroy
+      redirect_to members_path, notice: "#{name} removed, along with their responses and matches."
+    else
+      redirect_to @member, alert: @member.errors.full_messages.to_sentence.presence || "Could not remove #{name}."
+    end
+  rescue ActiveRecord::InvalidForeignKey, ActiveRecord::DeleteRestrictionError => e
+    redirect_to @member, alert: "Could not remove #{name}: #{e.message.truncate(160)}"
   end
 
   private
