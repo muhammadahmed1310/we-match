@@ -7,7 +7,8 @@ Type=simple
 User=konkabetse24
 Group=konkabetse24
 WorkingDirectory=/var/www/we-match/current
-EnvironmentFile=/var/www/we-match/shared/.env
+# Do not use EnvironmentFile for shared/.env — MAIL_FROM has spaces/<> and
+# breaks systemd parsing. dotenv loads .env from WorkingDirectory on boot.
 Environment=RAILS_ENV=production
 Environment=PUMA_BIND=unix:///var/www/we-match/shared/tmp/sockets/puma.sock
 Environment=PIDFILE=/var/www/we-match/shared/tmp/pids/puma.pid

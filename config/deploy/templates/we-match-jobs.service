@@ -7,7 +7,8 @@ Type=simple
 User=konkabetse24
 Group=konkabetse24
 WorkingDirectory=/var/www/we-match/current
-EnvironmentFile=/var/www/we-match/shared/.env
+# Do not use EnvironmentFile for shared/.env — MAIL_FROM has spaces/<> and
+# breaks systemd parsing. dotenv loads .env from WorkingDirectory on boot.
 Environment=RAILS_ENV=production
 ExecStart=/home/konkabetse24/.rbenv/shims/bundle exec bin/jobs
 Restart=always
