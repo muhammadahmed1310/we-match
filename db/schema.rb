@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_14_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_22_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -79,7 +79,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_14_120000) do
     t.date "auto_cycle_last_opened_on"
     t.date "cycle_programme_starts_on"
     t.date "cycle_programme_ends_on"
+    t.string "signup_token", null: false
     t.index ["name"], name: "index_groups_on_name", unique: true
+    t.index ["signup_token"], name: "index_groups_on_signup_token", unique: true
   end
 
   create_table "match_cycles", force: :cascade do |t|

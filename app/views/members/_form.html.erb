@@ -19,11 +19,11 @@
     <%= form.email_field :email %>
   </div>
 
-  <div class="form-group">
-    <%= form.label :time_zone, "Time zone" %>
-    <%= form.select :time_zone, options_for_select(time_zone_options, @member.time_zone.presence || "UTC") %>
-    <p class="field-hint">People can correct this themselves when they respond.</p>
-  </div>
+  <%= render "shared/time_zone_field",
+        form: form,
+        selected: @member.time_zone,
+        label: "Time zone",
+        hint: "People can correct this themselves when they respond." %>
 
   <fieldset class="form-group membership-picker">
     <legend>Groups</legend>

@@ -29,4 +29,21 @@ class MatchCycleMailer < ApplicationMailer
       subject: "WE Match: A reminder to share your availability for #{@group.name}"
     )
   end
+
+  def response_confirmation(match_response)
+    @match_response = match_response
+    @member = match_response.member
+    @match_cycle = match_response.match_cycle
+    @group = @match_cycle.group
+    @topic = match_response.topic
+    @window_labels = match_response.response_slots.map { |slot| slot.email_label(@member.time_zone) }
+    invitation = @match_cycle.cycle_invitations.find_by(member_id: @member.id)
+    @response_url = invitation&.response_url
+    @can_edit = @match_cycle.accepting_responses?
+
+    mail(
+      to: @member.email,
+      subject: "WE Match: We've recorded your availability for #{@group.name}"
+    )
+  end
 end

@@ -1,0 +1,22 @@
+<p>Hi <%= @member.name %>,</p>
+
+<p>Thanks — we've recorded your availability for <strong><%= @group.name %></strong>.</p>
+
+<p>Here's what you shared:</p>
+<ul>
+  <li><strong>Topic:</strong> <%= @topic&.name || "—" %></li>
+  <% @window_labels.each do |label| %>
+    <li><strong>Window:</strong> <%= label %></li>
+  <% end %>
+</ul>
+
+<% if @can_edit && @response_url.present? %>
+  <p>
+    You can change your answers until the round closes:
+    <a href="<%= @response_url %>">Update my availability</a>
+  </p>
+<% end %>
+
+<p>When matching runs, we'll introduce you by email if we find someone who chose the same topic and the same window.</p>
+
+<p>— WE Match</p>

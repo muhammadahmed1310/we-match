@@ -11,6 +11,18 @@
 <p class="muted"><%= @group.description %></p>
 
 <div class="card">
+  <h2>Sign-up link</h2>
+  <p class="muted">
+    Share this link so people can join this group themselves (name, email, time zone).
+    Each group has its own link.
+  </p>
+  <%= render "groups/signup_link_field", group: @group %>
+  <p class="field-hint">
+    <%= link_to "Open sign-up form", group_signup_path(token: @group.signup_token), target: "_blank", rel: "noopener" %>
+  </p>
+</div>
+
+<div class="card">
   <h2>Matching window</h2>
   <p class="muted">
     Cycles run every two weeks between these dates.
@@ -45,7 +57,8 @@
     </table>
   <% else %>
     <p class="muted">
-      Nobody in this group yet. <%= link_to "Add someone", new_member_path %> or
+      Nobody in this group yet. Share the <%= link_to "sign-up link", group_signup_path(token: @group.signup_token) %>,
+      <%= link_to "add someone", new_member_path %>, or
       <%= link_to "import from Users", new_import_path %>.
     </p>
   <% end %>
@@ -84,7 +97,7 @@
             <td><%= cycle.opens_at&.strftime("%b %-d, %Y") || "—" %></td>
             <td><%= cycle.closes_at&.strftime("%b %-d, %Y") || "—" %></td>
             <td><%= cycle.responded_count %> / <%= cycle.invited_count %></td>
-            <td><%= link_to "View", match_cycle_path(cycle) %></td>
+            <td class="actions"><%= link_to "View", match_cycle_path(cycle), class: "btn btn-link" %></td>
           </tr>
         <% end %>
       </tbody>

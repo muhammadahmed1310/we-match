@@ -6,12 +6,21 @@ class Group < ApplicationRecord
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
   validates :cycle_programme_starts_on, presence: true
+  validates :signup_token, presence: true, uniqueness: true
   validate :cycle_programme_dates_make_sense
 
   before_validation :ensure_auto_cycle_on
+  before_validation :ensure_signup_token
 
   scope :ordered, -> { order(:name) }
   scope :auto_cycling, -> { where(auto_cycle: true) }
+
+  def self.generate_signup_token
+    loop do
+      token = SecureRandom.urlsafe_base64(24)
+      break token unless exists?(signup_token: token)
+    end
+  end
 
   def available_topics
     Topic.active.available_to(self).includes(:topic_options).ordered
@@ -43,10 +52,25 @@ class Group < ApplicationRecord
     end
   end
 
+  def signup_url
+    Rails.application.routes.url_helpers.group_signup_url(
+      token: signup_token,
+      **Rails.application.config.action_mailer.default_url_options.to_h
+    )
+  end
+
+  def signup_path
+    Rails.application.routes.url_helpers.group_signup_path(token: signup_token)
+  end
+
   private
 
   def ensure_auto_cycle_on
     self.auto_cycle = true
+  end
+
+  def ensure_signup_token
+    self.signup_token = self.class.generate_signup_token if signup_token.blank?
   end
 
   def cycle_programme_dates_make_sense

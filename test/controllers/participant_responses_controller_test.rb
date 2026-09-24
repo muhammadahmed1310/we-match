@@ -46,6 +46,7 @@ class ParticipantResponsesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ @window ], match_response.response_slots.map { |slot| slot.starts_at.utc }
     assert @invitation.reload.responded?
     assert_equal "Asia/Karachi", @member.reload.time_zone
+    assert EmailDelivery.exists?(mailer: "MatchCycleMailer", mailer_action: "response_confirmation", member: @member)
   end
 
   test "a member_id in the params cannot redirect the response to someone else" do

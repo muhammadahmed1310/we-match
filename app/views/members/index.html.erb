@@ -25,9 +25,9 @@
         <td><%= member.email %></td>
         <td><%= member.time_zone %></td>
         <td><%= member.groups.map(&:name).join(", ") %></td>
-        <td>
-          <%= link_to "View", member_path(member) %>
-          <%= link_to "Edit", edit_member_path(member) %>
+        <td class="actions">
+          <%= link_to "View", member_path(member), class: "btn btn-link" %>
+          <%= link_to "Edit", edit_member_path(member), class: "btn btn-link" %>
         </td>
       </tr>
     <% end %>

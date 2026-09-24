@@ -114,7 +114,7 @@ class CycleReport
           member.time_zone,
           response ? "yes" : "no",
           response&.topic&.name,
-          feedback&.insight_label,
+          feedback&.insight_label.presence || response&.insight_label,
           response ? response.response_slots.map(&:utc_label).join(" | ") : nil,
           row[:partner]&.name,
           row[:agreed_window]

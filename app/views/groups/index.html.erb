@@ -14,6 +14,7 @@
       <th>Description</th>
       <th>People</th>
       <th>Matching</th>
+      <th>Sign up</th>
       <th></th>
     </tr>
   </thead>
@@ -25,8 +26,18 @@
         <td><%= group.members.size %></td>
         <td><%= group.programme_window_label %></td>
         <td>
-          <%= link_to "View", group_path(group) %>
-          <%= link_to "Edit", edit_group_path(group) %>
+          <div data-controller="clipboard" data-clipboard-text-value="<%= group_signup_url(token: group.signup_token) %>">
+            <button type="button"
+                    class="btn btn-link"
+                    data-clipboard-target="button"
+                    data-action="clipboard#copy">
+              Copy
+            </button>
+          </div>
+        </td>
+        <td class="actions">
+          <%= link_to "View", group_path(group), class: "btn btn-link" %>
+          <%= link_to "Edit", edit_group_path(group), class: "btn btn-link" %>
         </td>
       </tr>
     <% end %>
@@ -34,5 +45,5 @@
 </table>
 
 <% if @groups.none? %>
-  <p class="muted">No groups yet. Create one, then import the people who belong to it.</p>
+  <p class="muted">No groups yet. Create one, then share its sign-up link or import people.</p>
 <% end %>

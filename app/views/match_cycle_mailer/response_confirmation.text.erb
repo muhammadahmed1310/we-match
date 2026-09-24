@@ -1,0 +1,16 @@
+Hi <%= @member.name %>,
+
+Thanks — we've recorded your availability for <%= @group.name %>.
+
+Here's what you shared:
+- Topic: <%= @topic&.name || "—" %>
+<% @window_labels.each do |label| %>
+- Window: <%= label %>
+<% end %>
+<% if @can_edit && @response_url.present? %>
+You can change your answers until the round closes:
+<%= @response_url %>
+<% end %>
+When matching runs, we'll introduce you by email if we find someone who chose the same topic and the same window.
+
+— WE Match

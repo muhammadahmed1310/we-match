@@ -29,7 +29,8 @@ class MembersController < ApplicationController
   end
 
   def new
-    @member = Member.new(time_zone: "UTC")
+    @member = Member.new
+    @member.time_zone = nil
   end
 
   def create

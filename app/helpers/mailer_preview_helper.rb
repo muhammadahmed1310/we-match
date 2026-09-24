@@ -2,7 +2,7 @@
 
 module MailerPreviewHelper
   PREVIEW_DESCRIPTIONS = {
-    "match_cycle_mailer" => "Invitation and reminder emails asking someone to submit availability and a topic.",
+    "match_cycle_mailer" => "Invitation, reminder, and availability confirmation emails for a matching round.",
     "match_mailer" => "Introduction email sent to a matched pair after matching runs.",
     "match_feedback_mailer" => "Follow-up email one week after pairing, with a private feedback link."
   }.freeze

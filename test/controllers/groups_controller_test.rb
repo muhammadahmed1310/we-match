@@ -22,6 +22,7 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to group_path(group)
     assert group.auto_cycle?
     assert_equal Date.current, group.cycle_programme_starts_on
+    assert group.signup_token.present?
   end
 
   test "rejects a group without a programme start date" do
@@ -56,6 +57,8 @@ class GroupsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match "Matching window", response.body
+    assert_match "Sign-up link", response.body
+    assert_match group_signup_path(token: group.signup_token), response.body
     assert_no_match "Switch automation", response.body
   end
 end

@@ -57,7 +57,7 @@
             <td><span class="badge badge-<%= cycle.status %>"><%= cycle.status %></span></td>
             <td><%= cycle.closes_at&.strftime("%b %-d, %H:%M UTC") || "—" %></td>
             <td><%= cycle.responded_count %> / <%= cycle.invited_count %></td>
-            <td><%= link_to "View", match_cycle_path(cycle) %></td>
+            <td class="actions"><%= link_to "View", match_cycle_path(cycle), class: "btn btn-link" %></td>
           </tr>
         <% end %>
       </tbody>

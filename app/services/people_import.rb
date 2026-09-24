@@ -217,7 +217,13 @@ class PeopleImport
     member.save!
 
     row.group_names.each do |group_name|
-      group = @create_missing_groups ? Group.find_or_create_by!(name: group_name) : Group.find_by!(name: group_name)
+      group = if @create_missing_groups
+        Group.find_or_create_by!(name: group_name) do |new_group|
+          new_group.cycle_programme_starts_on = Date.current
+        end
+      else
+        Group.find_by!(name: group_name)
+      end
       membership = member.group_memberships.find_or_initialize_by(group: group)
       membership.cohort = row.cohort if row.cohort.present?
       membership.save!

@@ -1,0 +1,48 @@
+<% content_for :title, "Join #{@group.name} — WE Match" %>
+
+<div class="card participant-card">
+  <h1>Join <%= @group.name %></h1>
+  <p class="muted">
+    Share your details to join this WE Match group. You’ll get invitation emails when a matching round opens.
+  </p>
+
+  <% if @group.description.present? %>
+    <p><%= @group.description %></p>
+  <% end %>
+
+  <%= form_with model: @member,
+                url: group_signup_path(token: @group.signup_token),
+                method: :post,
+                local: true do |form| %>
+    <% if @member.errors.any? %>
+      <div class="form-errors">
+        <ul>
+          <% @member.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= form.label :name, "Full name" %>
+      <%= form.text_field :name, required: true, autocomplete: "name" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :email, "Email" %>
+      <%= form.email_field :email, required: true, autocomplete: "email" %>
+    </div>
+
+    <%= render "shared/time_zone_field",
+          form: form,
+          selected: @member.time_zone,
+          label: "Your time zone",
+          hint: "We’ll use this when we show you meeting times.",
+          auto: params[:tz].blank? && @member.time_zone == "UTC" %>
+
+    <div class="actions">
+      <%= form.submit "Join group", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

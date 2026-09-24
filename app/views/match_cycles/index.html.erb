@@ -29,7 +29,9 @@
         <td><%= cycle.opens_at&.strftime("%b %-d, %Y") || "—" %></td>
         <td><%= cycle.closes_at&.strftime("%b %-d, %Y") || "—" %></td>
         <td><%= cycle.responded_count %> / <%= cycle.invited_count %></td>
-        <td><%= link_to "View", match_cycle_path(cycle) %></td>
+        <td class="actions">
+          <%= link_to "View", match_cycle_path(cycle), class: "btn btn-link" %>
+        </td>
       </tr>
     <% end %>
   </tbody>

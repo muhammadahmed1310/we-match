@@ -22,6 +22,15 @@ class ResponseSlot < ApplicationRecord
     "#{local_start.strftime('%a %b %-d, %H:%M')}–#{local_start.advance(hours: 1).strftime('%H:%M %Z')}"
   end
 
+  # Fuller wording for outbound emails (easier when English is a second language).
+  def email_label(time_zone = "UTC")
+    zone = ActiveSupport::TimeZone[time_zone.to_s] || ActiveSupport::TimeZone["UTC"]
+    local_start = starts_at.in_time_zone(zone)
+    local_end = local_start.advance(hours: 1)
+
+    "#{local_start.strftime('%A %-d %B %Y, %H:%M')}–#{local_end.strftime('%H:%M %Z')}"
+  end
+
   def utc_label
     "#{starts_at.utc.strftime('%a %b %-d, %H:%M')}–#{ends_at.utc.strftime('%H:%M')} UTC"
   end

@@ -77,9 +77,9 @@
             <td><%= response.topic&.name || "—" %></td>
             <td><%= response.response_slots.map(&:utc_label).join(" · ").presence || "—" %></td>
             <td><%= response.matched? ? "Matched" : "Unmatched" %></td>
-            <td>
+            <td class="actions">
               <% unless @match_cycle.matched? %>
-                <%= link_to "Edit", edit_match_cycle_match_response_path(@match_cycle, response) %>
+                <%= link_to "Edit", edit_match_cycle_match_response_path(@match_cycle, response), class: "btn btn-link" %>
               <% end %>
             </td>
           </tr>

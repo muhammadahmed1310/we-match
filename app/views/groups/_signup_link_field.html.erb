@@ -1,0 +1,16 @@
+<%# locals: group: %>
+<div class="copy-field" data-controller="clipboard">
+  <input type="text"
+         class="copy-field__input"
+         readonly
+         value="<%= group_signup_url(token: group.signup_token) %>"
+         data-clipboard-target="input"
+         onclick="this.select()"
+         aria-label="Sign-up link for <%= group.name %>">
+  <button type="button"
+          class="copy-field__button"
+          data-clipboard-target="button"
+          data-action="clipboard#copy">
+    Copy link
+  </button>
+</div>

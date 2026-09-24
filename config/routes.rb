@@ -17,6 +17,11 @@ Rails.application.routes.draw do
   patch "feedback/:token", to: "match_feedbacks#update"
   get "feedback/:token/thank-you", to: "match_feedbacks#show", as: :match_feedback_confirmation
 
+  # Public per-group sign-up. Group is identified by its signup_token.
+  get "join/:token", to: "group_signups#new", as: :group_signup
+  post "join/:token", to: "group_signups#create"
+  get "join/:token/thank-you", to: "group_signups#show", as: :group_signup_confirmation
+
   resource :import, only: %i[new create], controller: "imports"
 
   resources :groups

@@ -1,0 +1,70 @@
+<%# locals: form:, attribute: :time_zone, selected:, label:, hint:, auto: false, reload: false %>
+<%
+  attribute = local_assigns.fetch(:attribute, :time_zone)
+  selected = local_assigns[:selected].to_s
+  label_text = local_assigns[:label] || "Time zone"
+  hint = local_assigns[:hint]
+  auto = local_assigns.fetch(:auto, false)
+  reload = local_assigns.fetch(:reload, false)
+  options = time_zone_options
+  selected_label = options.find { |_label, value| value == selected }&.first
+  has_selection = selected.present? && selected_label.present?
+%>
+
+<div class="form-group time-zone-picker"
+     data-controller="time-zone-picker"
+     data-action="click@document->time-zone-picker#onDocumentClick"
+     data-time-zone-picker-auto-value="<%= auto %>"
+     data-time-zone-picker-reload-value="<%= reload %>">
+  <%= form.label attribute, label_text %>
+
+  <%= form.select attribute,
+                  options_for_select([["", ""]] + options, selected),
+                  {},
+                  class: "time-zone-picker__select",
+                  data: { time_zone_picker_target: "select" },
+                  tabindex: -1,
+                  "aria-hidden": true %>
+
+  <div class="time-zone-picker__control">
+    <input type="text"
+           class="time-zone-picker__query"
+           value="<%= selected_label %>"
+           placeholder="Search cities or time zones…"
+           autocomplete="off"
+           spellcheck="false"
+           data-time-zone-picker-target="query"
+           data-action="input->time-zone-picker#onQueryInput keydown->time-zone-picker#onQueryKeydown focus->time-zone-picker#open"
+           aria-label="<%= label_text %>">
+    <button type="button"
+            class="time-zone-picker__clear"
+            data-time-zone-picker-target="clear"
+            data-action="time-zone-picker#clear"
+            aria-label="Clear time zone"
+            <%= "hidden" unless has_selection %>>
+      <span class="time-zone-picker__clear-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="8" cy="8" r="7" fill="currentColor" opacity="0.12"/>
+          <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </span>
+    </button>
+    <ul class="time-zone-picker__list" data-time-zone-picker-target="list" hidden role="listbox">
+      <% options.each do |option_label, identifier| %>
+        <li class="time-zone-picker__option<%= ' time-zone-picker__option--selected' if identifier == selected %>"
+            role="option"
+            data-time-zone-picker-target="option"
+            data-action="click->time-zone-picker#choose"
+            data-value="<%= identifier %>"
+            data-label="<%= option_label %>"
+            data-search="<%= option_label.downcase %>">
+          <%= option_label %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <% if hint.present? %>
+    <p class="field-hint"><%= hint %></p>
+  <% end %>
+</div>

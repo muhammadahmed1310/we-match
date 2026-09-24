@@ -32,6 +32,21 @@ class MatchCycleMailerTest < ActionMailer::TestCase
     assert_match "reminder", mail.subject
   end
 
+  test "the confirmation lists the topic and windows" do
+    topic = create_topic(name: "Leadership")
+    window = window_at(@cycle, hour: 13)
+    response = create_response(cycle: @cycle, member: @member, topic: topic, windows: [ window ], time_zone: "UTC")
+
+    mail = MatchCycleMailer.response_confirmation(response)
+    body = decoded_parts(mail)
+
+    assert_equal [ "alice@example.com" ], mail.to
+    assert_match "recorded your availability", mail.subject
+    assert_match "Leadership", body
+    assert_match "Monday", body
+    assert_match @invitation.token, body
+  end
+
   test "html emails carry the WE logo and Montserrat" do
     mail = MatchCycleMailer.invitation(@invitation)
     html = mail.html_part.decoded

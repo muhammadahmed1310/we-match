@@ -27,14 +27,13 @@
       </div>
     <% end %>
 
-    <div class="form-group" data-controller="time-zone" data-time-zone-auto-value="<%= params[:tz].blank? && @match_response.time_zone == 'UTC' %>">
-      <%= form.label :time_zone, "Your time zone" %>
-      <%= form.select :time_zone,
-                      options_for_select(time_zone_options, @match_response.time_zone),
-                      {},
-                      data: { time_zone_target: "select", action: "change->time-zone#reload" } %>
-      <p class="field-hint">All times below are shown in this zone. Change it and the windows update.</p>
-    </div>
+    <%= render "shared/time_zone_field",
+          form: form,
+          selected: @match_response.time_zone,
+          label: "Your time zone",
+          hint: "All times below are shown in this zone. Change it and the windows update.",
+          auto: params[:tz].blank? && @match_response.time_zone == "UTC",
+          reload: true %>
 
     <div class="form-group">
       <%= form.label :topic_id, "What would you like to talk about?" %>

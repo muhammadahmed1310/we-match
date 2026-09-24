@@ -22,6 +22,7 @@ class ParticipantResponsesController < ApplicationController
 
     if @match_response.save
       @invitation.mark_responded!
+      ResponseConfirmation.deliver!(@match_response)
       redirect_to participant_response_confirmation_path(token: @invitation.token)
     else
       @windows = MeetingWindows.new(@match_cycle, time_zone: @match_response.time_zone)

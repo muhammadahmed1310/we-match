@@ -17,6 +17,7 @@ class MatchResponsesController < ApplicationController
 
     if @match_response.save
       mark_invitation_responded(@match_response)
+      ResponseConfirmation.deliver!(@match_response)
       redirect_to @match_cycle, notice: "Response recorded."
     else
       @windows = windows_for(@match_response)
@@ -30,6 +31,7 @@ class MatchResponsesController < ApplicationController
   def update
     if @match_response.update(match_response_params)
       mark_invitation_responded(@match_response)
+      ResponseConfirmation.deliver!(@match_response)
       redirect_to @match_cycle, notice: "Response updated."
     else
       @windows = windows_for(@match_response)
