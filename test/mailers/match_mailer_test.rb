@@ -30,6 +30,8 @@ class MatchMailerTest < ActionMailer::TestCase
 
     assert_match "Leadership", body(mail)
     assert_match @window.strftime("%H:%M"), body(mail)
+    assert_match @window.utc.strftime("%B %-d, %Y"), body(mail)
+    assert_no_match(/\bSep\b|\bAug\b|\bMon\b/, body(mail))
   end
 
   test "shows the window in each person's own time zone" do

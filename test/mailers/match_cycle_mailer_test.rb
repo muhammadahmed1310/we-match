@@ -19,6 +19,17 @@ class MatchCycleMailerTest < ActionMailer::TestCase
     assert_match "personal to you", decoded_parts(mail)
   end
 
+  test "invitation dates use the full month name and year" do
+    mail = MatchCycleMailer.invitation(@invitation)
+    body = decoded_parts(mail)
+    week_start = @cycle.meeting_week_range.first
+    closes = @cycle.closes_at
+
+    assert_match week_start.strftime("%B %-d, %Y"), body
+    assert_match closes.strftime("%A, %B %-d, %Y, %H:%M UTC"), body
+    assert_no_match(/\bSep\b/, body)
+  end
+
   test "the invitation does not offer a way to respond as somebody else" do
     mail = MatchCycleMailer.invitation(@invitation)
 

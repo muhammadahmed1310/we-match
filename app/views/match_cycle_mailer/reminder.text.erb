@@ -4,7 +4,7 @@ A gentle nudge: we haven't heard from you yet for this WE Match round in <%= @gr
 
 Share your availability: <%= @response_url %>
 <% if @closes_at.present? %>
-Responses close <%= @closes_at.strftime("%A %b %-d, %H:%M UTC") %>.
+Responses close <%= @closes_at.strftime("%A, %B %-d, %Y, %H:%M UTC") %>.
 <% end %>
 If this round isn't a good time for you, you can simply ignore this email.
 

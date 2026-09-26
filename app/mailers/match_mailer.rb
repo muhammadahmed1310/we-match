@@ -11,8 +11,8 @@ class MatchMailer < ApplicationMailer
     @member_one = match.member_one
     @member_two = match.member_two
     @topic = match.topic
-    @slot_utc = match.slot_label_utc
-    @local_slots = [ @member_one, @member_two ].map { |member| [ member, match.slot_label_for(member) ] }
+    @slot_utc = match.email_slot_label_utc
+    @local_slots = [ @member_one, @member_two ].map { |member| [ member, match.email_slot_label_for(member) ] }
 
     mail(
       to: [ @member_one.email, @member_two.email ],

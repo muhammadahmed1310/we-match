@@ -5,11 +5,11 @@ It's time for the next WE Match round in <%= @group.name %>.
 The link below is personal to you. Please don't forward it.
 
 You'll choose a topic you'd like to explore and one or two 1-hour windows in the
-week of <%= @meeting_week.first.strftime("%b %-d") %>, shown in your own time zone.
+week of <%= @meeting_week.first.strftime("%B %-d, %Y") %>, shown in your own time zone.
 
 Share your availability: <%= @response_url %>
 <% if @closes_at.present? %>
-Please respond by <%= @closes_at.strftime("%A %b %-d, %H:%M UTC") %>.
+Please respond by <%= @closes_at.strftime("%A, %B %-d, %Y, %H:%M UTC") %>.
 <% end %>
 Matching runs within your group only. You'll pick your 1-hour windows from the
 dropdown — WE Match introduces pairs who chose the same topic and the same window.

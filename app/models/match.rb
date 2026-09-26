@@ -39,6 +39,22 @@ class Match < ApplicationRecord
     "#{utc.strftime('%a %b %-d, %H:%M')}–#{(utc + 1.hour).strftime('%H:%M')} UTC"
   end
 
+  # Full month + year for introduction emails.
+  def email_slot_label_for(member)
+    return nil if matched_slot_starts_at.blank?
+
+    zone = ActiveSupport::TimeZone[member&.time_zone.presence || "UTC"] || ActiveSupport::TimeZone["UTC"]
+    local = matched_slot_starts_at.in_time_zone(zone)
+    "#{local.strftime('%A, %B %-d, %Y, %H:%M')}–#{local.advance(hours: 1).strftime('%H:%M %Z')}"
+  end
+
+  def email_slot_label_utc
+    return nil if matched_slot_starts_at.blank?
+
+    utc = matched_slot_starts_at.utc
+    "#{utc.strftime('%A, %B %-d, %Y, %H:%M')}–#{(utc + 1.hour).strftime('%H:%M')} UTC"
+  end
+
   private
 
   def members_are_distinct

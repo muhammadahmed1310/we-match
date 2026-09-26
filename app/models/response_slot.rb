@@ -28,7 +28,7 @@ class ResponseSlot < ApplicationRecord
     local_start = starts_at.in_time_zone(zone)
     local_end = local_start.advance(hours: 1)
 
-    "#{local_start.strftime('%A %-d %B %Y, %H:%M')}–#{local_end.strftime('%H:%M %Z')}"
+    "#{local_start.strftime('%A, %B %-d, %Y, %H:%M')}–#{local_end.strftime('%H:%M %Z')}"
   end
 
   def utc_label
