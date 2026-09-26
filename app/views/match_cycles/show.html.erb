@@ -58,8 +58,10 @@
 <% end %>
 
 <div class="card">
-  <h2>Responses (<%= @match_responses.size %>)</h2>
-  <% if @match_responses.any? %>
+  <h2>Responses (<%= @responses_page.total %>)</h2>
+  <% if @responses_page.empty? %>
+    <p class="muted">No responses yet.</p>
+  <% else %>
     <table>
       <thead>
         <tr>
@@ -86,17 +88,18 @@
         <% end %>
       </tbody>
     </table>
-  <% else %>
-    <p class="muted">No responses yet.</p>
+    <%= render "shared/pagination", page: @responses_page %>
   <% end %>
 </div>
 
 <div class="card">
-  <h2>Private links (<%= @invitations.size %>)</h2>
+  <h2>Private links (<%= @invitations_page.total %>)</h2>
   <p class="muted">
     One link per person. Links are how people are identified, so they should never be shared.
   </p>
-  <% if @invitations.any? %>
+  <% if @invitations_page.empty? %>
+    <p class="muted">No links issued yet. Sending invitations issues them.</p>
+  <% else %>
     <table>
       <thead>
         <tr>
@@ -115,8 +118,7 @@
         <% end %>
       </tbody>
     </table>
-  <% else %>
-    <p class="muted">No links issued yet. Sending invitations issues them.</p>
+    <%= render "shared/pagination", page: @invitations_page %>
   <% end %>
 </div>
 

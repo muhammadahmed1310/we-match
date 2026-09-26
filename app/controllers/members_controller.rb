@@ -5,11 +5,14 @@ class MembersController < ApplicationController
   before_action :load_groups, only: %i[new create edit update]
 
   def index
-    @members = Member.includes(:groups).order(:name)
+    scope = Member.includes(:groups).order(:name)
 
     respond_to do |format|
-      format.html
-      format.json { render json: @members.as_json(only: %i[id name email time_zone], include: { groups: { only: %i[id name] } }) }
+      format.html do
+        @members_page = paginate(scope)
+        @members = @members_page.records
+      end
+      format.json { render json: scope.as_json(only: %i[id name email time_zone], include: { groups: { only: %i[id name] } }) }
     end
   end
 

@@ -4,16 +4,20 @@ class GroupsController < ApplicationController
   before_action :set_group, only: %i[show edit update destroy]
 
   def index
-    @groups = Group.includes(:members).ordered
+    scope = Group.includes(:members).ordered
 
     respond_to do |format|
-      format.html
-      format.json { render json: @groups.as_json(include: { members: { only: %i[id name email time_zone] } }) }
+      format.html do
+        @groups_page = paginate(scope)
+        @groups = @groups_page.records
+      end
+      format.json { render json: scope.as_json(include: { members: { only: %i[id name email time_zone] } }) }
     end
   end
 
   def show
-    @members = @group.members.order(:name)
+    @members_page = paginate(@group.members.order(:name), page_param: :members_page)
+    @members = @members_page.records
     @match_cycles = @group.match_cycles.recent
     @topics = @group.available_topics
 

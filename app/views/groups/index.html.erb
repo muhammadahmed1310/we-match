@@ -7,43 +7,45 @@
   </div>
 </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-      <th>People</th>
-      <th>Matching</th>
-      <th>Sign up</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @groups.each do |group| %>
-      <tr>
-        <td><%= link_to group.name, group_path(group) %></td>
-        <td><%= truncate(group.description.to_s, length: 80) %></td>
-        <td><%= group.members.size %></td>
-        <td><%= group.programme_window_label %></td>
-        <td>
-          <div data-controller="clipboard" data-clipboard-text-value="<%= group_signup_url(token: group.signup_token) %>">
-            <button type="button"
-                    class="btn btn-link"
-                    data-clipboard-target="button"
-                    data-action="clipboard#copy">
-              Copy
-            </button>
-          </div>
-        </td>
-        <td class="actions">
-          <%= link_to "View", group_path(group), class: "btn btn-link" %>
-          <%= link_to "Edit", edit_group_path(group), class: "btn btn-link" %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<% if @groups.none? %>
+<% if @groups_page.empty? %>
   <p class="muted">No groups yet. Create one, then share its sign-up link or import people.</p>
+<% else %>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>People</th>
+        <th>Matching</th>
+        <th>Sign up</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @groups.each do |group| %>
+        <tr>
+          <td><%= link_to group.name, group_path(group) %></td>
+          <td><%= truncate(group.description.to_s, length: 80) %></td>
+          <td><%= group.members.size %></td>
+          <td><%= group.programme_window_label %></td>
+          <td>
+            <div data-controller="clipboard" data-clipboard-text-value="<%= group_signup_url(token: group.signup_token) %>">
+              <button type="button"
+                      class="btn btn-link"
+                      data-clipboard-target="button"
+                      data-action="clipboard#copy">
+                Copy
+              </button>
+            </div>
+          </td>
+          <td class="actions">
+            <%= link_to "View", group_path(group), class: "btn btn-link" %>
+            <%= link_to "Edit", edit_group_path(group), class: "btn btn-link" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <%= render "shared/pagination", page: @groups_page %>
 <% end %>

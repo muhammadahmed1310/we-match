@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include AdminAuthentication
+  include Paginates
 
   allow_browser versions: :modern
 

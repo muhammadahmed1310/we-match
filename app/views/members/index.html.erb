@@ -8,32 +8,34 @@
   </div>
 </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Time zone</th>
-      <th>Groups</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @members.each do |member| %>
-      <tr>
-        <td><%= link_to member.name, member_path(member) %></td>
-        <td><%= member.email %></td>
-        <td><%= member.time_zone %></td>
-        <td><%= member.groups.map(&:name).join(", ") %></td>
-        <td class="actions">
-          <%= link_to "View", member_path(member), class: "btn btn-link" %>
-          <%= link_to "Edit", edit_member_path(member), class: "btn btn-link" %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<% if @members.none? %>
+<% if @members_page.empty? %>
   <p class="muted">Nobody here yet. <%= link_to "Import Excel", new_import_path %> to get started.</p>
+<% else %>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Time zone</th>
+        <th>Groups</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @members.each do |member| %>
+        <tr>
+          <td><%= link_to member.name, member_path(member) %></td>
+          <td><%= member.email %></td>
+          <td><%= member.time_zone %></td>
+          <td><%= member.groups.map(&:name).join(", ") %></td>
+          <td class="actions">
+            <%= link_to "View", member_path(member), class: "btn btn-link" %>
+            <%= link_to "Edit", edit_member_path(member), class: "btn btn-link" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <%= render "shared/pagination", page: @members_page %>
 <% end %>

@@ -1,0 +1,23 @@
+<%# locals: page: PageSlice %>
+<% if page.multiple_pages? %>
+  <nav class="pagination" aria-label="Pagination">
+    <p class="pagination__summary muted">
+      Showing <%= page.from %>–<%= page.to %> of <%= page.total %>
+    </p>
+    <div class="pagination__controls">
+      <% if page.prev_page %>
+        <%= link_to "Previous", url_for(request.query_parameters.merge(page.param => page.prev_page)), class: "btn btn-secondary btn-sm" %>
+      <% else %>
+        <span class="btn btn-secondary btn-sm btn--disabled" aria-disabled="true">Previous</span>
+      <% end %>
+
+      <span class="pagination__page muted">Page <%= page.page %> of <%= page.total_pages %></span>
+
+      <% if page.next_page %>
+        <%= link_to "Next", url_for(request.query_parameters.merge(page.param => page.next_page)), class: "btn btn-secondary btn-sm" %>
+      <% else %>
+        <span class="btn btn-secondary btn-sm btn--disabled" aria-disabled="true">Next</span>
+      <% end %>
+    </div>
+  </nav>
+<% end %>

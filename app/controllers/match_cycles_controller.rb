@@ -8,11 +8,17 @@ class MatchCyclesController < ApplicationController
   end
 
   def show
-    @match_responses = @match_cycle.match_responses
-                                   .includes(:member, :match, :topic, :topic_option, :response_slots)
-                                   .order(:created_at)
+    responses_scope = @match_cycle.match_responses
+                                  .includes(:member, :match, :topic, :topic_option, :response_slots)
+                                  .order(:created_at)
+    @responses_page = paginate(responses_scope, page_param: :responses_page)
+    @match_responses = @responses_page.records
+
     @matches = @match_cycle.matches.includes(:member_one, :member_two, :topic)
-    @invitations = @match_cycle.cycle_invitations.joins(:member).includes(:member).order("members.name")
+
+    invitations_scope = @match_cycle.cycle_invitations.joins(:member).includes(:member).order("members.name")
+    @invitations_page = paginate(invitations_scope, page_param: :invitations_page)
+    @invitations = @invitations_page.records
   end
 
   def new
@@ -94,10 +100,13 @@ class MatchCyclesController < ApplicationController
   # The manual fallback for the flag-off path: hand these links out yourself.
   def invitations
     CycleInvitationService.new(@match_cycle).ensure_all!
-    @invitations = @match_cycle.cycle_invitations.includes(:member).joins(:member).order("members.name")
+    scope = @match_cycle.cycle_invitations.includes(:member).joins(:member).order("members.name")
 
     respond_to do |format|
-      format.html
+      format.html do
+        @invitations_page = paginate(scope)
+        @invitations = @invitations_page.records
+      end
       format.csv do
         send_data InvitationLinkExport.new(@match_cycle).to_csv,
                   filename: "we-match-links-cycle-#{@match_cycle.id}.csv",

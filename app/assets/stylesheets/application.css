@@ -611,6 +611,7 @@ th,
 td {
   padding: 0.875rem 1rem;
   text-align: left;
+  vertical-align: middle;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -679,11 +680,68 @@ tr:last-child td {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  align-items: center;
 }
 
+/* Stay a table-cell (vertical-align works) but keep links + button_to forms on one line. */
 td.actions {
-  flex-wrap: nowrap;
+  display: table-cell;
+  vertical-align: middle;
   white-space: nowrap;
+  width: 1%;
+}
+
+td.actions > a,
+td.actions > form,
+td.actions > div {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+td.actions > form {
+  margin: 0;
+}
+
+td.actions > * + * {
+  margin-left: 0.5rem;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1rem;
+}
+
+.pagination__summary {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.pagination__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pagination__page {
+  font-size: 0.875rem;
+  min-width: 6.5rem;
+  text-align: center;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.btn--disabled {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: default;
 }
 
 .badge {

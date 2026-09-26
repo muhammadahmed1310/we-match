@@ -35,8 +35,14 @@
 </div>
 
 <div class="card">
-  <h2>Users (<%= @members.size %>)</h2>
-  <% if @members.any? %>
+  <h2>Users (<%= @members_page.total %>)</h2>
+  <% if @members_page.empty? %>
+    <p class="muted">
+      Nobody in this group yet. Share the <%= link_to "sign-up link", group_signup_path(token: @group.signup_token) %>,
+      <%= link_to "add someone", new_member_path %>, or
+      <%= link_to "import from Users", new_import_path %>.
+    </p>
+  <% else %>
     <table>
       <thead>
         <tr>
@@ -55,12 +61,7 @@
         <% end %>
       </tbody>
     </table>
-  <% else %>
-    <p class="muted">
-      Nobody in this group yet. Share the <%= link_to "sign-up link", group_signup_path(token: @group.signup_token) %>,
-      <%= link_to "add someone", new_member_path %>, or
-      <%= link_to "import from Users", new_import_path %>.
-    </p>
+    <%= render "shared/pagination", page: @members_page %>
   <% end %>
 </div>
 
