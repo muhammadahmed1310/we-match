@@ -1,13 +1,14 @@
 Hello <%= @member_one.name %> and <%= @member_two.name %>,
 
-You've been matched in <%= @group.name %> for a one-on-one conversation.
+You've been matched in <%= @group.name %> for a one-on-one conversation. This is Women Emerging in practice: two women, taking an hour to support each other and learn from one another.
 <% if @topic.present? %>
 You both chose the same topic: <%= @topic.name %>.
 <% end %><% if @slot_utc.present? %>
 You both marked this 1-hour window as workable: <%= @slot_utc %>
-<% @local_slots.each do |member, label| %><% next if label.blank? %>  <%= member.name %>: <%= label %>
+<% @local_slots.each do |member, label| %><% next if label.blank? %>
+  <%= member.name %>: <%= label %>
 <% end %><% end %>
-This is the window you both picked. Reach out to each other to start the
-conversation.
+This is the window you both picked. You're both on this email — hit Reply all
+to introduce yourselves and agree how you'll meet. We're glad you're connecting.
 
 — WE Match

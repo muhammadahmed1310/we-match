@@ -1,10 +1,12 @@
 <p>Hi <%= @member.name %>,</p>
 
-<p>It's time for the next WE Match round in <strong><%= @group.name %></strong>.</p>
+<p>A new round of WE Match is open in <strong><%= @group.name %></strong>, and we'd love you to take part.</p>
+
+<p>Women Emerging brings women together so they can support one another and learn from each other — across generations, specialisms, and parts of the world. This round is a simple way to do that: one conversation with someone in your group.</p>
 
 <p>Your link below is personal to you. Please don't forward it.</p>
 
-<p>It takes a minute. You'll choose:</p>
+<p>It takes about a minute. You'll choose:</p>
 <ul>
   <li>A topic you'd like to explore</li>
   <li>One or two 1-hour windows in the week of <%= @meeting_week.first.strftime("%B %-d, %Y") %>, shown in your own time zone</li>
@@ -18,6 +20,6 @@
   <p>Please respond by <%= @closes_at.strftime("%A, %B %-d, %Y, %H:%M UTC") %>.</p>
 <% end %>
 
-<p>Matching runs within your group only. You'll pick your 1-hour windows from the dropdown — WE Match introduces pairs who chose the same topic and the same window.</p>
+<p>We'll introduce you to someone in your group who chose the same topic and the same window.</p>
 
 <p>— WE Match</p>

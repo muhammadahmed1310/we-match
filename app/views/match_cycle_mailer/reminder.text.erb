@@ -1,11 +1,13 @@
 Hi <%= @member.name %>,
 
-A gentle nudge: we haven't heard from you yet for this WE Match round in <%= @group.name %>.
+A gentle reminder: we haven't heard from you yet for this WE Match round in <%= @group.name %>.
+
+It's a chance to meet another woman in the group and learn from how she sees the world.
 
 Share your availability: <%= @response_url %>
 <% if @closes_at.present? %>
 Responses close <%= @closes_at.strftime("%A, %B %-d, %Y, %H:%M UTC") %>.
 <% end %>
-If this round isn't a good time for you, you can simply ignore this email.
+If this round isn't the right moment, you can simply let this email pass. We'll be glad to see you in a later one.
 
 — WE Match

@@ -41,6 +41,12 @@ class MatchMailerTest < ActionMailer::TestCase
     assert_match(/BST|GMT/, body(mail))
   end
 
+  test "makes contacting easy with Reply all guidance" do
+    mail = MatchMailer.introduction(@match)
+
+    assert_match(/Reply all/i, body(mail))
+  end
+
   test "never reveals the topic option either person chose" do
     mail = MatchMailer.introduction(@match)
 

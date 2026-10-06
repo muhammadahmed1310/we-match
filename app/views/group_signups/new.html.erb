@@ -41,6 +41,18 @@
           hint: "We’ll use this when we show you meeting times.",
           auto: params[:tz].blank? && @member.time_zone == "UTC" %>
 
+    <div class="form-group privacy-notice">
+      <div class="form-group form-group--checkbox">
+        <%= check_box_tag :privacy_acknowledged, "1", params[:privacy_acknowledged].present?, required: true, id: "privacy_acknowledged" %>
+        <%= label_tag "privacy_acknowledged" do %>
+          I have read & agreed the <%= link_to "WE Match privacy notice", privacy_path,
+                class: "privacy-notice__link",
+                target: "_blank",
+                rel: "noopener" %>
+        <% end %>
+      </div>
+    </div>
+
     <div class="actions">
       <%= form.submit "Join group", class: "btn btn-primary" %>
     </div>

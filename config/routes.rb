@@ -22,6 +22,8 @@ Rails.application.routes.draw do
   post "join/:token", to: "group_signups#create"
   get "join/:token/thank-you", to: "group_signups#show", as: :group_signup_confirmation
 
+  get "privacy", to: "pages#privacy", as: :privacy
+
   resource :import, only: %i[new create], controller: "imports"
 
   resources :groups

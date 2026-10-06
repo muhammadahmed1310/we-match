@@ -1387,6 +1387,30 @@ td.actions > * + * {
   font-size: 1.5rem;
 }
 
+.participant-card h2 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.privacy-notice {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.privacy-notice__link {
+  display: inline;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.privacy-notice__link:hover {
+  color: var(--color-accent-hover);
+}
+
 .summary-list {
   margin: 1.25rem 0;
   display: grid;

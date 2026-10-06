@@ -12,7 +12,7 @@ class MatchCycleMailer < ApplicationMailer
 
     mail(
       to: @member.email,
-      subject: "WE Match: Share your availability for #{@group.name}"
+      subject: "WE Match: You're invited to connect in #{@group.name}"
     )
   end
 
@@ -26,7 +26,7 @@ class MatchCycleMailer < ApplicationMailer
 
     mail(
       to: @member.email,
-      subject: "WE Match: A reminder to share your availability for #{@group.name}"
+      subject: "WE Match: A reminder — there's still time in #{@group.name}"
     )
   end
 

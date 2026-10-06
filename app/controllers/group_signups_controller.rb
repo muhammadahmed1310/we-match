@@ -14,6 +14,13 @@ class GroupSignupsController < ApplicationController
   end
 
   def create
+    @member = Member.new(member_params)
+
+    unless privacy_acknowledged?
+      @member.errors.add(:base, "Please confirm you have read the WE Match privacy notice.")
+      return render :new, status: :unprocessable_entity
+    end
+
     result = GroupSignup.new(@group, member_params).call
     @member = result.member
 
@@ -38,6 +45,10 @@ class GroupSignupsController < ApplicationController
 
   def member_params
     params.require(:member).permit(:name, :email, :time_zone)
+  end
+
+  def privacy_acknowledged?
+    ActiveModel::Type::Boolean.new.cast(params[:privacy_acknowledged])
   end
 
   def detected_time_zone

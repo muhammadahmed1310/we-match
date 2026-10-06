@@ -16,7 +16,7 @@ class MatchMailer < ApplicationMailer
 
     mail(
       to: [ @member_one.email, @member_two.email ],
-      subject: "WE Match: You're connected for a conversation in #{@group.name}"
+      subject: "WE Match: You've been matched for a conversation in #{@group.name}"
     )
   end
 end

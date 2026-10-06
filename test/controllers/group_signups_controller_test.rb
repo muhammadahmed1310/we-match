@@ -13,6 +13,10 @@ class GroupSignupsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "Join Accelerator Explorers", response.body
     assert_match "Full name", response.body
+    assert_match "I have read & agreed the", response.body
+    assert_match "WE Match privacy notice", response.body
+    assert_no_match "Read the WE Match privacy notice", response.body
+    assert_match privacy_path, response.body
   end
 
   test "an unknown token is refused" do
@@ -26,6 +30,7 @@ class GroupSignupsControllerTest < ActionDispatch::IntegrationTest
     assert_difference -> { Member.count }, 1 do
       assert_difference -> { GroupMembership.count }, 1 do
         post group_signup_path(token: @group.signup_token), params: {
+          privacy_acknowledged: "1",
           member: {
             name: "Ava Chen",
             email: "ava@example.com",
@@ -48,6 +53,7 @@ class GroupSignupsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { Member.count } do
       assert_no_difference -> { GroupMembership.count } do
         post group_signup_path(token: @group.signup_token), params: {
+          privacy_acknowledged: "1",
           member: {
             name: "Ava Chen",
             email: "ava@example.com",
@@ -68,6 +74,7 @@ class GroupSignupsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { Member.count } do
       assert_difference -> { GroupMembership.count }, 1 do
         post group_signup_path(token: @group.signup_token), params: {
+          privacy_acknowledged: "1",
           member: {
             name: "Ava Chen",
             email: "ava@example.com",
@@ -84,11 +91,27 @@ class GroupSignupsControllerTest < ActionDispatch::IntegrationTest
   test "invalid details are rejected" do
     assert_no_difference -> { Member.count } do
       post group_signup_path(token: @group.signup_token), params: {
+        privacy_acknowledged: "1",
         member: { name: "", email: "not-an-email", time_zone: "UTC" }
       }
     end
 
     assert_response :unprocessable_entity
+  end
+
+  test "signing up without acknowledging the privacy notice is rejected" do
+    assert_no_difference -> { Member.count } do
+      post group_signup_path(token: @group.signup_token), params: {
+        member: {
+          name: "Ava Chen",
+          email: "ava@example.com",
+          time_zone: "UTC"
+        }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_match "privacy notice", response.body
   end
 
   test "thank-you page loads" do
