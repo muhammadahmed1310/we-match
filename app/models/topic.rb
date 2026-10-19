@@ -26,4 +26,9 @@ class Topic < ApplicationRecord
   def selectable_options
     topic_options.select(&:active?)
   end
+
+  # Topic 3 style: no fixed subtopics — the person describes their dilemma when responding.
+  def collects_details_on_response?
+    selectable_options.empty?
+  end
 end

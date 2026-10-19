@@ -29,7 +29,13 @@ class CycleInvitationService
     scope = scope.unsent unless resend
 
     sent = 0
+    skipped = 0
     scope.find_each do |invitation|
+      unless invitation.member.receives_cycle_emails?
+        skipped += 1
+        next
+      end
+
       MailDelivery.deliver(
         mailer: MatchCycleMailer,
         action: :invitation,
@@ -44,13 +50,19 @@ class CycleInvitationService
     @match_cycle.update!(status: :open, invitations_sent_at: Time.current) unless @match_cycle.open?
     @match_cycle.update!(invitations_sent_at: Time.current) if @match_cycle.open?
 
-    Result.new(created: created, sent: sent, skipped: @match_cycle.cycle_invitations.count - sent)
+    Result.new(created: created, sent: sent, skipped: skipped)
   end
 
   def deliver_reminders!
     sent = 0
+    skipped = 0
 
     @match_cycle.cycle_invitations.pending.includes(:member).find_each do |invitation|
+      unless invitation.member.receives_cycle_emails?
+        skipped += 1
+        next
+      end
+
       MailDelivery.deliver(
         mailer: MatchCycleMailer,
         action: :reminder,
@@ -62,6 +74,6 @@ class CycleInvitationService
       sent += 1
     end
 
-    Result.new(created: 0, sent: sent, skipped: 0)
+    Result.new(created: 0, sent: sent, skipped: skipped)
   end
 end

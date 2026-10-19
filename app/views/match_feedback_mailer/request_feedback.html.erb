@@ -1,23 +1,23 @@
 <p>Hi <%= @member.name.split.first %>,</p>
 
 <p>
-  It's been about a week since your WE Match conversation in <strong><%= @group.name %></strong>
+  It's been about a week since your WE Match conversation
   <% if @partner.present? %>
     with <strong><%= @partner.name %></strong>
   <% end %>.
   We hope it left you with something to carry forward.
 </p>
 
-<p>If you have a moment, we'd love a short reflection. It takes under a minute, and it helps us see how these conversations are supporting women to learn from one another.</p>
+<p>If you have a moment, we'd love a short reflection. It takes less than a minute to give your feedback, but it helps us understand how these conversations are supporting women to connect and learn from one another.</p>
 
 <p>
   <a href="<%= @feedback_url %>">Share your feedback</a>
 </p>
 
 <% if @topic.present? %>
-  <p>You were matched to talk about <strong><%= @topic.name %></strong>.</p>
+  <p>As a reminder, you were matched to talk about <strong><%= @topic.name %></strong>.</p>
 <% end %>
 
-<p>Your answers stay private and are only used as aggregate insight for the WE Community.</p>
+<p>Don't worry, your answers stay private and are only used as aggregate insight. Thank you!</p>
 
-<p>— WE Match</p>
+<p>Love,<br>— WE Team</p>

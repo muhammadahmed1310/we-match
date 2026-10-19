@@ -25,6 +25,7 @@ class MatchFeedbackMailerTest < ActionMailer::TestCase
     assert_match @feedback.feedback_url, body(mail)
     assert_match "Jettisoning elements", body(mail)
     assert_no_match "Good girl syndrome", body(mail)
+    assert_no_match @group.name, body(mail)
   end
 
   private

@@ -1,0 +1,32 @@
+<% content_for :title, "Email preferences — WE Match" %>
+
+<div class="card participant-card">
+  <h1>Email preferences</h1>
+  <p class="muted"><%= @member.email %></p>
+
+  <% if @member.opted_out_of_cycle_emails? %>
+    <p>
+      You've opted out of <strong>WE Match invitations and reminders</strong>.
+      You may still receive emails about a round you've already joined (confirmation,
+      introduction, or feedback).
+    </p>
+    <%= button_to "Resubscribe to invitations and reminders",
+          resubscribe_email_preferences_path(token: params[:token]),
+          method: :post,
+          class: "btn btn-primary" %>
+  <% else %>
+    <p>
+      You're currently receiving WE Match invitations and reminders when a matching
+      round opens.
+    </p>
+    <p class="muted">
+      Opting out stops those emails only. Confirmation, introduction, and feedback
+      emails for rounds you take part in are unaffected.
+    </p>
+    <%= button_to "Unsubscribe from invitations and reminders",
+          unsubscribe_email_preferences_path(token: params[:token]),
+          method: :post,
+          class: "btn btn-secondary",
+          data: { turbo_confirm: "Stop receiving WE Match invitations and reminders?" } %>
+  <% end %>
+</div>

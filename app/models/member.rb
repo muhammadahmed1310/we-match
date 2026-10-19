@@ -1,4 +1,6 @@
 class Member < ApplicationRecord
+  EMAIL_OPT_OUT_PURPOSE = "email_opt_out"
+
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
   has_many :match_responses, dependent: :destroy
@@ -15,6 +17,8 @@ class Member < ApplicationRecord
   validates :time_zone, presence: true
   validate :time_zone_is_recognised
 
+  scope :receives_cycle_emails, -> { where(email_opted_out_at: nil) }
+
   def matches
     Match.where("member_one_id = ? OR member_two_id = ?", id, id)
   end
@@ -25,6 +29,37 @@ class Member < ApplicationRecord
 
   def time_zone_object
     ActiveSupport::TimeZone[time_zone] || ActiveSupport::TimeZone["UTC"]
+  end
+
+  def receives_cycle_emails?
+    email_opted_out_at.blank?
+  end
+
+  def opted_out_of_cycle_emails?
+    !receives_cycle_emails?
+  end
+
+  def opt_out_of_cycle_emails!
+    update!(email_opted_out_at: Time.current) if receives_cycle_emails?
+  end
+
+  def opt_in_to_cycle_emails!
+    update!(email_opted_out_at: nil) if opted_out_of_cycle_emails?
+  end
+
+  def email_preferences_token
+    signed_id(purpose: EMAIL_OPT_OUT_PURPOSE)
+  end
+
+  def email_preferences_url
+    Rails.application.routes.url_helpers.email_preferences_url(
+      token: email_preferences_token,
+      **Rails.application.config.action_mailer.default_url_options.to_h
+    )
+  end
+
+  def self.find_by_email_preferences_token(token)
+    find_signed(token, purpose: EMAIL_OPT_OUT_PURPOSE)
   end
 
   private

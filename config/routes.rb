@@ -24,15 +24,17 @@ Rails.application.routes.draw do
 
   get "privacy", to: "pages#privacy", as: :privacy
 
+  get "email-preferences/:token", to: "email_preferences#show", as: :email_preferences
+  post "email-preferences/:token/unsubscribe", to: "email_preferences#unsubscribe", as: :unsubscribe_email_preferences
+  post "email-preferences/:token/resubscribe", to: "email_preferences#resubscribe", as: :resubscribe_email_preferences
+
   resource :import, only: %i[new create], controller: "imports"
 
   resources :groups
 
   resources :members
 
-  resources :topics do
-    resources :topic_options, only: %i[new create edit update destroy]
-  end
+  resources :topics, only: %i[index show]
 
   resources :match_cycles, except: %i[destroy] do
     member do

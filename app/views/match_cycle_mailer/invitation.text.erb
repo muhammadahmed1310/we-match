@@ -1,18 +1,21 @@
-Hi <%= @member.name %>,
+Hi <%= @member.name.split.first %>,
 
-A new round of WE Match is open in <%= @group.name %>, and we'd love you to take part.
+A new round of WE Match is open for you and, if you have some time next week, we think you should join.
 
-Women Emerging brings women together so they can support one another and learn from each other — across generations, specialisms, and parts of the world. This round is a simple way to do that: one conversation with someone in your group.
+Through WE Match, Women Emerging brings women together so they can share and learn from each other — across generations, specialisms, beliefs, aspirations, and geographies. This round is a simple way to do that: one conversation with someone in your group.
 
-The link below is personal to you. Please don't forward it.
-
-It takes about a minute. You'll choose a topic you'd like to explore and one or two 1-hour windows in the
-week of <%= @meeting_week.first.strftime("%B %-d, %Y") %>, shown in your own time zone.
+As usual, applying takes less than a minute. You'll choose:
+- A topic you'd like to explore
+- One or two 1-hour windows in the week of <%= @meeting_week.first.strftime("%B %-d, %Y") %>, shown in your own time zone
 
 Share your availability: <%= @response_url %>
+(Your link is personal to you. Please don't forward it.)
 <% if @closes_at.present? %>
 Please respond by <%= @closes_at.strftime("%A, %B %-d, %Y, %H:%M UTC") %>.
 <% end %>
-We'll introduce you to someone in your group who chose the same topic and the same window.
+If someone in your group chose the same topic and the same window, we'll introduce you and leave you to make the connection.
 
-— WE Match
+Have a great week ahead!
+
+Love,
+— WE Team

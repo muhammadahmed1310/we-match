@@ -16,10 +16,12 @@ class MatchFeedback < ApplicationRecord
   belongs_to :topic_option, optional: true
 
   before_validation :ensure_token
+  before_validation :normalize_other_text
 
   validates :token, presence: true, uniqueness: true
   validates :member_id, uniqueness: { scope: :match_id }
   validates :value_for_time, inclusion: { in: VALUE_LABELS.keys }, allow_nil: true
+  validates :topic_option_other, length: { maximum: 500 }
   validate :member_belongs_to_match
   validate :topic_option_belongs_to_match_topic
   validate :answers_make_sense, on: :submit
@@ -62,7 +64,11 @@ class MatchFeedback < ApplicationRecord
   end
 
   def insight_label
-    topic_option&.label
+    if topic_option&.other? && topic_option_other.present?
+      "Other — #{topic_option_other}"
+    else
+      topic_option_other.presence || topic_option&.label
+    end
   end
 
   def feedback_url
@@ -80,6 +86,11 @@ class MatchFeedback < ApplicationRecord
 
   def ensure_token
     self.token = self.class.generate_token if token.blank?
+  end
+
+  def normalize_other_text
+    self.topic_option_other = topic_option_other.to_s.strip.presence
+    self.topic_option_other = nil unless topic_option&.other?
   end
 
   def member_belongs_to_match
@@ -105,5 +116,9 @@ class MatchFeedback < ApplicationRecord
     return unless did_meet?
 
     errors.add(:value_for_time, "please rate the value of the conversation") if value_for_time.blank?
+
+    if topic_option&.other? && topic_option_other.blank?
+      errors.add(:topic_option_other, "please say what resonated")
+    end
   end
 end

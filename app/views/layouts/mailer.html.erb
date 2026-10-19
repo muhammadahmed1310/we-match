@@ -101,6 +101,14 @@
         <div class="email-body">
           <%= yield %>
         </div>
+        <% if @show_unsubscribe && @email_preferences_url.present? %>
+          <div class="email-footer">
+            <p style="margin:0;font-size:12px;line-height:1.45;color:#6b7c99;">
+              Don't want invitations and reminders?
+              <a href="<%= @email_preferences_url %>" style="color:#2b3b69;">Unsubscribe</a>
+            </p>
+          </div>
+        <% end %>
       </div>
     </div>
   </body>

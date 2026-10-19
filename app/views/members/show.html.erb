@@ -9,6 +9,14 @@
 </div>
 
 <p class="muted"><%= @member.email %> · <%= @member.time_zone %></p>
+<% if @member.opted_out_of_cycle_emails? %>
+  <p class="notice notice--warning">
+    Opted out of invitations and reminders
+    <% if @member.email_opted_out_at.present? %>
+      · <%= utc_time(@member.email_opted_out_at) %>
+    <% end %>
+  </p>
+<% end %>
 
 <div class="card">
   <h2>Groups</h2>

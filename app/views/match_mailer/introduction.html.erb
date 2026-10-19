@@ -1,9 +1,9 @@
 <p>Hello <%= @member_one.name %> and <%= @member_two.name %>,</p>
 
-<p>You've been matched in <strong><%= @group.name %></strong> for a one-on-one conversation. This is Women Emerging in practice: two women, taking an hour to support each other and learn from one another.</p>
+<p>You've been matched for a one-on-one conversation. Take full advantage of this opportunity to talk to another leader on a topic that interests you both! We're sure you'll both enjoy it.</p>
 
 <% if @topic.present? %>
-  <p>You both chose the same topic: <strong><%= @topic.name %></strong>.</p>
+  <p>You both chose the topic: <strong><%= @topic.name %></strong>.</p>
 <% end %>
 
 <% if @slot_utc.present? %>
@@ -17,6 +17,8 @@
   </ul>
 <% end %>
 
-<p>This is the window you both picked. You're both on this email — hit <strong>Reply all</strong> to introduce yourselves and agree how you'll meet. We're glad you're connecting.</p>
+<p>This is the window you both picked. You're both on this email — hit <strong>Reply all</strong> to introduce yourselves and agree how you'll meet up. We're so glad you're connecting!</p>
 
-<p>— WE Match</p>
+<p>Have a restful weekend.</p>
+
+<p>Love,<br>— WE Match</p>

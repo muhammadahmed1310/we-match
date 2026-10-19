@@ -1,14 +1,17 @@
 Hello <%= @member_one.name %> and <%= @member_two.name %>,
 
-You've been matched in <%= @group.name %> for a one-on-one conversation. This is Women Emerging in practice: two women, taking an hour to support each other and learn from one another.
+You've been matched for a one-on-one conversation. Take full advantage of this opportunity to talk to another leader on a topic that interests you both! We're sure you'll both enjoy it.
 <% if @topic.present? %>
-You both chose the same topic: <%= @topic.name %>.
+You both chose the topic: <%= @topic.name %>.
 <% end %><% if @slot_utc.present? %>
 You both marked this 1-hour window as workable: <%= @slot_utc %>
 <% @local_slots.each do |member, label| %><% next if label.blank? %>
   <%= member.name %>: <%= label %>
 <% end %><% end %>
 This is the window you both picked. You're both on this email — hit Reply all
-to introduce yourselves and agree how you'll meet. We're glad you're connecting.
+to introduce yourselves and agree how you'll meet up. We're so glad you're connecting!
 
+Have a restful weekend.
+
+Love,
 — WE Match

@@ -9,10 +9,15 @@ class MatchCycleMailer < ApplicationMailer
     @response_url = cycle_invitation.response_url
     @closes_at = @match_cycle.closes_at
     @meeting_week = @match_cycle.meeting_week_range
+    @email_preferences_url = @member.email_preferences_url
+    @show_unsubscribe = true
+
+    # Preferences page (confirm before opt-out) — not one-click POST, so link scanners stay safe.
+    headers["List-Unsubscribe"] = "<#{@email_preferences_url}>"
 
     mail(
       to: @member.email,
-      subject: "WE Match: You're invited to connect in #{@group.name}"
+      subject: "WE Match: A new round is open for you"
     )
   end
 
@@ -23,10 +28,14 @@ class MatchCycleMailer < ApplicationMailer
     @group = @match_cycle.group
     @response_url = cycle_invitation.response_url
     @closes_at = @match_cycle.closes_at
+    @email_preferences_url = @member.email_preferences_url
+    @show_unsubscribe = true
+
+    headers["List-Unsubscribe"] = "<#{@email_preferences_url}>"
 
     mail(
       to: @member.email,
-      subject: "WE Match: A reminder — there's still time in #{@group.name}"
+      subject: "WE Match: A reminder — there's still time to join!"
     )
   end
 
@@ -43,7 +52,7 @@ class MatchCycleMailer < ApplicationMailer
 
     mail(
       to: @member.email,
-      subject: "WE Match: We've recorded your availability for #{@group.name}"
+      subject: "WE Match: We've recorded your availability"
     )
   end
 end

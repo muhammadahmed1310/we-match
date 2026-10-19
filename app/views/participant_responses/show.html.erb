@@ -9,6 +9,12 @@
       <dt>Topic</dt>
       <dd><%= @match_response.topic&.name || "—" %></dd>
     </div>
+    <% if @match_response.insight_label.present? %>
+      <div>
+        <dt>Your note</dt>
+        <dd><%= @match_response.insight_label %></dd>
+      </div>
+    <% end %>
     <div>
       <dt>Your windows</dt>
       <dd>

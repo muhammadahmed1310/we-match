@@ -15,13 +15,15 @@ class MatchResponse < ApplicationRecord
   attr_writer :time_zone, :slot_selections
 
   before_validation :rebuild_response_slots
+  before_validation :clear_details_when_not_needed
   after_save :persist_member_time_zone
 
   validates :member_id, uniqueness: { scope: :match_cycle_id }
-  validates :topic_option_other, length: { maximum: 200 }
+  validates :topic_option_other, length: { maximum: 500 }
   validate :member_belongs_to_cycle_group
   validate :topic_available_to_cycle_group
   validate :topic_option_belongs_to_topic
+  validate :details_required_when_topic_asks_for_them
   validate :slot_count_within_limits
   validate :slot_selections_are_offered
 
@@ -63,6 +65,13 @@ class MatchResponse < ApplicationRecord
 
   private
 
+  def clear_details_when_not_needed
+    return if topic.blank?
+    return if topic.collects_details_on_response?
+
+    self.topic_option_other = nil
+  end
+
   def rebuild_response_slots
     return if @slot_selections.nil?
 
@@ -101,6 +110,14 @@ class MatchResponse < ApplicationRecord
     return if topic_option.blank?
 
     errors.add(:topic_option, "does not belong to the selected topic") if topic_option.topic_id != topic_id
+  end
+
+  def details_required_when_topic_asks_for_them
+    return if topic.blank?
+    return unless topic.collects_details_on_response?
+    return if topic_option_other.to_s.strip.present?
+
+    errors.add(:topic_option_other, "please briefly describe the dilemma you'd like to brainstorm")
   end
 
   def slot_count_within_limits

@@ -139,6 +139,10 @@ class MatchCyclesController < ApplicationController
       parts << "Email delivery is switched off, so #{result.sent} email(s) were recorded but not sent — export the links instead."
     end
 
+    if result.respond_to?(:skipped) && result.skipped.to_i.positive?
+      parts << "Skipped #{result.skipped} opted-out member(s)."
+    end
+
     parts.join(" ")
   end
 end

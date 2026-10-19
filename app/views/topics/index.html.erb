@@ -2,14 +2,12 @@
 
 <div class="page-header">
   <h1>Topics</h1>
-  <div class="actions">
-    <%= link_to "New topic", new_topic_path, class: "btn btn-primary" %>
-  </div>
 </div>
 
 <p class="muted">
-  Topics are what people choose when they respond. Add subtopics under each topic —
-  asked after the match in the feedback email for private insight.
+  Topics are what people choose when they respond. Subtopics are asked after the match
+  in the feedback email for private insight. Topics are managed by the WE Match team —
+  view only here.
 </p>
 
 <div class="card">
@@ -26,18 +24,21 @@
         <% @topics.each do |topic| %>
           <tr>
             <td><%= topic.name %></td>
-            <td><%= topic.topic_options.size %></td>
+            <td>
+              <% if topic.collects_details_on_response? %>
+                Open text on response
+              <% else %>
+                <%= topic.topic_options.size %>
+              <% end %>
+            </td>
             <td class="actions">
-              <%= link_to "Subtopics", topic_path(topic), class: "btn btn-link" %>
-              <%= link_to "Edit", edit_topic_path(topic), class: "btn btn-link" %>
-              <%= button_to "Delete", topic_path(topic), method: :delete, class: "btn btn-link",
-                    data: { turbo_confirm: "Delete #{topic.name}?" } %>
+              <%= link_to "View", topic_path(topic), class: "btn btn-link" %>
             </td>
           </tr>
         <% end %>
       </tbody>
     </table>
   <% else %>
-    <p class="muted">No topics yet. Add the handful of themes your groups actually talk about.</p>
+    <p class="muted">No topics yet. Ask the WE Match team to load the programme topics.</p>
   <% end %>
 </div>

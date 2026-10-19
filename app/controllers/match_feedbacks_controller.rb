@@ -20,6 +20,7 @@ class MatchFeedbacksController < ApplicationController
     @feedback.assign_attributes(feedback_params)
     @feedback.topic_option_id = nil unless ActiveModel::Type::Boolean.new.cast(@feedback.did_meet)
     @feedback.value_for_time = nil unless ActiveModel::Type::Boolean.new.cast(@feedback.did_meet)
+    @feedback.topic_option_other = nil unless ActiveModel::Type::Boolean.new.cast(@feedback.did_meet)
     @feedback.submitted_at = Time.current
 
     if @feedback.save(context: :submit)
@@ -50,6 +51,6 @@ class MatchFeedbacksController < ApplicationController
   end
 
   def feedback_params
-    params.require(:match_feedback).permit(:did_meet, :value_for_time, :topic_option_id)
+    params.require(:match_feedback).permit(:did_meet, :value_for_time, :topic_option_id, :topic_option_other)
   end
 end

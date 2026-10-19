@@ -69,31 +69,22 @@ end
 
 topics_data = [
   {
-    name: "Leadership",
-    description: "Leading people, teams, and yourself.",
-    options: [ "Leading a team for the first time", "Difficult conversations", "Leading without authority" ]
+    name: "How do I jettison some elements of my leading?",
+    options: [ "Good girl", "Imposter syndrome", "Saying yes to everything", "Other" ]
   },
   {
-    name: "Career transitions",
-    description: "Changing direction, sector, or scale.",
-    options: [ "Deciding whether to move", "Returning after a break", "Moving into a new sector" ]
+    name: "What big issues are we facing today when we lead?",
+    options: [ "Climate change", "Challenges of AI", "Misogyny", "Other" ]
   },
   {
-    name: "Mentorship",
-    description: "Being mentored, and mentoring others.",
-    options: [ "Finding a mentor", "Being a better mentor" ]
-  },
-  {
-    name: "Balance and wellbeing",
-    description: "Sustaining yourself over the long run.",
-    options: [ "Boundaries at work", "Recovering from burnout" ]
+    name: "Can we brainstorm solutions to a leadership dilemma I’m facing now?",
+    options: []
   }
 ]
 
 topics = topics_data.each_with_index.map do |attrs, index|
   topic = Topic.create!(
     name: attrs[:name],
-    description: attrs[:description],
     position: index
   )
 
@@ -104,7 +95,7 @@ topics = topics_data.each_with_index.map do |attrs, index|
   topic
 end
 
-leadership, career, mentorship, = topics
+jettison, big_issues, dilemma = topics
 
 # ——— An open cycle with responses that will match ———
 
@@ -123,11 +114,11 @@ fellows_cycle = MatchCycle.create!(
 
 CycleInvitationService.new(fellows_cycle).ensure_all!
 
-def record_response(cycle, member, topic, option_label, slot_times)
+def record_response(cycle, member, topic, slot_times, option_other: nil)
   response = cycle.match_responses.create!(
     member: member,
     topic: topic,
-    topic_option: topic.topic_options.find_by(label: option_label),
+    topic_option_other: option_other,
     time_zone: member.time_zone,
     slot_selections: slot_times.map do |slot_time|
       MeetingWindows.new(cycle, time_zone: member.time_zone).selection_for(slot_time)
@@ -138,16 +129,22 @@ def record_response(cycle, member, topic, option_label, slot_times)
   response
 end
 
-# Ava and Brianna share leadership + Monday 13:00 UTC.
-record_response(fellows_cycle, members[0], leadership, "Difficult conversations", [ slot_one, slot_two ])
-record_response(fellows_cycle, members[1], leadership, "Leading a team for the first time", [ slot_one ])
+# Ava and Brianna share jettison topic + Monday 13:00 UTC.
+record_response(fellows_cycle, members[0], jettison, [ slot_one, slot_two ])
+record_response(fellows_cycle, members[1], jettison, [ slot_one ])
 
-# Claire and Diana share career transitions + Tuesday 13:00 UTC.
-record_response(fellows_cycle, members[2], career, "Returning after a break", [ slot_two ])
-record_response(fellows_cycle, members[3], career, "Deciding whether to move", [ slot_two, slot_three ])
+# Claire and Diana share big issues + Tuesday 13:00 UTC.
+record_response(fellows_cycle, members[2], big_issues, [ slot_two ])
+record_response(fellows_cycle, members[3], big_issues, [ slot_two, slot_three ])
 
-# Elena picks a topic nobody else chose, so she stays unmatched.
-record_response(fellows_cycle, members[4], mentorship, "Finding a mentor", [ slot_three ])
+# Elena picks the dilemma topic (open text), so she stays unmatched alone.
+record_response(
+  fellows_cycle,
+  members[4],
+  dilemma,
+  [ slot_three ],
+  option_other: "How do I set direction without shutting down debate?"
+)
 
 explorers_cycle = MatchCycle.create!(
   group: explorers_circle,

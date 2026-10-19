@@ -12,7 +12,8 @@
   <%= form_with model: @feedback,
                 url: match_feedback_path(token: @feedback.token),
                 method: :patch,
-                local: true do |form| %>
+                local: true,
+                data: { controller: "topic-options" } do |form| %>
     <% if @feedback.errors.any? %>
       <div class="form-errors">
         <ul>
@@ -46,8 +47,27 @@
     <% if @topic.present? && @options.any? %>
       <div class="form-group">
         <%= form.label :topic_option_id, "You spoke about #{@topic.name}. Which one resonated most with you?" %>
-        <%= form.collection_select :topic_option_id, @options, :id, :label, include_blank: "Choose one" %>
+        <select name="match_feedback[topic_option_id]"
+                id="match_feedback_topic_option_id"
+                data-topic-options-target="optionSelect"
+                data-action="topic-options#optionChanged">
+          <option value="">Choose one</option>
+          <% @options.each do |option| %>
+            <option value="<%= option.id %>"
+                    data-other="<%= option.other? %>"
+                    <%= "selected" if @feedback.topic_option_id == option.id %>>
+              <%= option.other? ? "Other (what)" : option.label %>
+            </option>
+          <% end %>
+        </select>
         <p class="field-hint">This stays private — it is never shown to your match.</p>
+      </div>
+
+      <div class="form-group"
+           data-topic-options-target="otherField"
+           <%= "hidden" unless @feedback.topic_option&.other? %>>
+        <%= form.label :topic_option_other, "What resonated?" %>
+        <%= form.text_field :topic_option_other, maxlength: 500 %>
       </div>
     <% elsif @topic.present? %>
       <p class="muted">You spoke about <strong><%= @topic.name %></strong>.</p>

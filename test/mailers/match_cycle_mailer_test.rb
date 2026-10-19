@@ -17,6 +17,8 @@ class MatchCycleMailerTest < ActionMailer::TestCase
     assert_equal [ "alice@example.com" ], mail.to
     assert_match @invitation.token, decoded_parts(mail)
     assert_match "personal to you", decoded_parts(mail)
+    assert_equal "WE Match: A new round is open for you", mail.subject
+    assert_no_match @group.name, mail.subject
   end
 
   test "invitation dates use the full month name and year" do
@@ -40,11 +42,13 @@ class MatchCycleMailerTest < ActionMailer::TestCase
     mail = MatchCycleMailer.reminder(@invitation)
 
     assert_match @invitation.token, decoded_parts(mail)
-    assert_match "reminder", mail.subject
+    assert_equal "WE Match: A reminder — there's still time to join!", mail.subject
+    assert_no_match @group.name, mail.subject
+    assert_no_match @group.name, decoded_parts(mail)
   end
 
   test "the confirmation lists the topic and windows" do
-    topic = create_topic(name: "Leadership")
+    topic = create_topic(name: "Leadership", options: [ "Difficult conversations" ])
     window = window_at(@cycle, hour: 13)
     response = create_response(cycle: @cycle, member: @member, topic: topic, windows: [ window ], time_zone: "UTC")
 
@@ -52,8 +56,10 @@ class MatchCycleMailerTest < ActionMailer::TestCase
     body = decoded_parts(mail)
 
     assert_equal [ "alice@example.com" ], mail.to
-    assert_match "recorded your availability", mail.subject
+    assert_equal "WE Match: We've recorded your availability", mail.subject
+    assert_no_match @group.name, mail.subject
     assert_match "Leadership", body
+    assert_match "Window 1", body
     assert_match "Monday", body
     assert_match @invitation.token, body
   end
@@ -66,6 +72,25 @@ class MatchCycleMailerTest < ActionMailer::TestCase
     assert_match "Montserrat", html
     assert_match "WE Match", html
     assert_match "Women Emerging", html
+  end
+
+  test "invitation and reminder include unsubscribe footer and header" do
+    invitation = MatchCycleMailer.invitation(@invitation)
+    reminder = MatchCycleMailer.reminder(@invitation)
+
+    assert_match "Unsubscribe", decoded_parts(invitation)
+    assert_match "email-preferences", decoded_parts(invitation)
+    assert_includes invitation["List-Unsubscribe"].to_s, "email-preferences"
+
+    assert_match "Unsubscribe", decoded_parts(reminder)
+    assert_no_match "Unsubscribe", decoded_parts(MatchCycleMailer.response_confirmation(
+      create_response(
+        cycle: @cycle,
+        member: @member,
+        topic: create_topic(name: "Leadership", options: [ "Difficult conversations" ]),
+        windows: [ window_at(@cycle, hour: 13) ]
+      )
+    ))
   end
 
   private
