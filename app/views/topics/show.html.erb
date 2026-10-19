@@ -4,7 +4,6 @@
   <h1><%= @topic.name %></h1>
   <div class="actions">
     <%= link_to "Back to topics", topics_path, class: "btn btn-secondary" %>
-    <%= link_to "Add subtopic", new_topic_topic_option_path(@topic), class: "btn btn-primary" %>
   </div>
 </div>
 
@@ -17,30 +16,29 @@
     Counted in Reports, never shown in introduction emails.
   </p>
 
-  <% if @topic_options.any? %>
+  <% if @topic.collects_details_on_response? %>
+    <p class="muted">
+      This topic collects an open-text note when someone responds (their leadership dilemma).
+      There are no fixed subtopics.
+    </p>
+  <% elsif @topic_options.any? %>
     <table>
       <thead>
         <tr>
           <th>Subtopic</th>
           <th>Chosen</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
         <% @topic_options.each do |option| %>
           <tr>
-            <td><%= option.label %></td>
+            <td><%= option.other? ? "Other (what)" : option.label %></td>
             <td><%= @option_counts[option.id] || 0 %></td>
-            <td class="actions">
-              <%= link_to "Edit", edit_topic_topic_option_path(@topic, option), class: "btn btn-link" %>
-              <%= button_to "Remove", topic_topic_option_path(@topic, option), method: :delete,
-                    class: "btn btn-link", data: { turbo_confirm: "Remove this subtopic?" } %>
-            </td>
           </tr>
         <% end %>
       </tbody>
     </table>
   <% else %>
-    <p class="muted">No subtopics yet. People can still choose the topic without picking a specific angle.</p>
+    <p class="muted">No subtopics on this topic.</p>
   <% end %>
 </div>

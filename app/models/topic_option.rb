@@ -14,4 +14,8 @@ class TopicOption < ApplicationRecord
 
   scope :active, -> { where(active: true) }
   scope :ordered, -> { order(:position, :label) }
+
+  def other?
+    label.to_s.match?(/\Aother\b/i)
+  end
 end

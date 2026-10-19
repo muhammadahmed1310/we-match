@@ -1,16 +1,19 @@
-Hi <%= @member.name %>,
+Hi <%= @member.name.split.first %>,
 
-Thank you — we've recorded your availability for <%= @group.name %>. We're glad you're taking part.
+Thank you — we've recorded your availability to meet with another woman in your group. We're so glad you're taking part!
 
 Here's what you shared:
 - Topic: <%= @topic&.name || "—" %>
-<% @window_labels.each do |label| %>
-- Window: <%= label %>
+<% @window_labels.each_with_index do |label, index| %>
+- Window <%= index + 1 %>: <%= label %>
 <% end %>
 <% if @can_edit && @response_url.present? %>
 You can change your answers until the round closes:
 <%= @response_url %>
 <% end %>
-When matching runs, we'll introduce you by email if we find someone who chose the same topic and the same window. We hope it's a conversation you both enjoy.
+If someone chose the same topic and time as you, we'll introduce you by email and leave it to you to connect. We're certain it's a conversation you'll both enjoy.
 
-— WE Match
+After you have made your connection, let us know how it went!
+
+Love,
+— WE Team

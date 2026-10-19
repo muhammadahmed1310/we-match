@@ -1,25 +1,46 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Shows the option dropdown that belongs to the chosen topic and disables the rest
-// so only one topic_option_id is ever submitted.
+// Response form: show the open-text "details" field only for topics that collect it.
+// Feedback form: show the Other free-text field only when the Other option is selected.
 export default class extends Controller {
-  static targets = ["topic", "optionGroup", "optionSelect"]
+  static targets = ["topic", "details", "optionSelect", "otherField"]
 
   connect() {
-    this.topicChanged()
+    this.refresh()
+  }
+
+  refresh() {
+    this.toggleDetails()
+    this.toggleOther()
   }
 
   topicChanged() {
-    const selected = this.hasTopicTarget ? this.topicTarget.value : ""
+    this.toggleDetails()
+  }
 
-    this.optionGroupTargets.forEach((group) => {
-      const matches = group.dataset.topicId === selected
-      group.hidden = !matches
+  optionChanged() {
+    this.toggleOther()
+  }
 
-      group.querySelectorAll("select").forEach((select) => {
-        select.disabled = !matches
-        if (!matches) select.value = ""
-      })
-    })
+  toggleDetails() {
+    if (!this.hasDetailsTarget || !this.hasTopicTarget) return
+
+    const option = this.topicTarget.selectedOptions[0]
+    const needsDetails = option?.dataset?.collectsDetails === "true"
+    this.detailsTarget.hidden = !needsDetails
+
+    const input = this.detailsTarget.querySelector("textarea, input")
+    if (input && !needsDetails) input.value = ""
+  }
+
+  toggleOther() {
+    if (!this.hasOtherFieldTarget || !this.hasOptionSelectTarget) return
+
+    const option = this.optionSelectTarget.selectedOptions[0]
+    const isOther = option?.dataset?.other === "true"
+    this.otherFieldTarget.hidden = !isOther
+
+    const input = this.otherFieldTarget.querySelector("textarea, input")
+    if (input && !isOther) input.value = ""
   }
 }

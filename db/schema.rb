@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_22_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_19_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -110,6 +110,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_22_120000) do
     t.integer "send_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "topic_option_other"
     t.index ["match_id", "member_id"], name: "index_match_feedbacks_on_match_id_and_member_id", unique: true
     t.index ["match_id"], name: "index_match_feedbacks_on_match_id"
     t.index ["member_id"], name: "index_match_feedbacks_on_member_id"
@@ -155,6 +156,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_22_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "time_zone", default: "UTC", null: false
+    t.datetime "email_opted_out_at"
     t.index ["email"], name: "index_members_on_email", unique: true
   end
 

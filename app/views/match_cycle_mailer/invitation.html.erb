@@ -1,12 +1,10 @@
-<p>Hi <%= @member.name %>,</p>
+<p>Hi <%= @member.name.split.first %>,</p>
 
-<p>A new round of WE Match is open in <strong><%= @group.name %></strong>, and we'd love you to take part.</p>
+<p>A new round of WE Match is open for you and, if you have some time next week, we think you should join.</p>
 
-<p>Women Emerging brings women together so they can support one another and learn from each other — across generations, specialisms, and parts of the world. This round is a simple way to do that: one conversation with someone in your group.</p>
+<p>Through WE Match, Women Emerging brings women together so they can share and learn from each other — across generations, specialisms, beliefs, aspirations, and geographies. This round is a simple way to do that: one conversation with someone in your group.</p>
 
-<p>Your link below is personal to you. Please don't forward it.</p>
-
-<p>It takes about a minute. You'll choose:</p>
+<p>As usual, applying takes less than a minute. You'll choose:</p>
 <ul>
   <li>A topic you'd like to explore</li>
   <li>One or two 1-hour windows in the week of <%= @meeting_week.first.strftime("%B %-d, %Y") %>, shown in your own time zone</li>
@@ -14,12 +12,15 @@
 
 <p>
   <a href="<%= @response_url %>">Share your availability</a>
+  (your link is personal to you. Please don't forward it.)
 </p>
 
 <% if @closes_at.present? %>
   <p>Please respond by <%= @closes_at.strftime("%A, %B %-d, %Y, %H:%M UTC") %>.</p>
 <% end %>
 
-<p>We'll introduce you to someone in your group who chose the same topic and the same window.</p>
+<p>If someone in your group chose the same topic and the same window, we'll introduce you and leave you to make the connection.</p>
 
-<p>— WE Match</p>
+<p>Have a great week ahead!</p>
+
+<p>Love,<br>— WE Team</p>

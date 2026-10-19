@@ -1,13 +1,14 @@
 Hi <%= @member.name.split.first %>,
 
-It's been about a week since your WE Match conversation in <%= @group.name %><% if @partner.present? %> with <%= @partner.name %><% end %>. We hope it left you with something to carry forward.
+It's been about a week since your WE Match conversation<% if @partner.present? %> with <%= @partner.name %><% end %>. We hope it left you with something to carry forward.
 
-If you have a moment, we'd love a short reflection. It takes under a minute, and it helps us see how these conversations are supporting women to learn from one another.
+If you have a moment, we'd love a short reflection. It takes less than a minute to give your feedback, but it helps us understand how these conversations are supporting women to connect and learn from one another.
 
 Share your feedback: <%= @feedback_url %>
 <% if @topic.present? %>
-You were matched to talk about <%= @topic.name %>.
+As a reminder, you were matched to talk about <%= @topic.name %>.
 <% end %>
-Your answers stay private and are only used as aggregate insight for the WE Community.
+Don't worry, your answers stay private and are only used as aggregate insight. Thank you!
 
-— WE Match
+Love,
+— WE Team

@@ -1,1 +1,5 @@
 <%= yield %>
+<% if @show_unsubscribe && @email_preferences_url.present? %>
+
+Don't want invitations and reminders? Unsubscribe: <%= @email_preferences_url %>
+<% end %>

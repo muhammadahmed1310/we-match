@@ -16,7 +16,8 @@
   <%= form_with model: @match_response,
                 url: participant_response_path(token: @invitation.token),
                 method: :patch,
-                local: true do |form| %>
+                local: true,
+                data: { controller: "topic-options" } do |form| %>
     <% if @match_response.errors.any? %>
       <div class="form-errors">
         <ul>
@@ -37,7 +38,27 @@
 
     <div class="form-group">
       <%= form.label :topic_id, "What would you like to talk about?" %>
-      <%= form.collection_select :topic_id, @topics, :id, :name, prompt: "Choose a topic" %>
+      <select name="match_response[topic_id]"
+              id="match_response_topic_id"
+              data-topic-options-target="topic"
+              data-action="topic-options#topicChanged">
+        <option value="">Choose a topic</option>
+        <% @topics.each do |topic| %>
+          <option value="<%= topic.id %>"
+                  data-collects-details="<%= topic.collects_details_on_response? %>"
+                  <%= "selected" if @match_response.topic_id == topic.id %>>
+            <%= topic.name %>
+          </option>
+        <% end %>
+      </select>
+    </div>
+
+    <div class="form-group"
+         data-topic-options-target="details"
+         <%= "hidden" unless @match_response.topic&.collects_details_on_response? %>>
+      <%= form.label :topic_option_other, "Briefly describe the dilemma you'd like to brainstorm" %>
+      <%= form.text_area :topic_option_other, rows: 3, maxlength: 500 %>
+      <p class="field-hint">This stays private — it is never shown to your match.</p>
     </div>
 
     <fieldset class="form-group slot-picker">

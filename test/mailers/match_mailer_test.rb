@@ -45,6 +45,9 @@ class MatchMailerTest < ActionMailer::TestCase
     mail = MatchMailer.introduction(@match)
 
     assert_match(/Reply all/i, body(mail))
+    assert_equal "WE Match: You've been matched for a conversation", mail.subject
+    assert_no_match @group.name, mail.subject
+    assert_no_match @group.name, body(mail)
   end
 
   test "never reveals the topic option either person chose" do

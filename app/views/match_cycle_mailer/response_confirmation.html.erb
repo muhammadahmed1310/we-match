@@ -1,12 +1,12 @@
-<p>Hi <%= @member.name %>,</p>
+<p>Hi <%= @member.name.split.first %>,</p>
 
-<p>Thank you — we've recorded your availability for <strong><%= @group.name %></strong>. We're glad you're taking part.</p>
+<p>Thank you — we've recorded your availability to meet with another woman in your group. We're so glad you're taking part!</p>
 
 <p>Here's what you shared:</p>
 <ul>
   <li><strong>Topic:</strong> <%= @topic&.name || "—" %></li>
-  <% @window_labels.each do |label| %>
-    <li><strong>Window:</strong> <%= label %></li>
+  <% @window_labels.each_with_index do |label, index| %>
+    <li><strong>Window <%= index + 1 %>:</strong> <%= label %></li>
   <% end %>
 </ul>
 
@@ -17,6 +17,8 @@
   </p>
 <% end %>
 
-<p>When matching runs, we'll introduce you by email if we find someone who chose the same topic and the same window. We hope it's a conversation you both enjoy.</p>
+<p>If someone chose the same topic and time as you, we'll introduce you by email and leave it to you to connect. We're certain it's a conversation you'll both enjoy.</p>
 
-<p>— WE Match</p>
+<p>After you have made your connection, let us know how it went!</p>
+
+<p>Love,<br>— WE Team</p>

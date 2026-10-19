@@ -122,16 +122,29 @@ class MatchResponseTest < ActiveSupport::TestCase
     refute duplicate.valid?
   end
 
-  test "insight label prefers free text over the chosen option" do
+  test "insight label uses free text for open-text topics" do
+    dilemma = create_topic(name: "Can we brainstorm solutions to a leadership dilemma I’m facing now?")
     response = create_response(
       cycle: @cycle,
       member: @member,
-      topic: @topic,
+      topic: dilemma,
       windows: [ @window ],
-      option: @topic.topic_options.first,
       option_other: "Something in my own words"
     )
 
     assert_equal "Something in my own words", response.insight_label
+  end
+
+  test "open-text topics require a short note" do
+    dilemma = create_topic(name: "Can we brainstorm solutions to a leadership dilemma I’m facing now?")
+    response = MatchResponse.new(
+      match_cycle: @cycle,
+      member: @member,
+      topic: dilemma,
+      slot_selections: [ selection_for(@cycle, @window) ]
+    )
+
+    refute response.valid?
+    assert_includes response.errors[:topic_option_other].join, "describe the dilemma"
   end
 end

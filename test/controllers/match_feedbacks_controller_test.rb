@@ -47,6 +47,33 @@ class MatchFeedbackFlowTest < ActionDispatch::IntegrationTest
     assert_equal "Good girl syndrome", @feedback.insight_label
   end
 
+  test "choosing Other requires a short free-text answer" do
+    other = @topic.topic_options.create!(label: "Other", position: 2, active: true)
+
+    patch match_feedback_path(token: @feedback.token), params: {
+      match_feedback: {
+        did_meet: true,
+        value_for_time: 4,
+        topic_option_id: other.id,
+        topic_option_other: ""
+      }
+    }
+
+    assert_response :unprocessable_entity
+
+    patch match_feedback_path(token: @feedback.token), params: {
+      match_feedback: {
+        did_meet: true,
+        value_for_time: 4,
+        topic_option_id: other.id,
+        topic_option_other: "Letting go of over-preparing"
+      }
+    }
+
+    assert_redirected_to match_feedback_confirmation_path(token: @feedback.token)
+    assert_equal "Other — Letting go of over-preparing", @feedback.reload.insight_label
+  end
+
   test "not meeting clears value and subtopic requirements" do
     patch match_feedback_path(token: @feedback.token), params: {
       match_feedback: {

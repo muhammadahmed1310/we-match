@@ -23,6 +23,7 @@ own. You do not need to create a match cycle for every round.
 | Day | What happens |
 |-----|----------------|
 | **Monday** | A new cycle opens. Invitation emails go out with each person’s private link. |
+| **When she submits** | She gets a confirmation email with the topic and windows she chose. She can change them until Thursday. |
 | **Wednesday** | Reminder emails go to people who have not responded yet. |
 | **Thursday evening** | Responses close. |
 | **Friday morning** | Matching runs. Introduction emails go to each pair. |
@@ -98,8 +99,15 @@ exist yet**.
 People are matched on email, so re-importing a corrected file updates the same people
 rather than creating duplicates.
 
-External sign-up (name, email, timezone) happens outside WE Match. You bring those people
-in through **Users** or Excel import.
+### Sign-up link
+
+Each group has its own **Sign-up link** on the group page. Share that link (there is a
+**Copy link** button). She enters her name, email, and time zone, and ticks **I have
+read & agreed the WE Match privacy notice**. The words “WE Match privacy notice” open
+the notice. She cannot join until that box is ticked. The next screen says **You're
+in**. When the next round opens, she gets the invitation email.
+
+You can still add people yourself under **Users → Add person**, or with **Import Excel**.
 
 ---
 
@@ -185,6 +193,27 @@ feedback link. The form asks:
 Unmatched people are not asked for feedback.
 
 Submitted answers feed the cycle **Report** (who met, average value, what resonated).
+
+---
+
+## Emails people receive
+
+Five emails, from **WE Match (match@womenemerging.org)**. Dates in the emails use the
+full month name and year. You can read the current wording at
+https://match.womenemerging.org/rails/mailers
+
+| Email | When | Subject |
+|-------|------|---------|
+| Invitation | Monday, when the round opens | WE Match: You're invited to connect in [group] |
+| Reminder | Wednesday, if she has not responded | WE Match: A reminder — there's still time in [group] |
+| Confirmation | As soon as she submits | WE Match: We've recorded your availability for [group] |
+| Introduction | Friday, to each matched pair | WE Match: You've been matched for a conversation in [group] |
+| Feedback | One week after the introduction | WE Match: How was your conversation with [name]? |
+
+The invitation says why this exists: Women Emerging brings women together so they can
+support one another and learn from each other — across generations, specialisms, and
+parts of the world. Her link is personal to her; she should not forward it. The
+introduction asks the pair to hit **Reply all**, say hello, and agree how they will meet.
 
 ---
 
